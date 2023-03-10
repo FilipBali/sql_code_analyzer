@@ -1,0 +1,3 @@
+
+def alter_database():
+    ...
