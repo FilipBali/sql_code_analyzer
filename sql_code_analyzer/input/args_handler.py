@@ -8,46 +8,40 @@ import re
 from test_cases.sqlglot.tester import run_tests
 
 
-@dataclass
 class CArgs:
     """
     TODO description
     """
+
+    def __init__(self):
+        args = parse_args()
+        process_args(self, args)
+
+        # run tests
+        if self.tests:
+            run_tests()
+            exit(0)
+
+        if self.file:
+            # load sql from file
+            with open(self.file, 'r') as file:
+                self.raw_sql = file.read()
+
+        else:
+            # check stdin
+            print("Enter target SQL:")
+            self.raw_sql = stdin.read()
+
+        parse_raw_sql_to_statement(self)
+
     dialect: str = ""
     file: str = ""
     tests: bool = False
     raw_sql: str = ""
-    statements:  list = field(default_factory=list)
-
-
-def manager_args() -> CArgs:
-    """
-    TODO description
-    :return:
-    """
-    # get program args
-    args = parse_args()
-    args_data = process_args(args)
-
-    # run tests
-    if args_data.tests:
-        run_tests()
-        exit(0)
-
-    if args_data.file:
-        # load sql from file
-
-        with open(args_data.file, 'r') as file:
-            args_data.raw_sql = file.read()
-
-    else:
-        # check stdin
-        print("Enter target SQL:")
-        args_data.raw_sql = stdin.read()
-
-    parse_raw_sql_to_statement(args_data)
-
-    return args_data
+    statements:  list = []
+    path_to_rules_folder: str = None
+    include_folders: list = []
+    exclude_folders: list = []
 
 
 def parse_raw_sql_to_statement(args_data):
@@ -123,10 +117,39 @@ def parse_args() -> argparse:
                         action='store_true',
                         required=False,
                         help="Run tests.")
+
+    parser.add_argument("-p", "--rules-path",
+                        type=str,
+                        required=False,
+                        help="Specify folder with rules. If not set then default is "
+                             "..\\sql_code_analyzer\\checker\\rules",
+                        default=None)
+
+    parser.add_argument("-if", "--include-folders",
+                        nargs='+',
+                        type=str,
+                        required=False,
+                        help="Specify folder names with rules which should be included in rules path. "
+                             "Parameters --include-folders and --exclude-folders "
+                             "are mutually exclusive and only one of them can be set. "
+                             "Accepted format: -if folder1 folder2 folderN",
+                        default=[])
+
+    parser.add_argument("-ef", "--exclude-folders",
+                        nargs='+',
+                        type=str,
+                        required=False,
+                        help="Specify folder names with rules which should NOT be included in rules path. "
+                             "Parameters --include-folders and --exclude-folders "
+                             "are mutually exclusive and only one of them can be set. "
+                             "Accepted format: -ef folder1 folder2 folderN",
+                        default=[])
+
     parser.add_argument("-d", "--dialect",
                         metavar="",
                         required=False,
                         help="Expect target dialect.")
+
     parser.add_argument("-f", "--file",
                         type=str,
                         metavar="",
@@ -156,7 +179,7 @@ def get_sql_from_source(file):
         return stdin.read()
 
 
-def process_args(args: argparse) -> CArgs:
+def process_args(self, args: argparse):
     """
     TODO description
     :return:
@@ -189,9 +212,10 @@ def process_args(args: argparse) -> CArgs:
             else:
                 break
 
-    return CArgs(
-        dialect=args.dialect,
-        file=args.file,
-        tests=args.tests,
-        raw_sql=get_sql_from_source(args.file),
-    )
+    self.dialect = args.dialect
+    self.file = args.file
+    self.tests = args.tests
+    self.raw_sql = get_sql_from_source(args.file)
+    self.path_to_rules_folder = args.rules_path
+    self.include_folders = args.include_folders
+    self.exclude_folders = args.exclude_folders
