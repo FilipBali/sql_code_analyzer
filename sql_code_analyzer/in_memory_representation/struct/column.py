@@ -1,3 +1,27 @@
+#######################################
+# File name: column.py
+# Author: Filip Bali
+# Purpose: Column class represents database column in table
+#
+# Key features:
+#     Column:
+#        Stores: column name, datatype, constrains, related table
+#
+#        Methods:
+#           Private:
+#               __add_column_to_table(self) -> None
+#
+#           Public:
+#               add_constrain(self, constrain: Constrain) -> None
+#               delete_constrain(self, constrain_type: Constrain) -> None
+#
+#               delete_column(self) -> None:
+#
+#        TODO: Manage datatype, change column name,
+#
+#
+#######################################
+
 from __future__ import annotations
 
 from sql_code_analyzer.in_memory_representation.struct.base import Base
@@ -5,7 +29,7 @@ from sqlglot import expressions as exp
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from sql_code_analyzer.in_memory_representation.struct.constrain import PrimaryKey
+    from sql_code_analyzer.in_memory_representation.struct.constrain import Constrain
     from sql_code_analyzer.in_memory_representation.struct.table import Table
     from sql_code_analyzer.in_memory_representation.struct.datatype import Datatype
 
@@ -15,38 +39,36 @@ class Column(Base):
     TODO Column Description
     Description
     """
+
+    ###################################
+    #          CLASS PROPERTIES
+    ###################################
+    name: str = None
+    datatype: Datatype = None
+    table: Table = None
+    constrains: list = []
+
+    ###################################
+    #              INIT
+    ###################################
     def __init__(self,
                  name: str,
                  datatype: Datatype,
+                 constrains: [Constrain],
                  table: Table,
-                 constrains,
-                 primary_key=None,
-                 foreign_key=None,
-                 unique=None
                  ):
         """
         TODO Description
         :param name:
         :param datatype:
-        :param table:
         :param constrains:
-        :param primary_key:
-        :param foreign_key:
-        :param unique:
+        :param table:
         """
         self.name = name
         self.datatype = datatype
-        self.table = table
         self.constrains = constrains
-
-        if primary_key is not None:
-            self.primary_key = primary_key
-
-        if foreign_key is not None:
-            self.foreign_key = foreign_key
-
-        if unique is not None:
-            self.unique = unique
+        self.table = table
+        self.__add_column_to_table()
 
     def __repr__(self):
         """
@@ -55,28 +77,51 @@ class Column(Base):
         """
         return repr("Column "+str(self.name)+" "+str(self.datatype))
 
-    name: str = None
-    datatype: Datatype = None
-    table: Table = None
-    constrains: list = []
+    ##################################################
+    #                  PRIVATE METHODS
+    ##################################################
+    #########################
+    #          ADD
+    #########################
+    def __add_column_to_table(self) -> None:
+        # Check if not already exists
+        if self.table.check_if_column_exists(self.name):
+            raise "Column already exists"
 
-    primary_key: bool = False
-    foreign_key: bool = False
-    unique: bool = False
+        self.table.columns[self.name] = self
+        self.table.database.index_registration(key=(self.table.schema.name, self.table.name, self.name),
+                                         reg_object=self)
 
-    def set_primary_key(self, bool_val: bool, constr_pk: PrimaryKey):
-        self.primary_key = bool_val
-        self.constrains.append(constr_pk)
+    ##################################################
+    #                 PUBLIC METHODS
+    ##################################################
+    #########################
+    #      CONSTRAIN
+    #########################
 
-    def set_foreign_key(self, bool_val: bool):
-        self.foreign_key = bool_val
-
-    def set_unique_key(self, bool_val: bool):
-        self.unique = bool_val
-
-    def add_constrain(self, constrain) -> None:
-        # Pridaj obmedzenie
+    def add_constrain(self, constrain: Constrain) -> None:
+        # TODO skontroluj ci dany typ contrainu uz neexistuje
         self.constrains.append(constrain)
+
+    def delete_constrain(self, constrain_type: Constrain) -> None:
+        # TODO skontroluj ci dany constrain existuje, potom vymaz
+        pass
+
+    #########################
+    #         DELETE
+    #########################
+    def delete_column(self) -> None:
+        """
+
+        :return:
+        """
+        # Check if column is not part of composite primary key
+        if self.table.primary_key.composite:
+            if self in self.table.primary_key.columns:
+                raise "Error: Column to delete is part of primary key"
+
+        self.table.database.index_cancel_registration(key=(self.table.schema.name, self.table.name, self.name))
+        del self.table.columns[self.name]
 
 
 #####################################
@@ -103,4 +148,3 @@ column_constrains_list = (
         exp.UniqueColumnConstraint,
         exp.UppercaseColumnConstraint,
         exp.PathColumnConstraint)
-

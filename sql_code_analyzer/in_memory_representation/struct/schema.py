@@ -1,3 +1,27 @@
+#######################################
+# File name: schema.py
+# Author: Filip Bali
+# Purpose: Schema class represents database schema
+#
+# Key features:
+#     Schema:
+#        Stores: schema name, tables, related database
+#
+#        Methods:
+#           Private:
+#               __add_schema_to_database(self) -> None
+#
+#           Public:
+#               check_if_table_exists(self, table) -> bool
+#
+#               delete_schema(self) -> None
+#
+#
+#        TODO: change schema name
+#
+#
+#######################################
+
 from __future__ import annotations
 
 from sql_code_analyzer.in_memory_representation.struct.base import Base
@@ -13,13 +37,15 @@ class Schema(Base):
     """
 
     ###################################
-    #             INIT
+    #          CLASS PROPERTIES
     ###################################
-
     name: str = ""
     tables: dict = {}
     database: Database = None
 
+    ###################################
+    #              INIT
+    ###################################
     def __init__(self,
                  database: Database,
                  schema_name: str):
@@ -32,26 +58,13 @@ class Schema(Base):
         self.tables = {}
         self.database = database
         self.__add_schema_to_database()
-        ...
-    ###################################
-    #             CHECKS
-    ###################################
 
-    def check_if_table_exists(self, table) -> bool:
-        """
-        TODO description
-        :param table:
-        :return:
-        """
-        if not isinstance(table, str):
-            table = table.name
-
-        return self.check_if_exists(find_attr_val=table,
-                                    struct=self.tables)
-
-    ###################################
-    #              ADD
-    ###################################
+    ##################################################
+    #                  PRIVATE METHODS
+    ##################################################
+    #########################
+    #          ADD
+    #########################
     def __add_schema_to_database(self) -> None:
         """
         TODO description
@@ -64,23 +77,27 @@ class Schema(Base):
         self.database.index_registration(key=self.name,
                                          reg_object=self)
 
-    def add_table(self, table) -> None:
+    ##################################################
+    #                  PUBLIC METHODS
+    ##################################################
+    #########################
+    #         CHECKS
+    #########################
+    def check_if_table_exists(self, table) -> bool:
         """
         TODO description
         :param table:
-        :return: None
+        :return:
         """
-        # Check if already exists
-        if self.check_if_table_exists(table):
-            raise "Table already exists"
+        if not isinstance(table, str):
+            table = table.name
 
-        self.tables[table.name] = table
-        self.database.index_registration(key=(self.name, table.name),
-                                         reg_object=table)
+        return self.check_if_exists(find_attr_val=table,
+                                    struct=self.tables)
 
-    ###################################
-    #             DELETE
-    ###################################
+    #########################
+    #         DELETE
+    #########################
     def delete_schema(self) -> None:
         """
         TODO description
@@ -89,5 +106,3 @@ class Schema(Base):
         # TODO error ak je tabulka?
         del self.database.schemas[self.name]
         self.database.index_cancel_registration(key=self.name)
-
-

@@ -1,6 +1,40 @@
-from __future__ import annotations
+#######################################
+# File name: database.py
+# Author: Filip Bali
+# Purpose: Database class represents instance of database
+#
+# Key features:
+#     Database:
+#        Stores: database name, schemas
+#                index with points to every object in database providing shortcuts
+#
+#        Methods:
+#           Private:
+#               __add_schema_to_database(self) -> None
+#
+#           Public:
+#               set_default_scheme(self) -> Database
+#
+#               index_registration(self, key, reg_object) -> None
+#               index_cancel_registration(self, key) -> None
+#               get_indexed_object(self, index_key)
+#
+#               check_if_schema_exists_bool(self, target_schema_name) -> bool
+#
+#               get_schema_by_name_or_error(self, schema_name: str) -> Schema
+#               get_or_create_schema(self, database, schema_name) -> Schema
+#               get_table_by_name_or_error(self, schema_name, table_name: str) -> Table
+#               get_or_create_table(self, database, schema_name, table_name) -> Table
+#
+#               load_deserialization_path(self, deserialization_path: str)
+#               get_or_create_table(self, database, schema_name, table_name)
+#
+#        TODO:
+#
+#######################################
 
-import json
+
+from __future__ import annotations
 
 from sql_code_analyzer.in_memory_representation.struct.base import Base
 from sql_code_analyzer.in_memory_representation.struct.table import Table
@@ -14,15 +48,19 @@ class Database(Base):
     """
     TODO description
     """
+
+    ###################################
+    #          CLASS PROPERTIES
+    ###################################
     name: str = None
     schemas: dict = {}
     object_index: dict = {}
 
-    ###########################
-    #         DB INIT
-    ###########################
+    ###################################
+    #              INIT
+    ###################################
     def __init__(self,
-                 db_name: str):
+                 db_name: str = ""):
         """
         TODO description
         :param db_name:
@@ -32,16 +70,17 @@ class Database(Base):
         self.schemas = {}
         self.object_index = {}
 
-    @staticmethod
-    def init_memory_representation(db_name: str = "MemoryDB") -> Database:
-        """
-        Create memory representation
-        :param db_name: Database name
-        :return: Object of memory representation
-        """
+    ##################################################
+    #                  PRIVATE METHODS
+    ##################################################
 
-        return Database(db_name=db_name)
+    ##################################################
+    #                  PUBLIC METHODS
+    ##################################################
 
+    #########################
+    #        INTERNAL
+    #########################
     def set_default_scheme(self) -> Database:
         """
         TODO description
@@ -57,7 +96,7 @@ class Database(Base):
         return self
 
     ###########################
-    #    DB INTERNAL INDEX
+    #          INDEX
     ###########################
     def index_registration(self, key, reg_object) -> None:
         """
@@ -121,27 +160,6 @@ class Database(Base):
         for reg in to_delete:
             self.object_index.pop(reg)
 
-    ######################################################
-    #                DB MANIPULATION API
-    ######################################################
-
-    ###########################
-    #       DB CHECKS
-    ###########################
-
-    def check_if_schema_exists_bool(self, target_schema_name) -> bool:
-        """
-        TODO description
-        :param target_schema_name:
-        :return:
-        """
-
-        return self.check_if_exists(target_schema_name, self.schemas)
-
-    ###########################
-    #        DB INDEX
-    ###########################
-
     def get_indexed_object(self, index_key):
         """
         TODO description
@@ -154,7 +172,19 @@ class Database(Base):
             raise "Error: Item in indexed objects not exists."
 
     ###########################
-    #       DB GETTERS
+    #         CHECKS
+    ###########################
+    def check_if_schema_exists_bool(self, target_schema_name) -> bool:
+        """
+        TODO description
+        :param target_schema_name:
+        :return:
+        """
+
+        return self.check_if_exists(target_schema_name, self.schemas)
+
+    ###########################
+    #   SCHEMA MANIPULATION
     ###########################
     def get_schema_by_name_or_error(self, schema_name: str) -> Schema:
         """
@@ -172,6 +202,23 @@ class Database(Base):
                                                      )
         return schema_instance
 
+    def get_or_create_schema(self, database, schema_name) -> Schema:
+        """
+        Get schema from database if already exists there, or it will be created
+        :param database:
+        :param schema_name: Schema name
+        :return: Schema object
+        """
+        instance = self.get_instance_or_none(find_attr_val=schema_name,
+                                             find_in_struct=self.schemas
+                                             )
+        if instance is not None:
+            return instance
+        return Schema(database, schema_name)
+
+    ###########################
+    #    TABLE MANIPULATION
+    ###########################
     def get_table_by_name_or_error(self, schema_name, table_name: str) -> Table:
         """
         TODO description
@@ -188,25 +235,12 @@ class Database(Base):
                                                     )
         return table_instance
 
-    def get_or_create_schema(self, database, schema_name) -> Schema:
-        """
-        Get schema from database if already exists there, or it will be created
-        :param database:
-        :param target_schema_name: Schema name
-        :return: Schema object
-        """
-        instance = self.get_instance_or_none(find_attr_val=schema_name,
-                                             find_in_struct=self.schemas
-                                             )
-        if instance is not None:
-            return instance
-        return Schema(database, schema_name)
-
-    def get_or_create_table(self, database, schema_name, table_name):
+    def get_or_create_table(self, database, schema_name, table_name) -> Table:
         """
         Get table from database if already exists there, or it will be created
-        :param target_schema_name: Schema name
-        :param target_table_name: Table name
+        :param database:
+        :param schema_name: Schema name
+        :param table_name: Table name
         :return: Table object
         """
 
@@ -221,27 +255,16 @@ class Database(Base):
         if table_instance is not None:
             return table_instance
         return Table(database=database,
-                     name=table_name,
-                     schema=schema_instance)
+                     schema=schema_instance,
+                     name=table_name)
 
     ###########################
-    #         DB ADD
+    #   BACKUP SERIALIZATION
     ###########################
+    def load_deserialization_path(self, deserialization_path: str):
+        # TODO
+        pass
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def serialize_and_save(self, serialization_path: str):
+        # TODO
+        pass

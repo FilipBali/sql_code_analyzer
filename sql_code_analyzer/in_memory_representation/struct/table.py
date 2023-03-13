@@ -1,10 +1,40 @@
+#######################################
+# File name: table.py
+# Author: Filip Bali
+# Purpose: Table class represents database table
+#
+# Key features:
+#     Table:
+#        Stores: table name, columns, table level constrains(foreign key, check constrain etc.)
+#                primary key, related schema and database
+#
+#        Methods:
+#           Private:
+#               __add_table_to_schema(self) -> None
+#
+#           Public:
+#               check_if_column_exists(self, column_name) -> bool
+#
+#               add_primary_key(self, primary_key: PrimaryKey) -> None
+#               delete_primary_key(self) -> None
+#
+#               delete_table(self) -> None
+#
+#
+#        TODO: change table name, add constrain, delete constrain
+#
+#
+#######################################
+
 from __future__ import annotations
 
 from sql_code_analyzer.in_memory_representation.struct.base import Base
 
 from typing import TYPE_CHECKING
+
+
 if TYPE_CHECKING:
-    from sql_code_analyzer.in_memory_representation.struct.column import Column
+    from sql_code_analyzer.in_memory_representation.struct.constrain import PrimaryKey
     from sql_code_analyzer.in_memory_representation.struct.database import Database
     from sql_code_analyzer.in_memory_representation.struct.schema import Schema
 
@@ -14,7 +44,9 @@ class Table(Base):
     TODO Table Description
     Description
     """
-
+    ###################################
+    #          CLASS PROPERTIES
+    ###################################
     # Table name
     name: str = None
 
@@ -30,6 +62,11 @@ class Table(Base):
     # Table constrains (which affect whole table like CheckConstrain or ForeignKey)
     constrains: dict = []
 
+    primary_key: PrimaryKey | None = None
+
+    ###################################
+    #              INIT
+    ###################################
     def __init__(self,
                  name: str,
                  schema: Schema,
@@ -44,7 +81,9 @@ class Table(Base):
         self.schema: Schema = schema
         self.database: Database = database
         self.columns: dict = {}
+        self.primary_key: PrimaryKey | None = None
         self.constrains: dict = {}
+        self.__add_table_to_schema()
 
     def __repr__(self):
         """
@@ -53,10 +92,26 @@ class Table(Base):
         """
         return self.name
 
-    ###################################
-    #             CHECK
-    ###################################
+    ##################################################
+    #                  PRIVATE METHODS
+    ##################################################
+    #########################
+    #          ADD
+    #########################
+    def __add_table_to_schema(self) -> None:
+        if self.schema.check_if_table_exists(table=self):
+            raise "Table already exists"
 
+        self.schema.tables[self.name] = self
+        self.schema.database.index_registration(key=(self.name, self.name),
+                                                reg_object=self)
+
+    ##################################################
+    #                  PUBLIC METHODS
+    ##################################################
+    #########################
+    #         CHECKS
+    #########################
     def check_if_column_exists(self, column_name) -> bool:
         """
         TODO description check_if_column_exists
@@ -67,33 +122,24 @@ class Table(Base):
         return self.check_if_exists(find_attr_val=column_name,
                                     struct=self.columns)
 
-    ###################################
-    #              ADD
-    ###################################
+    #########################
+    #          ADD
+    #########################
+    def add_primary_key(self, primary_key: PrimaryKey) -> None:
+        if self.primary_key is not None:
+            raise "Error: Primary key already exists"
 
-    def add_column(self, new_column: Column) -> None:
-        """
-        TODO description add_column
-        :param new_column:
-        :return:
-        """
+        self.primary_key = primary_key
 
-        # Check if not already exists
-        if self.check_if_column_exists(new_column.name):
-            raise "Column already exists"
+    def delete_primary_key(self) -> None:
+        self.primary_key = None
 
-        self.columns[new_column.name] = new_column
-        self.database.index_registration(key=(self.schema.name, self.name, new_column.name),
-                                         reg_object=new_column)
-
-    ###################################
-    #             DELETE
-    ###################################
+    #########################
+    #         DELETE
+    #########################
     def delete_table(self) -> None:
         """
         TODO Description
-        :param schema:
-        :param table:
         :return:
         """
 
@@ -102,5 +148,3 @@ class Table(Base):
 
         self.database.index_cancel_registration(key=(self.schema.name, self.name))
         del self.schema.tables[self.name]
-
-

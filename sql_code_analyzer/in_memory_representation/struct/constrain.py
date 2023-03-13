@@ -29,7 +29,6 @@ class Constrain(Base):
         setattr(self, attr, val)
 
     name: str = None
-    node = None
 
 
 class PreventNotNull(Constrain):
@@ -50,20 +49,19 @@ class PreventNotNull(Constrain):
 
 
 class PrimaryKey(Constrain):
-    """
-    TODO Description
-    """
-    def __init__(self, column: Column | None, name=None):
-        """
-        TODO Description
-        :param column:
-        :param name:
-        """
-        self.set_name(name)
 
-        self.column = column
+    def __init__(self, columns: list):
+        if len(columns) > 1:
+            self.composite = True
 
-    column: Column = None
+            # TODO set COLUMN UNIQUE if not already
+            # TODO set COLUMN NOT NULL if not already
+            # TODO pri vymazavani not null alebo unique pozri ci neni samostatny primary key !!
+
+        self.columns = columns
+
+    columns: list = None
+    composite: bool = False
 
 
 class ForeignKey(Constrain):
@@ -123,7 +121,7 @@ class UniqueValue(Constrain):
     """
     TODO Description
     """
-    def __init__(self, column: Column, name=None):
+    def __init__(self, column: Column, primary_key=False, name=None):
         """
         TODO Description
         :param column:
@@ -131,8 +129,13 @@ class UniqueValue(Constrain):
         """
         self.set_name(name)
         self.column = column
+        self.primary_key = primary_key
+
+        if self.primary_key:
+            self.column.constrains.append(PreventNotNull(column=self.column))
 
     column: Column = None
+    primary_key: bool = False
 
 
 class DefaultValue(Constrain):
