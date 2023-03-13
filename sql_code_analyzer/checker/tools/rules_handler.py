@@ -7,7 +7,7 @@ class CRules:
 
     path_to_rules_folder: str = ""
 
-    # Paths with rules
+    # paths with rules
     paths: list = []
 
     # if both empty, take all rules
@@ -32,7 +32,7 @@ class CRules:
         if len(self.include_folders) > 0 and len(self.exclude_folders) > 0:
             raise "Error: Forbidden parameter combination. Both include and exclude folders are set."
 
-        # Get all paths
+        # get all paths
         t_paths = list(glob.glob(self.path_to_rules_folder + "\\**\\*.py", recursive=True))
 
         # TODO \\ for Windows-based system, todo for Linux-based systems
