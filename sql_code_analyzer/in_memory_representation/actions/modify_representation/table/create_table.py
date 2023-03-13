@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from sql_code_analyzer.in_memory_representation.struct.column import Column, column_constrains_list
-from sql_code_analyzer.in_memory_representation.struct.constrain import CheckExpression, PrimaryKey, \
-    PreventNotNull, UniqueValue, DefaultValue, ForeignKey
+from sql_code_analyzer.in_memory_representation.struct.constrain import CheckExpression, \
+    PreventNotNull, UniqueValue, DefaultValue, ForeignKey, PrimaryKey
 from sql_code_analyzer.in_memory_representation.struct.datatype import Datatype
 
 from sql_code_analyzer.in_memory_representation.tool.ast_manipulation import get_next_node, skip_lower_nodes
@@ -11,6 +11,7 @@ from sqlglot import expressions as exp
 from queue import Queue
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.table import Table
     from sql_code_analyzer.in_memory_representation.struct.schema import Schema
@@ -31,7 +32,7 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
         ref_table: Table | None = None
         ref_columns: list = []
 
-        while 1:
+        while 1 and stop_parse is not True:
             node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
                                                     ast_generator=ast_generator)
 
@@ -41,11 +42,12 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
                 column_fk: Column = mem_rep.get_indexed_object(index_key=(schema.name,
                                                                           table.name,
                                                                           node.name))
-                column_fk.set_foreign_key(True)
+                # SET foreing key pri vytvarani
+                # column_fk.set_foreign_key()
                 fk_columns.append(column_fk)
 
             elif isinstance(node, exp.Reference):
-                while 1:
+                while 1 and stop_parse is not True:
                     node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
                                                             ast_generator=ast_generator)
 
@@ -82,14 +84,13 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
     #################################
     # Variables as temporary memory
     #################################
-    schema: Schema = None
-    table: Table = None
+    schema: Schema | None = None
+    table: Table | None = None
 
     stop_parse = False
     while 1 and stop_parse is not True:
         node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
                                                 ast_generator=ast_generator)
-        node_root = node
 
         if isinstance(node, exp.Create):
             ###############################
@@ -122,10 +123,9 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
             ###############################
             column_name = ""
             column_type = ""
-            column_datatype = None
             constrains = []
-            node_col = node
-            while 1:
+            primary_key: bool = False
+            while 1 and stop_parse is not True:
                 node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
                                                         ast_generator=ast_generator)
                 if isinstance(node, exp.Identifier):
@@ -143,41 +143,51 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
                     node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
                                                             ast_generator=ast_generator)
                     if isinstance(node, exp.Literal):
-                        #################################
+                        ##################################
                         # Node layer: DATATYPE -> LITERAL
-                        #################################
+                        ##################################
                         column_datatype_value = node.name
-                        column_type = Datatype(column_datatype, column_datatype_value)
+                        column_type = Datatype(column_datatype=column_datatype,
+                                               value=column_datatype_value)
                     else:
-                        column_type = Datatype(column_datatype)
+                        column_type = Datatype(column_datatype=column_datatype)
                         visited_nodes.put(nodes)
 
                 elif isinstance(node, exp.ColumnConstraint):
-                    ##################################
-                    # Node layer: COLUMN -> CONSTRAIN
-                    ##################################
+                    #########################################
+                    # Node layer: COLUMN -> COLUMN CONSTRAIN
+                    #########################################
                     context_layer_node_depth = node.depth
 
                     node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
                                                             ast_generator=ast_generator)
 
                     if isinstance(node, exp.NotNullColumnConstraint):
-                        constrains.append((PreventNotNull(None), "column"))
+                        ###########################################
+                        # Node layer: COLUMN CONSTRAIN -> Not Null
+                        ###########################################
+                        constrains.append((PreventNotNull(column=None), "column"))
 
                     elif isinstance(node, exp.PrimaryKeyColumnConstraint):
-                        constrains.append((PrimaryKey(column=None), "column"))
+                        ##############################################
+                        # Node layer: COLUMN CONSTRAIN -> Primary key
+                        ##############################################
+                        primary_key = True
 
                     elif isinstance(node, exp.DefaultColumnConstraint):
-                        constrains.append((DefaultValue(default_value=str(node.name), column=None), "column"))
+                        ################################################
+                        # Node layer: COLUMN CONSTRAIN -> Default value
+                        ################################################
+                        constrains.append((DefaultValue(column=None, default_value=str(node.name)), "column"))
 
                     elif isinstance(node, exp.GeneratedAsIdentityColumnConstraint):
                         ...
                     else:
                         ...
 
-                    skip_lower_nodes(visited_nodes,
-                                     ast_generator,
-                                     context_layer_node_depth)
+                    skip_lower_nodes(visited_nodes=visited_nodes,
+                                     ast_generator=ast_generator,
+                                     context_layer_node_depth=context_layer_node_depth)
 
                 else:
                     ##################################
@@ -196,16 +206,18 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
                         constrains=[],
                     )
 
-            table.add_column(new_col)
             for constrain in constrains:
                 t_constrain = constrain[0]
                 set_attr = constrain[1]
 
-                # add to columns constrain structure
+                # delayed assignment of properties for constrain
+                t_constrain.set_property(set_attr, new_col)
+
+                # add constrain to new column
                 new_col.add_constrain(t_constrain)
 
-                # add to scheme constrain structure
-                t_constrain.set_property(set_attr, new_col)
+            if primary_key:
+                table.add_primary_key(PrimaryKey(columns=[new_col]))
 
         elif isinstance(node, column_constrains_list):
             ###################################
@@ -214,9 +226,9 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
             if "expressions" in node.args and \
                     node.args["expressions"].__len__() > 0 and \
                     isinstance(node.args["expressions"][0], exp.ForeignKey):
-                ################################################################
-                # Node layer: SCHEMA -> ForeignKey (Relationship)
-                ################################################################
+                ##################################################################
+                # Node layer: SCHEMA -> TABLE CONSTRAIN ForeignKey (Relationship)
+                ##################################################################
 
                 node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
                                                         ast_generator=ast_generator)
@@ -224,9 +236,9 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
                     parse_foreign_key(name=node.name)
 
             elif isinstance(node, exp.CheckColumnConstraint):
-                ################################################################
-                # Node layer: SCHEMA -> CheckColumnConstraint (CheckExpression)
-                ################################################################
+                ################################################################################
+                # Node layer: SCHEMA -> TABLE CONSTRAIN CheckColumnConstraint (CheckExpression)
+                ################################################################################
 
                 table.constrains.setdefault((table, table), []).append(CheckExpression(expression=str(node.this)))
 
@@ -236,11 +248,12 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
                                  context_layer_node_depth)
 
         elif isinstance(node, exp.PrimaryKey):
-            ###################################
-            # Node layer: SCHEMA -> PrimaryKey
-            ###################################
-            # primary_key = []
-            while 1:
+            ###################################################################
+            # Node layer: SCHEMA -> COLUMN CONSTRAIN PrimaryKey
+            # Defined on CREATE TABLE level (outside the definition of column)
+            ###################################################################
+            primary_key: list = []
+            while 1 and stop_parse is not True:
                 node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
                                                         ast_generator=ast_generator)
 
@@ -249,37 +262,33 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
                                                                               table.name,
                                                                               node.name))
                     # Create primary key constrain object
-                    constr_pk = PrimaryKey(column=column_pk)
+                    # constr_pk = UniqueValue(column=column_pk, primary_key=True)
 
                     # Set constrain in column
-                    column_pk.set_primary_key(bool_val=True, constr_pk=constr_pk)
-
+                    # column_pk.set_primary_key(constr_pk=constr_pk)
+                    primary_key.append(column_pk)
                 else:
                     break
-            # table.primary_key = primary_key
+
+            table.add_primary_key(primary_key=PrimaryKey(columns=primary_key))
 
         elif isinstance(node, exp.ForeignKey):
             ###################################
-            # Node layer: SCHEMA -> ForeignKey
+            # Node layer: SCHEMA -> TABLE CONSTRAIN ForeignKey
             ###################################
             parse_foreign_key()
 
         elif isinstance(node, exp.Unique):
-            ###################################
-            # Node layer: SCHEMA -> Unique
-            ###################################
+            ################################################
+            # Node layer: SCHEMA -> COLUMN CONSTRAIN Unique
+            ################################################
             node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
                                                     ast_generator=ast_generator)
 
             column_unique: Column = mem_rep.get_indexed_object(index_key=(schema.name,
                                                                           table.name,
                                                                           node.name))
-            column_unique.set_unique_key(True)
-
-            uniqCon = UniqueValue(column=column_unique)
-            schema.constrains.setdefault((table, table), []).append(uniqCon)
-
-            column_unique.add_constrain(uniqCon)
+            column_unique.add_constrain(constrain=UniqueValue(column=column_unique))
 
         else:
             ##################################
@@ -288,9 +297,4 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
             if node is not None:
                 repr(node)
                 print("else node: " + node.name + " " + node.key)
-
-    ##################################
-    #   CREATE TABLE & STORE TABLE
-    ##################################
-    schema.add_table(table=table)
 
