@@ -42,6 +42,8 @@ class CArgs:
     path_to_rules_folder: str = None
     include_folders: list = []
     exclude_folders: list = []
+    serialization_path: str = None
+    deserialization_path: str = None
 
 
 def parse_raw_sql_to_statement(args_data):
@@ -118,7 +120,21 @@ def parse_args() -> argparse:
                         required=False,
                         help="Run tests.")
 
-    parser.add_argument("-p", "--rules-path",
+    parser.add_argument("-sp", "--serialization-path",
+                        required=False,
+                        type=str,
+                        help="If set, program provides backup of result memory representation"
+                             " and saves it to that path.",
+                        default = None)
+
+    parser.add_argument("-dp", "--deserialization-path",
+                        required=False,
+                        type=str,
+                        help="If set, program loads a memory representation and initialise memory representation "
+                             "from it at the beginning",
+                        default = None)
+
+    parser.add_argument("-rp", "--rules-path",
                         type=str,
                         required=False,
                         help="Specify folder with rules. If not set then default is "
@@ -148,7 +164,8 @@ def parse_args() -> argparse:
     parser.add_argument("-d", "--dialect",
                         metavar="",
                         required=False,
-                        help="Expect target dialect.")
+                        help="Expect target dialect.",
+                        default=None)
 
     parser.add_argument("-f", "--file",
                         type=str,
@@ -156,7 +173,8 @@ def parse_args() -> argparse:
                         required=False,
                         help="Expect file with target SQL, "
                              "if this parameter is not present "
-                             "then the program expects it on standard input.")
+                             "then the program expects it on standard input.",
+                        default=None)
 
     args = parser.parse_args()
     return args
@@ -219,3 +237,5 @@ def process_args(self, args: argparse):
     self.path_to_rules_folder = args.rules_path
     self.include_folders = args.include_folders
     self.exclude_folders = args.exclude_folders
+    self.serialization_path = args.serialization_path
+    self.deserialization_path = args.deserialization_path
