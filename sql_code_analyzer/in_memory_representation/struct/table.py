@@ -1,6 +1,5 @@
 #######################################
 # File name: table.py
-# Author: Filip Bali
 # Purpose: Table class represents database table
 #
 # Key features:

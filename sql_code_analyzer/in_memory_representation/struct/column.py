@@ -1,6 +1,5 @@
 #######################################
 # File name: column.py
-# Author: Filip Bali
 # Purpose: Column class represents database column in table
 #
 # Key features:

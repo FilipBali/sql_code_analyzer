@@ -1,6 +1,5 @@
 #######################################
 # File name: database.py
-# Author: Filip Bali
 # Purpose: Database class represents instance of database
 #
 # Key features:

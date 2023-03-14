@@ -1,6 +1,5 @@
 #######################################
 # File name: schema.py
-# Author: Filip Bali
 # Purpose: Schema class represents database schema
 #
 # Key features:
