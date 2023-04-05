@@ -1,10 +1,17 @@
 import argparse
-from dataclasses import dataclass, field
+import os
+import sys
 from operator import methodcaller
 from pathlib import Path
 from sys import stdin
 import re
 
+from sql_code_analyzer.input.database_server.base import database_connection_handler
+from sql_code_analyzer.input.database_server.config import DBConfig
+from sql_code_analyzer.output import enums
+from sql_code_analyzer.output.reporter.base import ProgramReporter, OutputType
+from sql_code_analyzer.output.terminator.base import Terminator
+from sql_code_analyzer.tools.get_program_root_path import get_program_root_path
 from test_cases.sqlglot.tester import run_tests
 
 
@@ -14,36 +21,127 @@ class CArgs:
     """
 
     def __init__(self):
+
+        self.dialect: str = ""
+        self.file: str = ""
+        self.tests: bool = False
+        self.raw_sql: str = ""
+        self.statements: list = []
+        self.rules_path: str = None
+        self.include_folders: list = []
+        self.exclude_folders: list = []
+        self.serialization_path: str = None
+        self.deserialization_path: str = None
+        self.connection_file_create: bool = False
+        self.connection_file_option: str = "Default"
+        self.connection_file_path: str = None
+        self.db_config = None
+        self.report_output_nothing = None
+        self.report_output_file = None
+
         args = parse_args()
-        process_args(self, args)
+
+        process_file(self, args)
 
         # run tests
         if self.tests:
             run_tests()
-            exit(0)
+            Terminator.exit(enums.ExitWith.Success)
 
+        if self.connection_file_create:
+            self.create_database_connection_file()
+            Terminator.exit(enums.ExitWith.Success)
+
+        if self.report_output_nothing:
+            ProgramReporter.report_output_loc = OutputType.NoReport
+
+        if self.report_output_file:
+            if ProgramReporter.report_output_loc == OutputType.NoReport:
+                # TODO error
+                ...
+
+            ProgramReporter.report_output = OutputType.File
+            # TODO ulozit cestu
+
+        if self.connection_file_path:
+            # load from existing database
+            self.db_config = DBConfig(path=self.connection_file_path,
+                                      option=self.connection_file_option)
+
+            database_connection_handler(args=self)
+
+        self.db_config = None
         if self.file:
             # load sql from file
             with open(self.file, 'r') as file:
                 self.raw_sql = file.read()
 
+            parse_raw_sql_to_statement(self)
+
         else:
             # check stdin
             print("Enter target SQL:")
             self.raw_sql = stdin.read()
+            parse_raw_sql_to_statement(self)
 
-        parse_raw_sql_to_statement(self)
+    # dialect: str = ""
+    # file: str = ""
+    # tests: bool = False
+    # raw_sql: str = ""
+    # statements: list = []
+    # rules_path: str = None
+    # include_folders: list = []
+    # exclude_folders: list = []
+    # serialization_path: str = None
+    # deserialization_path: str = None
+    # connection_file_create: bool = False
+    # connection_file_option: str = "Default"
+    # connection_file_path: str = None
+    # db_config = None
+    # report_output_nothing = None
+    # report_output_file = None
 
-    dialect: str = ""
-    file: str = ""
-    tests: bool = False
-    raw_sql: str = ""
-    statements:  list = []
-    path_to_rules_folder: str = None
-    include_folders: list = []
-    exclude_folders: list = []
-    serialization_path: str = None
-    deserialization_path: str = None
+    def update_parameters(self, args: argparse):
+        for argument, value in vars(args).items():
+            setattr(self, argument, value)
+
+    @staticmethod
+    def create_database_connection_file():
+        root_path = get_program_root_path()
+
+        f = open(os.path.join(root_path, "db_connection.cfg"), "w")
+        f.write(
+            "##################################################################\n"
+            "#############    THIS FILE CONTAINS CONFIGURATION    #############\n"
+            "##################################################################\n"
+            "# \n"
+            "# This file is a configuration template for connecting the program\n".upper() +
+            "# to an existing database. Please replace the words containing\n".upper() +
+            "# the underscore with the data that corresponds to connecting \n".upper() +
+            "# the client to the database.\n".upper() +
+            "# \n"
+            "# In this file you can create comments using the grid wildcard (#)\n".upper() +
+            "# which will cause all content after it on a given line to be \n".upper() +
+            "# ignored by the program.\n".upper() +
+            "#\n"            
+            "# Here is an example of use:\n"
+            "#\n"
+            "# DIALECT = oracle # enter database dialect\n"
+            "# USERNAME = MyName  # enter your username\n"
+            "# PASSWORD = An4q6Db458d1w2r8  # enter your password\n"
+            "# HOST = localhost  # enter host url (for example localhost)\n"
+            "# PORT = 1521  # enter the port number\n"
+            "# SERVICE =  orcl.mshome.net  # enter the database service name\n"
+            "\n"
+            "\n"
+            "DIALECT = target_dialect # enter database dialect\n"
+            "USERNAME = your_username  # enter your username\n"
+            "PASSWORD = your_password  # enter your password\n"
+            "HOST = target_host  # enter host url (for example localhost)\n"
+            "PORT = target_port_number  # enter the port number\n"
+            "SERVICE =  target_service  # enter the database service name\n"
+        )
+        f.close()
 
 
 def parse_raw_sql_to_statement(args_data):
@@ -105,7 +203,7 @@ def parse_raw_sql_to_statement(args_data):
                     keep_statements.append('\n'.join(statement_with_code))
                     break
 
-    args_data.statements = keep_statements
+    args_data.statements += keep_statements
 
 
 def parse_args() -> argparse:
@@ -114,25 +212,44 @@ def parse_args() -> argparse:
     :return:
     """
     parser = argparse.ArgumentParser()
-    # parser.add_argument("-h", "--help", metavar="", help="Show help message.")
     parser.add_argument("-t", "--tests",
                         action='store_true',
                         required=False,
-                        help="Run tests.")
+                        help="Run tests.",
+                        default=None)
+
+    parser.add_argument("-cfc", "--connection-file-create",
+                        action='store_true',
+                        required=False,
+                        help="Create template file for database connection.",
+                        default=None)
+
+    parser.add_argument("-cfo", "--connection-file-option",
+                        required=False,
+                        type=str,
+                        help="Specify option in config file. Config file may contain several configurations "
+                             "which can be selected by this parameter. Default value is \"Default\"",
+                        default="Default")
+
+    parser.add_argument("-cfp", "--connection-file-path",
+                        required=False,
+                        type=str,
+                        help="Path where is expected to be a file with data for database connection.",
+                        default=None)
 
     parser.add_argument("-sp", "--serialization-path",
                         required=False,
                         type=str,
                         help="If set, program provides backup of result memory representation"
                              " and saves it to that path.",
-                        default = None)
+                        default=None)
 
     parser.add_argument("-dp", "--deserialization-path",
                         required=False,
                         type=str,
                         help="If set, program loads a memory representation and initialise memory representation "
                              "from it at the beginning",
-                        default = None)
+                        default=None)
 
     parser.add_argument("-rp", "--rules-path",
                         type=str,
@@ -176,28 +293,24 @@ def parse_args() -> argparse:
                              "then the program expects it on standard input.",
                         default=None)
 
+    parser.add_argument("-rof", "--report-output-file",
+                        type=str,
+                        metavar="",
+                        required=False,
+                        help="If set, expects path where program will store reports.",
+                        default=None)
+
+    parser.add_argument("-ron", "--report-output-nothing",
+                        action='store_true',
+                        required=False,
+                        help="If set, expects path where program will store reports.",
+                        default=None)
+
     args = parser.parse_args()
     return args
 
 
-def get_sql_from_source(file):
-    """
-    TODO description
-    :param file:
-    :return:
-    """
-    if file:
-        # load sql from file
-        with open(file, 'r') as rfile:
-            return rfile.read()
-
-    else:
-        # check stdin
-        print("Enter target SQL:")
-        return stdin.read()
-
-
-def process_args(self, args: argparse):
+def process_file(self, args: argparse):
     """
     TODO description
     :return:
@@ -214,10 +327,10 @@ def process_args(self, args: argparse):
                                         "Do you want set another path? [y/n]\n")
                 else:
                     user_answer = input("\nFile not exits!\n"
-                                     "Do you want set another path? [y/n]\n")
+                                        "Do you want set another path? [y/n]\n")
 
                 if user_answer.lower() == "n" or user_answer.lower() == "no":
-                    exit(0)
+                    Terminator.exit(enums.ExitWith.Success)
 
                 elif user_answer.lower() == "y" or user_answer.lower() == "yes":
                     args.file = input("Write down new path:\n")
@@ -230,12 +343,4 @@ def process_args(self, args: argparse):
             else:
                 break
 
-    self.dialect = args.dialect
-    self.file = args.file
-    self.tests = args.tests
-    self.raw_sql = get_sql_from_source(args.file)
-    self.path_to_rules_folder = args.rules_path
-    self.include_folders = args.include_folders
-    self.exclude_folders = args.exclude_folders
-    self.serialization_path = args.serialization_path
-    self.deserialization_path = args.deserialization_path
+    self.update_parameters(args=args)
