@@ -8,7 +8,7 @@ from __future__ import annotations
 from queue import Queue
 
 from sql_code_analyzer.in_memory_representation.struct.schema import Schema
-from sql_code_analyzer.in_memory_representation.tool.ast_manipulation import get_next_node
+from sql_code_analyzer.in_memory_representation.tools.ast_manipulation import get_next_node
 from sqlglot import expressions as exp
 
 from typing import TYPE_CHECKING
@@ -45,4 +45,8 @@ def create_schema(ast: exp, mem_rep: Database):
 
     Schema(database=mem_rep, schema_name=schema_name)
 
+def register(linter) -> None:
+    linter.register_modify_representation_statement(
+        modify_representation_function=create_schema
+    )
 
