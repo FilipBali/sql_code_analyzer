@@ -28,8 +28,6 @@ class Constrain(Base):
         """
         setattr(self, attr, val)
 
-    name: str = None
-
 
 class PreventNotNull(Constrain):
     """
@@ -45,8 +43,6 @@ class PreventNotNull(Constrain):
 
         self.column = column
 
-    column: Column = None
-
 
 class PrimaryKey(Constrain):
 
@@ -59,9 +55,6 @@ class PrimaryKey(Constrain):
             # TODO pri vymazavani not null alebo unique pozri ci neni samostatny primary key !!
 
         self.columns = columns
-
-    columns: list = None
-    composite: bool = False
 
 
 class ForeignKey(Constrain):
@@ -89,12 +82,6 @@ class ForeignKey(Constrain):
 
         self.fk_columns = fk_columns
         self.reference_columns = reference_columns
-
-    fk_columns = None
-    reference_columns = None
-
-    table_fk: Table = None
-    table_ref: Table = None
 
     def delete_reference(self):
         """
@@ -134,9 +121,6 @@ class UniqueValue(Constrain):
         if self.primary_key:
             self.column.constrains.append(PreventNotNull(column=self.column))
 
-    column: Column = None
-    primary_key: bool = False
-
 
 class DefaultValue(Constrain):
     """
@@ -153,9 +137,6 @@ class DefaultValue(Constrain):
         self.default_value = default_value
         self.column = column
 
-    default_value = None
-    column = None
-
 
 class Index(Constrain):
     """
@@ -169,8 +150,6 @@ class Index(Constrain):
         """
         self.set_name(name)
         self.column = column
-
-    column: Column = None
 
 
 class CheckExpression(Constrain):
@@ -186,7 +165,3 @@ class CheckExpression(Constrain):
         self.set_name(name)
 
         self.expression = expression
-
-    expression: str = None
-
-
