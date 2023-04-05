@@ -2,6 +2,8 @@ import glob
 import os
 import re
 
+from sql_code_analyzer.output.reporter.base import ProgramReporter
+
 
 class CRules:
 
@@ -30,7 +32,7 @@ class CRules:
             self.path_to_rules_folder = os.path.join(checker_root, "rules")
 
         if len(self.include_folders) > 0 and len(self.exclude_folders) > 0:
-            raise "Error: Forbidden parameter combination. Both include and exclude folders are set."
+            ProgramReporter.show_error_message("Forbidden parameter combination. Both include and exclude folders are set.")
 
         # get all paths
         t_paths = list(glob.glob(self.path_to_rules_folder + "\\**\\*.py", recursive=True))
