@@ -7,15 +7,18 @@ class Datatype(Base):
     """
 
     def __init__(self,
-                 column_datatype,
-                 value=None):
+                 node,
+                 literals: list):
         """
         TODO description
         :param column_datatype:
         :param value:
         """
-        self.column_datatype = column_datatype
-        self.value = value
+        self.column_datatype = node.this
 
-    column_datatype: None
-    value: int = None
+        self.literals = literals
+
+        self.args = {}
+        for arg in node.args:
+            if arg not in ["this", "kind", "expressions"]:
+                self.args[arg] = node.args[arg]
