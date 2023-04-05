@@ -26,6 +26,9 @@ from __future__ import annotations
 from sql_code_analyzer.in_memory_representation.struct.base import Base
 
 from typing import TYPE_CHECKING
+
+from sql_code_analyzer.output.reporter.base import ProgramReporter
+
 if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.database import Database
 
@@ -34,13 +37,6 @@ class Schema(Base):
     """
     TODO description
     """
-
-    ###################################
-    #          CLASS PROPERTIES
-    ###################################
-    name: str = ""
-    tables: dict = {}
-    database: Database = None
 
     ###################################
     #              INIT
@@ -70,7 +66,7 @@ class Schema(Base):
         :return: None
         """
         if self.database.check_if_schema_exists_bool(self.name):
-            raise "Error: schema already exists"
+            ProgramReporter.show_error_message("Schema already exists")
 
         self.database.schemas[self.name] = self
         self.database.index_registration(key=self.name,
