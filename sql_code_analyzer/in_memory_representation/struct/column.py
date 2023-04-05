@@ -24,6 +24,7 @@
 from __future__ import annotations
 
 from sql_code_analyzer.in_memory_representation.struct.base import Base
+from sql_code_analyzer.output.reporter.base import ProgramReporter
 from sqlglot import expressions as exp
 
 from typing import TYPE_CHECKING
@@ -38,20 +39,11 @@ class Column(Base):
     TODO Column Description
     Description
     """
-
-    ###################################
-    #          CLASS PROPERTIES
-    ###################################
-    name: str = None
-    datatype: Datatype = None
-    table: Table = None
-    constrains: list = []
-
     ###################################
     #              INIT
     ###################################
     def __init__(self,
-                 name: str,
+                 identifier,
                  datatype: Datatype,
                  constrains: [Constrain],
                  table: Table,
@@ -63,7 +55,8 @@ class Column(Base):
         :param constrains:
         :param table:
         """
-        self.name = name
+        self.name = identifier.args['this']
+        self.is_name_quoted = identifier.args['quoted']
         self.datatype = datatype
         self.constrains = constrains
         self.table = table
@@ -85,7 +78,7 @@ class Column(Base):
     def __add_column_to_table(self) -> None:
         # Check if not already exists
         if self.table.check_if_column_exists(self.name):
-            raise "Column already exists"
+            ProgramReporter.show_error_message("Column " + self.name+ " already exists.")
 
         self.table.columns[self.name] = self
         self.table.database.index_registration(key=(self.table.schema.name, self.table.name, self.name),
@@ -117,7 +110,7 @@ class Column(Base):
         # Check if column is not part of composite primary key
         if self.table.primary_key.composite:
             if self in self.table.primary_key.columns:
-                raise "Error: Column to delete is part of primary key"
+                ProgramReporter.show_error_message("Column to delete is part of primary key.")
 
         self.table.database.index_cancel_registration(key=(self.table.schema.name, self.table.name, self.name))
         del self.table.columns[self.name]
