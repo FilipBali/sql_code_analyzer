@@ -31,6 +31,7 @@ from sql_code_analyzer.in_memory_representation.struct.base import Base
 
 from typing import TYPE_CHECKING
 
+from sql_code_analyzer.output.reporter.base import ProgramReporter
 
 if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.constrain import PrimaryKey
@@ -43,25 +44,6 @@ class Table(Base):
     TODO Table Description
     Description
     """
-    ###################################
-    #          CLASS PROPERTIES
-    ###################################
-    # Table name
-    name: str = None
-
-    # Schema which table belong to
-    schema: Schema = None
-
-    # Database which table belong to
-    database: Database = None
-
-    # Table columns
-    columns: dict = {}
-
-    # Table constrains (which affect whole table like CheckConstrain or ForeignKey)
-    constrains: dict = []
-
-    primary_key: PrimaryKey | None = None
 
     ###################################
     #              INIT
@@ -69,7 +51,8 @@ class Table(Base):
     def __init__(self,
                  name: str,
                  schema: Schema,
-                 database: Database):
+                 database: Database,
+                 node=None):
         """
         TODO description
         :param name:
@@ -82,6 +65,13 @@ class Table(Base):
         self.columns: dict = {}
         self.primary_key: PrimaryKey | None = None
         self.constrains: dict = {}
+
+        self.args = {}
+        if node is not None:
+            for arg in node.args:
+                if arg not in ["this", "kind","expressions"]:
+                    self.args[arg] = node.args[arg]
+
         self.__add_table_to_schema()
 
     def __repr__(self):
@@ -99,7 +89,7 @@ class Table(Base):
     #########################
     def __add_table_to_schema(self) -> None:
         if self.schema.check_if_table_exists(table=self):
-            raise "Table already exists"
+            ProgramReporter.show_error_message("Table already exists")
 
         self.schema.tables[self.name] = self
         self.schema.database.index_registration(key=(self.name, self.name),
@@ -126,7 +116,7 @@ class Table(Base):
     #########################
     def add_primary_key(self, primary_key: PrimaryKey) -> None:
         if self.primary_key is not None:
-            raise "Error: Primary key already exists"
+            ProgramReporter.show_error_message("Primary key already exists")
 
         self.primary_key = primary_key
 
@@ -143,7 +133,7 @@ class Table(Base):
         """
 
         if len(self.constrains) > 1:
-            raise "Table can NOT be deleted because of relations with another tables"
+            ProgramReporter.show_error_message("Table can NOT be deleted because of relations with another tables")
 
         self.database.index_cancel_registration(key=(self.schema.name, self.name))
         del self.schema.tables[self.name]
