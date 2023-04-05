@@ -2,7 +2,7 @@ from __future__ import annotations
 from queue import Queue
 
 from sqlglot import expressions as exp
-from sql_code_analyzer.in_memory_representation.tool.ast_manipulation import get_next_node
+from sql_code_analyzer.in_memory_representation.tools.ast_manipulation import get_next_node
 
 
 from typing import TYPE_CHECKING
@@ -34,3 +34,10 @@ def drop_schema(ast: exp, mem_rep: Database):
 
     schema: Schema = mem_rep.get_indexed_object(index_key=schema_name)
     schema.delete_schema()
+
+
+def register(linter) -> None:
+    linter.register_modify_representation_statement(
+        modify_representation_function=drop_schema
+    )
+
