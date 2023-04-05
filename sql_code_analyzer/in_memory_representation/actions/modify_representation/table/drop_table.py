@@ -1,13 +1,19 @@
+from __future__ import annotations
+
 from queue import Queue
 
 from sql_code_analyzer.in_memory_representation.struct.constrain import ForeignKey
-from sql_code_analyzer.in_memory_representation.struct.database import Database
+# from sql_code_analyzer.in_memory_representation.struct.database import Database
 from sql_code_analyzer.in_memory_representation.struct.schema import Schema
 from sql_code_analyzer.in_memory_representation.struct.table import Table
-from sql_code_analyzer.in_memory_representation.tool.ast_manipulation import get_next_node
+from sql_code_analyzer.in_memory_representation.tools.ast_manipulation import get_next_node
+from sql_code_analyzer.output.reporter.base import ProgramReporter
 from sqlglot import Expression
 from sqlglot import expressions as exp
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from sql_code_analyzer.in_memory_representation.struct.database import Database
 
 def drop_table(ast: Expression, mem_rep: Database):
     """
@@ -62,7 +68,7 @@ def drop_table(ast: Expression, mem_rep: Database):
         table: Table = mem_rep.get_indexed_object(index_key=(schema.name,
                                                              table_name))
     else:
-        raise "Error: Missing table name while executing TABLE DROP"
+        ProgramReporter.show_error_message("Missing table name while executing TABLE DROP.")
 
     if cascade:
         constrain_key: tuple = (table, table)
@@ -80,3 +86,9 @@ def drop_table(ast: Expression, mem_rep: Database):
         # Delete table
         # mem_rep.delete_table(table)
         table.delete_table()
+
+
+def register(linter) -> None:
+    linter.register_modify_representation_statement(
+        modify_representation_function=drop_table
+    )
