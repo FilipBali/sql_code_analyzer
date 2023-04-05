@@ -16,6 +16,8 @@
 #        TODO:
 #
 #######################################
+from sql_code_analyzer.output.reporter.base import ProgramReporter
+
 
 class Base:
     """
@@ -33,8 +35,8 @@ class Base:
         """
         if isinstance(struct, list):
             if search_by_attr is None:
-                raise "Internal error: check_if_exists method has not defined search_by_attr parameter " \
-                      "while searching in list structure"
+                ProgramReporter.show_error_message("Internal error: check_if_exists method has not defined "
+                                            "search_by_attr parameter while searching in list structure")
 
             for item in struct:
                 if find_attr_val in getattr(item, search_by_attr):
@@ -92,7 +94,7 @@ class Base:
             if find_attr_val in find_in_struct:
                 return find_in_struct[find_attr_val]
 
-        raise error_message
+        ProgramReporter.show_error_message(error_message)
 
     @staticmethod
     def get_instance_or_none(find_attr_val, find_in_struct, search_by_attr: str = None):
@@ -113,23 +115,6 @@ class Base:
                 return find_in_struct[find_attr_val]
 
         return None
-
-
-
-
-class IConstrain():
-    constrain_name: str
-
-class ICodeLocation():
-    code_location: str
-
-class IBase():
-    name: str
-    alias: str
-
-class CreateTable(IBase, IConstrain, ICodeLocation):
-     def __init__(self, name):
-         self.name = name
 
 
 
