@@ -39,6 +39,9 @@ from sql_code_analyzer.in_memory_representation.struct.base import Base
 from sql_code_analyzer.in_memory_representation.struct.table import Table
 
 from typing import TYPE_CHECKING
+
+from sql_code_analyzer.output.reporter.base import ProgramReporter
+
 if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.schema import Schema
 
@@ -47,13 +50,6 @@ class Database(Base):
     """
     TODO description
     """
-
-    ###################################
-    #          CLASS PROPERTIES
-    ###################################
-    name: str = None
-    schemas: dict = {}
-    object_index: dict = {}
 
     ###################################
     #              INIT
@@ -88,9 +84,9 @@ class Database(Base):
 
         from sql_code_analyzer.in_memory_representation.struct.schema import Schema
 
-        schema = Schema(self, "Default")
-        self.schemas["Default"] = schema
-        self.index_registration(key="Default",
+        schema = Schema(self, "dbo")
+        self.schemas["dbo"] = schema
+        self.index_registration(key="dbo",
                                 reg_object=schema)
         return self
 
@@ -168,7 +164,7 @@ class Database(Base):
         if index_key in self.object_index:
             return self.object_index[index_key]
         else:
-            raise "Error: Item in indexed objects not exists."
+            ProgramReporter.show_error_message("Item in indexed objects not exists.")
 
     ###########################
     #         CHECKS
@@ -193,7 +189,7 @@ class Database(Base):
         """
 
         if schema_name == "":
-            schema_name = "Default"
+            schema_name = "dbo"
 
         schema_instance = self.get_instance_or_error(find_attr_val=schema_name,
                                                      find_in_struct=self.schemas,
@@ -234,12 +230,17 @@ class Database(Base):
                                                     )
         return table_instance
 
-    def get_or_create_table(self, database, schema_name, table_name) -> Table:
+    def get_or_create_table(self,
+                            database,
+                            schema_name,
+                            table_name,
+                            create_node=None) -> Table:
         """
         Get table from database if already exists there, or it will be created
         :param database:
         :param schema_name: Schema name
         :param table_name: Table name
+        :param create_node: AST node of creation statement
         :return: Table object
         """
 
@@ -255,7 +256,8 @@ class Database(Base):
             return table_instance
         return Table(database=database,
                      schema=schema_instance,
-                     name=table_name)
+                     name=table_name,
+                     node=create_node)
 
     ###########################
     #   BACKUP SERIALIZATION
