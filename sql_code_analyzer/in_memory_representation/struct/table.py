@@ -4,21 +4,12 @@
 #
 # Key features:
 #     Table:
-#        Stores: table name, columns, table level constrains(foreign key, check constrain etc.)
-#                primary key, related schema and database
-#
-#        Methods:
-#           Private:
-#               __add_table_to_schema(self) -> None
-#
-#           Public:
-#               check_if_column_exists(self, column_name) -> bool
-#
-#               add_primary_key(self, primary_key: PrimaryKey) -> None
-#               delete_primary_key(self) -> None
-#
-#               delete_table(self) -> None
-#
+#        Stores: table name
+#                table columns
+#                table level constrains(foreign key, check constrain etc.)
+#                table primary key
+#                connection to the schema that belongs to
+#                connection to the database that belongs to
 #
 #        TODO: change table name, add constrain, delete constrain
 #

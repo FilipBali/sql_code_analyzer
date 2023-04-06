@@ -4,21 +4,11 @@
 #
 # Key features:
 #     Schema:
-#        Stores: schema name, tables, related database
-#
-#        Methods:
-#           Private:
-#               __add_schema_to_database(self) -> None
-#
-#           Public:
-#               check_if_table_exists(self, table) -> bool
-#
-#               delete_schema(self) -> None
-#
-#
+#        Stores: schema name,
+#                tables related to schema,
+#                connection to table database that belongs to
+
 #        TODO: change schema name
-#
-#
 #######################################
 
 from __future__ import annotations

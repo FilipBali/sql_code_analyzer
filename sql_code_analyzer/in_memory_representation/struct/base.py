@@ -6,13 +6,6 @@
 #     Base:
 #        Stores:
 #
-#        Methods:
-#           Static:
-#               check_if_exists(find_attr_val, struct, search_by_attr: str = None) -> bool
-#               get_or_create(obj, struct, created_object)
-#               get_instance_or_error(find_attr_val, find_in_struct, error_message: str, search_by_attr: str = None)
-#               get_instance_or_none(find_attr_val, find_in_struct, search_by_attr: str = None)
-#
 #        TODO:
 #
 #######################################

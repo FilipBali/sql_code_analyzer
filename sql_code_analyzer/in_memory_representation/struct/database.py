@@ -4,31 +4,9 @@
 #
 # Key features:
 #     Database:
-#        Stores: database name, schemas
+#        Stores: database name,
+#                database schemas
 #                index with points to every object in database providing shortcuts
-#
-#        Methods:
-#           Private:
-#               __add_schema_to_database(self) -> None
-#
-#           Public:
-#               set_default_scheme(self) -> Database
-#
-#               index_registration(self, key, reg_object) -> None
-#               index_cancel_registration(self, key) -> None
-#               get_indexed_object(self, index_key)
-#
-#               check_if_schema_exists_bool(self, target_schema_name) -> bool
-#
-#               get_schema_by_name_or_error(self, schema_name: str) -> Schema
-#               get_or_create_schema(self, database, schema_name) -> Schema
-#               get_table_by_name_or_error(self, schema_name, table_name: str) -> Table
-#               get_or_create_table(self, database, schema_name, table_name) -> Table
-#
-#               load_deserialization_path(self, deserialization_path: str)
-#               get_or_create_table(self, database, schema_name, table_name)
-#
-#        TODO:
 #
 #######################################
 
