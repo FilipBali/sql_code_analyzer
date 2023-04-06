@@ -44,6 +44,30 @@ class Schema(Base):
         self.database = database
         self.__add_schema_to_database()
 
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def tables(self) -> str:
+        return self._tables
+
+    @tables.setter
+    def tables(self, value):
+        self._tables = value
+
+    @property
+    def database(self) -> str:
+        return self._database
+
+    @database.setter
+    def database(self, value):
+        self._database = value
+
     ##################################################
     #                  PRIVATE METHODS
     ##################################################

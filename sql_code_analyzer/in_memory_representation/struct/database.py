@@ -43,6 +43,32 @@ class Database(Base):
         self.schemas = {}
         self.object_index = {}
 
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def schemas(self) -> str:
+        return self._schemas
+
+    @schemas.setter
+    def schemas(self, value):
+        self._schemas = value
+
+    @property
+    def object_index(self) -> str:
+        return self._object_index
+
+    @object_index.setter
+    def object_index(self, value):
+        self._object_index = value
+
+
+
     ##################################################
     #                  PRIVATE METHODS
     ##################################################

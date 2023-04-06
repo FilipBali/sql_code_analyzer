@@ -11,7 +11,7 @@
 #                connection to the schema that belongs to
 #                connection to the database that belongs to
 #
-#        TODO: change table name, add constrain, delete constrain
+#        TODO: add constrain, delete constrain
 #
 #
 #######################################
@@ -65,6 +65,55 @@ class Table(Base):
 
         self.__add_table_to_schema()
 
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def schema(self) -> str:
+        return self._schema
+
+    @schema.setter
+    def schema(self, value):
+        self._schema = value
+
+    @property
+    def database(self) -> str:
+        return self._database
+
+    @database.setter
+    def database(self, value):
+        self._database = value
+
+    @property
+    def columns(self) -> str:
+        return self._columns
+
+    @columns.setter
+    def columns(self, value):
+        self._columns = value
+
+    @property
+    def primary_key(self) -> str:
+        return self._primary_key
+
+    @primary_key.setter
+    def primary_key(self, value):
+        self._primary_key = value
+
+    @property
+    def constrains(self) -> str:
+        return self._constrains
+
+    @constrains.setter
+    def constrains(self, value):
+        self._constrains = value
+
+
     def __repr__(self):
         """
         TODO description
@@ -103,7 +152,7 @@ class Table(Base):
                                     struct=self.columns)
 
     #########################
-    #          ADD
+    #      PRIMARY KEY
     #########################
     def add_primary_key(self, primary_key: PrimaryKey) -> None:
         if self.primary_key is not None:
