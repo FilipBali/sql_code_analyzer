@@ -16,7 +16,7 @@ class Literal(Base):
         self.args = node.args
 
     @property
-    def value(self) -> str:
+    def value(self):
         return self._value
 
     @value.setter
@@ -24,7 +24,7 @@ class Literal(Base):
         self._value = val
 
     @property
-    def is_int(self) -> str:
+    def is_int(self) -> bool:
         return self._is_int
 
     @is_int.setter
@@ -32,7 +32,7 @@ class Literal(Base):
         self._is_int = val
 
     @property
-    def is_number(self) -> str:
+    def is_number(self) -> bool:
         return self._is_number
 
     @is_number.setter
@@ -40,7 +40,7 @@ class Literal(Base):
         self._is_number = val
 
     @property
-    def is_star(self) -> str:
+    def is_star(self) -> bool:
         return self._is_star
 
     @is_star.setter
@@ -48,7 +48,7 @@ class Literal(Base):
         self._is_star = val
 
     @property
-    def is_string(self) -> str:
+    def is_string(self) -> bool:
         return self._is_string
 
     @is_string.setter
@@ -56,7 +56,7 @@ class Literal(Base):
         self._is_string = val
 
     @property
-    def args(self) -> str:
+    def args(self):
         return self._args
 
     @args.setter

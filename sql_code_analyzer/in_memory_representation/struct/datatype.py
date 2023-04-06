@@ -16,7 +16,7 @@ class Datatype(Base):
         """
         self.column_datatype = node.this
 
-        self.literals = literals
+        self.literals: list = literals
 
         self.args = {}
         for arg in node.args:
@@ -24,7 +24,7 @@ class Datatype(Base):
                 self.args[arg] = node.args[arg]
 
     @property
-    def column_datatype(self) -> str:
+    def column_datatype(self):
         return self._column_datatype
 
     @column_datatype.setter
@@ -32,7 +32,7 @@ class Datatype(Base):
         self._column_datatype = value
 
     @property
-    def literals(self) -> str:
+    def literals(self) -> list:
         return self._literals
 
     @literals.setter

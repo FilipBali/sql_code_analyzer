@@ -52,7 +52,7 @@ class Database(Base):
         self._name = value
 
     @property
-    def schemas(self) -> str:
+    def schemas(self) -> dict:
         return self._schemas
 
     @schemas.setter
@@ -60,7 +60,7 @@ class Database(Base):
         self._schemas = value
 
     @property
-    def object_index(self) -> str:
+    def object_index(self) -> dict:
         return self._object_index
 
     @object_index.setter

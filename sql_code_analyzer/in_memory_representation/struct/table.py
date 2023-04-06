@@ -74,7 +74,7 @@ class Table(Base):
         self._name = value
 
     @property
-    def schema(self) -> str:
+    def schema(self) -> Schema:
         return self._schema
 
     @schema.setter
@@ -82,7 +82,7 @@ class Table(Base):
         self._schema = value
 
     @property
-    def database(self) -> str:
+    def database(self) -> Database:
         return self._database
 
     @database.setter
@@ -90,7 +90,7 @@ class Table(Base):
         self._database = value
 
     @property
-    def columns(self) -> str:
+    def columns(self) -> dict:
         return self._columns
 
     @columns.setter
@@ -98,7 +98,7 @@ class Table(Base):
         self._columns = value
 
     @property
-    def primary_key(self) -> str:
+    def primary_key(self) -> PrimaryKey:
         return self._primary_key
 
     @primary_key.setter
@@ -106,7 +106,7 @@ class Table(Base):
         self._primary_key = value
 
     @property
-    def constrains(self) -> str:
+    def constrains(self) -> dict:
         return self._constrains
 
     @constrains.setter

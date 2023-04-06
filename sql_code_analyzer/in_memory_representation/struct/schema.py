@@ -40,8 +40,8 @@ class Schema(Base):
         :param schema_name:
         """
         self.name = schema_name
-        self.tables = {}
-        self.database = database
+        self.tables: dict = {}
+        self.database: Database = database
         self.__add_schema_to_database()
 
     @property
@@ -53,7 +53,7 @@ class Schema(Base):
         self._name = value
 
     @property
-    def tables(self) -> str:
+    def tables(self) -> dict:
         return self._tables
 
     @tables.setter
@@ -61,7 +61,7 @@ class Schema(Base):
         self._tables = value
 
     @property
-    def database(self) -> str:
+    def database(self) -> Database:
         return self._database
 
     @database.setter
