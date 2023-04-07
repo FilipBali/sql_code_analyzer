@@ -28,8 +28,10 @@ class Base:
         """
         if isinstance(struct, list):
             if search_by_attr is None:
-                ProgramReporter.show_error_message("Internal error: check_if_exists method has not defined "
-                                            "search_by_attr parameter while searching in list structure")
+                ProgramReporter.show_error_message(
+                    message="Internal error: check_if_exists method has not defined \n"
+                            "search_by_attr parameter while searching in list structure."
+                )
 
             for item in struct:
                 if find_attr_val in getattr(item, search_by_attr):

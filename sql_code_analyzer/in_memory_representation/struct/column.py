@@ -140,7 +140,9 @@ class Column(Base):
     def _add_column_to_table(self) -> None:
         # Check if not already exists
         if self.table.check_if_column_exists(self.name):
-            ProgramReporter.show_error_message("Column " + self.name+ " already exists.")
+            ProgramReporter.show_error_message(
+                message="Column " + self.name+ " already exists."
+            )
 
         self.table.columns[self.name] = self
         self.table.database.index_registration(key=(self.table.schema.name, self.table.name, self.name),
@@ -170,7 +172,7 @@ class Column(Base):
                 message="Column: " + self.name + "\n"
                         "Constrain " + constrain.__class__.__name__ + " in not exists!\n"
                         "Your code try to delete a constrain that is not exists.\n"
-                        "This kind modification to memory representation is not allowed.\n"
+                        "This kind modification to memory representation is not allowed."
             )
         self.get_constrain(constrain_type=constrain.__class__)
 
@@ -193,7 +195,9 @@ class Column(Base):
         # Check if column is not part of composite primary key
         if self.table.primary_key.composite:
             if self in self.table.primary_key.columns:
-                ProgramReporter.show_error_message("Column to delete is part of primary key.")
+                ProgramReporter.show_error_message(
+                    message="Column " + self.name + " is part of primary key and can not be deleted!."
+                )
 
         self.table.database.index_cancel_registration(key=(self.table.schema.name, self.table.name, self.name))
         del self.table.columns[self.name]
@@ -235,3 +239,9 @@ class Column(Base):
                 return True
 
         return False
+
+    def verify_constrains_count(self, expected_count) -> bool:
+        return len(self.constrains) == expected_count
+
+    def verify_name(self, expected_name) -> bool:
+        return self.name == expected_name

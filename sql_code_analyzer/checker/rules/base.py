@@ -11,10 +11,10 @@ class BaseRuleMetaclass(type):
                 if callable(func):
                     if not (getattr(func, 'include_reports_applied', False) or getattr(func, 'include_class_reports', False)):
                         ProgramReporter.show_error_message(
-                            message="Rule function " + item + " does not use any decorator! "
-                                    "The function is located in the " + name + " class. "
-                                    "Program expects to use decorator @include_class_reports or @include_reports. "
-                                    "Also all functions that's name ends with \"_visit\" or \"_leave\" are expected "
+                            message="Rule function " + item + " does not use any decorator! \n"
+                                    "The function is located in the " + name + " class. \n"
+                                    "Program expects to use decorator @include_class_reports or @include_reports. \n"
+                                    "Also all functions that's name ends with \"_visit\" or \"_leave\" are expected \n"
                                     "to be use only as rules functions!"
                         )
 
@@ -93,8 +93,8 @@ class BaseRule(metaclass=BaseRuleMetaclass):
 
         else:
             ProgramReporter.show_warning_message(
-                message="Class attribute \"reports\" is not set! Reports from "
-                        + self._get_class_name() + " rule are not accepted for now. " +
+                message="Class attribute \"reports\" is not set! Reports from \n"
+                        + self._get_class_name() + " rule are not accepted for now. \n" +
                         "Please create and set this attribute when using @include_class_reports decorator."
             )
             self._reports.clear()
@@ -103,29 +103,29 @@ class BaseRule(metaclass=BaseRuleMetaclass):
     def _verify_report_data_dict(report_name: str, report_data_dict: dict) -> bool:
         if "id" not in report_data_dict:
             ProgramReporter.show_warning_message(
-                message="In report " + report_name + " is missing the id key! "
-                                                     "The report can not be processed."
+                message="In report " + report_name + " is missing the id key! \n"
+                        "The report can not be processed."
             )
             return False
 
         if not isinstance(report_data_dict["id"], str):
             ProgramReporter.show_warning_message(
-                message="In report " + report_name + " the content of id key must be string! "
-                                                     "The report can not be processed."
+                message="In report " + report_name + " the content of id key must be string! \n"
+                        "The report can not be processed."
             )
             return False
 
         if "message" not in report_data_dict:
             ProgramReporter.show_warning_message(
-                message="In report " + report_name + " is missing the message key! "
-                                                     "The report can not be processed."
+                message="In report " + report_name + " is missing the message key! \n"
+                        "The report can not be processed."
             )
             return False
 
         if not isinstance(report_data_dict["message"], str):
             ProgramReporter.show_warning_message(
-                message="In report " + report_name + " the content of message key must be string! "
-                                                     "The report can not be processed."
+                message="In report " + report_name + " the content of message key must be string! \n"
+                        "The report can not be processed."
             )
             return False
 

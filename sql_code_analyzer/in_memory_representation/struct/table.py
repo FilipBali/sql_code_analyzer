@@ -22,6 +22,7 @@ from sql_code_analyzer.in_memory_representation.struct.base import Base
 
 from typing import TYPE_CHECKING
 
+from sql_code_analyzer.in_memory_representation.struct.column import Column
 from sql_code_analyzer.output.reporter.base import ProgramReporter
 
 if TYPE_CHECKING:
@@ -60,7 +61,7 @@ class Table(Base):
         self.args = {}
         if node is not None:
             for arg in node.args:
-                if arg not in ["this", "kind","expressions"]:
+                if arg not in ["this", "kind", "expressions"]:
                     self.args[arg] = node.args[arg]
 
         self.__add_table_to_schema()
@@ -98,7 +99,7 @@ class Table(Base):
         self._columns = value
 
     @property
-    def primary_key(self) -> PrimaryKey:
+    def primary_key(self) -> PrimaryKey | None:
         return self._primary_key
 
     @primary_key.setter
@@ -113,7 +114,6 @@ class Table(Base):
     def constrains(self, value):
         self._constrains = value
 
-
     def __repr__(self):
         """
         TODO description
@@ -127,12 +127,15 @@ class Table(Base):
     #########################
     #          ADD
     #########################
+
     def __add_table_to_schema(self) -> None:
         if self.schema.check_if_table_exists(table=self):
-            ProgramReporter.show_error_message("Table already exists")
+            ProgramReporter.show_error_message(
+                message="Table " + self.name + " already exists."
+            )
 
         self.schema.tables[self.name] = self
-        self.schema.database.index_registration(key=(self.name, self.name),
+        self.schema.database.index_registration(key=(self.schema.name, self.name),
                                                 reg_object=self)
 
     ##################################################
@@ -141,6 +144,7 @@ class Table(Base):
     #########################
     #         CHECKS
     #########################
+
     def check_if_column_exists(self, column_name) -> bool:
         """
         TODO description check_if_column_exists
@@ -154,9 +158,12 @@ class Table(Base):
     #########################
     #      PRIMARY KEY
     #########################
+
     def add_primary_key(self, primary_key: PrimaryKey) -> None:
         if self.primary_key is not None:
-            ProgramReporter.show_error_message("Primary key already exists")
+            ProgramReporter.show_error_message(
+                message="Primary key already exists."
+            )
 
         self.primary_key = primary_key
 
@@ -166,14 +173,65 @@ class Table(Base):
     #########################
     #         DELETE
     #########################
+
     def delete_table(self) -> None:
         """
         TODO Description
         :return:
         """
 
-        if len(self.constrains) > 1:
-            ProgramReporter.show_error_message("Table can NOT be deleted because of relations with another tables")
+        if not self.verify_can_be_deleted:
+            ProgramReporter.show_error_message(
+                message="Table can NOT be deleted because of relations with another tables."
+            )
 
         self.database.index_cancel_registration(key=(self.schema.name, self.name))
         del self.schema.tables[self.name]
+
+    #########################
+    #         API
+    #########################
+
+    ################
+    #     GET
+    ################
+
+    def get_column(self, column_name: str) -> Column | None:
+        if not self.verify_column(column_name=column_name):
+            return None
+
+        return self.columns[column_name]
+
+    def get_columns_count(self) -> int:
+        return len(self.columns)
+
+    ################
+    #    VERIFY
+    ################
+
+    def verify_column(self, column_name: str) -> bool:
+        for colum in self.columns:
+            colum: Column
+            if colum.name == column_name:
+                return True
+
+        return False
+
+    def verify_columns_count(self, expected_count) -> bool:
+        return len(self.columns) == expected_count
+
+    def verify_name(self, expected_name) -> bool:
+        return self.name == expected_name
+
+    def verify_can_be_deleted(self) -> bool:
+        if len(self.constrains) > 1:
+            return False
+        else:
+            return True
+
+    def verify_is_relationship_with_another_table(self) -> bool:
+        return self.verify_can_be_deleted()
+
+    def verify_relationship_with_another_table(self, table: Table) -> bool:
+        ...
+

@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.database import Database
 
+
 def drop_table(ast: Expression, mem_rep: Database):
     """
     TODO description
@@ -68,7 +69,9 @@ def drop_table(ast: Expression, mem_rep: Database):
         table: Table = mem_rep.get_indexed_object(index_key=(schema.name,
                                                              table_name))
     else:
-        ProgramReporter.show_error_message("Missing table name while executing TABLE DROP.")
+        ProgramReporter.show_error_message(
+            message="Missing table name while executing TABLE DROP."
+        )
 
     if cascade:
         constrain_key: tuple = (table, table)

@@ -80,7 +80,9 @@ class Schema(Base):
         :return: None
         """
         if self.database.check_if_schema_exists_bool(self.name):
-            ProgramReporter.show_error_message("Schema already exists")
+            ProgramReporter.show_error_message(
+                message="Schema " + self.name + "  already exists."
+            )
 
         self.database.schemas[self.name] = self
         self.database.index_registration(key=self.name,
@@ -115,3 +117,24 @@ class Schema(Base):
         # TODO error ak je tabulka?
         del self.database.schemas[self.name]
         self.database.index_cancel_registration(key=self.name)
+
+    #########################
+    #         API
+    #########################
+
+    ################
+    #     GET
+    ################
+
+    def get_table_count(self) -> int:
+        return len(self.tables)
+
+    ################
+    #    VERIFY
+    ################
+
+    def verify_name(self, expected_name) -> bool:
+        return self.name == expected_name
+
+    def verify_table_count(self, expected_count) -> bool:
+        return len(self.tables) == expected_count
