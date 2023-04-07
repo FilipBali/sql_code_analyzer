@@ -5,6 +5,9 @@ from sql_code_analyzer.output.reporter.base import ProgramReporter
 
 
 class DBConfig:
+    """
+    Encapsulate the entered login details to object.
+    """
 
     def __init__(self, path: str, option: str):
 
@@ -107,6 +110,12 @@ class DBConfig:
         self._service = value
 
     def validate_args_presence(self):
+        """
+        Verify if all necessary login data are set.
+
+        :return:
+        """
+
         def is_property(item):
             return isinstance(item, property)
 
@@ -114,6 +123,7 @@ class DBConfig:
                               if getattr(self, name) is None]
 
         if len(properties_if_none):
-            ProgramReporter.show_error_message("Parameter(s) " + " ".join(str(item) for item in properties_if_none) +
-                                        " are not set!")
+            ProgramReporter.show_error_message(
+                message="Parameter(s) " + " ".join(str(item) for item in properties_if_none) + " are not set!."
+            )
 

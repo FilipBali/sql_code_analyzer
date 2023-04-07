@@ -10,13 +10,62 @@ from sql_code_analyzer.visitor.visitor import Visitor
 
 
 class RuleType(enum.Enum):
+    """
+    Enumerator of rule types.
+    Provides option to call rules when node is entered or leaved.
+    The rule is mostly the root node of some sub-tree of abstract syntax tree.
+    So this provides also provides functionality to call rules when
+    sub-tree is visited or leaved.
+
+    The enumerator value is always combined by node class name.
+    By this design it is possible to call only rules that are
+    expecting this kind of node
+
+    _visit rule is called when the node entered/visited.
+    _leave rule called when the node leaved.
+
+    Examples of using:
+    The node is called: ColumnDef
+    ColumnDef provides sub-tree to definition of column.
+    To call rule when ColumnDef is visited it is necessary to
+    create a method called columndef_visit.
+
+    For rule leaving ColumDef-tree the method is columndef_leave.
+    """
+
     Visit = "_visit"
     Leave = "_leave"
 
 
 class RulesVisitor(Visitor):
+    """
+    Provides functionality/logic of RulesVisitor visitor.
+    It is specialised to call the rules for visited node.
+    It is supporting restrict and permanent features.
 
+    Restrict feature can be used when we want to restrict
+    the rule to only some nodes. Restriction is defined by
+    appointing the node names.
+
+    Permanent feature is providing option to have an
+    indestructible rule object. When the rule is called
+    between nodes, the rule object is always new instance.
+    If permanent feature is set to true, the object is
+    saved and called also with another nodes. This can
+    be useful if we want to transfer data about linting
+    from one node to another one.
+
+    """
     def __init__(self, rules_args_data, expect_set):
+        """
+        Initial method for RulesVisitor instance
+
+        :param rules_args_data: Provides data about available rules and additional data about them.
+
+        :param expect_set: The set of expecting rules. The restrict feature. The expect_set comes from
+        statement that will be visited.
+        """
+
         self.expect_set = expect_set
         self._restrict_rules = {}
         self.rules_args_data = rules_args_data
@@ -28,24 +77,55 @@ class RulesVisitor(Visitor):
         self.get_rules()
         self._reports = []
 
-
     @staticmethod
-    def _get_node_type(node):
-        return node.__class__.__name__[:-1].lower()
+    def _get_node_type(node) -> str:
+        """
+        Getting the node type as lowered class name.
+        Class name is also the node name.
 
-    def traversing_ast_done(self):
-        # pop all and call visit_leave
-        # If node is None, then already
-        # iterated through all nodes,
-        # so we just check remaining nodes
-        # in queue which are waiting for
-        # _leave function call
+        :param node: The node of abstract syntax tree.
+        :return: The name of node type.
+        """
 
+        # TODO _
+        # return node.__class__.__name__[:-1].lower()
+        return node.__class__.__name__.lower()
+
+    def traversing_ast_done(self) -> None:
+        """
+        It is used when traversing of abstract syntax tree is done.
+        Over time as the RuleVisitor visits nodes there are saved
+        _leave functions of these nodes.
+        When traversing of the abstract syntax tree is done, there
+        are always some _leave functions that need to be called.
+        This function do this work.
+
+        :return: None
+        """
+
+        """
+        Pop all and call visit_leave
+        If node is None, then already
+        iterated through all nodes,
+        so we just check remaining nodes
+        in queue which are waiting for
+        _leave function call
+        """
         while not self.visit_leave_queue.empty():
             self.node_to_lint = self.visit_leave_queue.get()
             self.lint_node(RuleType.Leave)
 
-    def visit(self, node):
+    def visit(self, node) -> None:
+        """
+        Provides the main logic of RuleVisitor.
+        As the abstract syntax tree is traversed
+        the visit function calls the rules over
+        particular nodes and provides node linting.
+
+        :param node: Node which will be visited
+        :return: None
+        """
+
         # Save node
         self.node = node
 
@@ -149,13 +229,31 @@ class RulesVisitor(Visitor):
                 self.lint_node(RuleType.Visit)
 
             else:
-                ProgramReporter.show_error_message("Unexpected error during evaluating rules.", ExitWith.InternalError)
+                ProgramReporter.show_error_message(
+                    message="Unexpected error during evaluating rules.",
+                    exit_code=ExitWith.InternalError
+                )
 
-    def lint_node(self, visit_or_leave):
+    def lint_node(self, visit_or_leave) -> None:
+        """
+        This function encapsulates the application of rules
+        to a node.
+
+        :param visit_or_leave: Specify rule type.
+        :return: None
+        """
+
         # Apply rules based on node type
         self.apply_rules(visit_or_leave=visit_or_leave)
 
-    def apply_rules(self, visit_or_leave: RuleType):
+    def apply_rules(self, visit_or_leave: RuleType) -> None:
+        """
+        Provides logic of application of particular
+        rules to node.
+
+        :param visit_or_leave: Specify rule type.
+        :return: None
+        """
 
         # Get rules that satisfy restrictions or have no restrictions
         rules_result = [obj for obj, restrictions in self._restrict_rules.items()
@@ -185,12 +283,13 @@ class RulesVisitor(Visitor):
                 self.call_rule(rule_method=rule_method)
                 ...
 
-    @staticmethod
-    def path_leaf(path):
-        head, tail = ntpath.split(path)
-        return tail or ntpath.basename(head)
+    def get_rules(self) -> None:
+        """
+        Extracts a list of rule files from the data obtained by processing program arguments.
 
-    def get_rules(self):
+        :return: None
+        """
+
         # Go through all rule files
         for path in self.rules_args_data.paths:
 
@@ -208,7 +307,14 @@ class RulesVisitor(Visitor):
                 # Apply registration to this visitor
                 register_method(self)
 
-    def register_rule(self, rule):
+    def register_rule(self, rule) -> None:
+        """
+        Registers particular rules for their further use for node checking.
+
+        :param rule: The rule class
+        :return: Nome
+        """
+
         # Register rule
         self._rules.append(rule)
 
@@ -223,11 +329,25 @@ class RulesVisitor(Visitor):
 
         ...
 
-    def call_rule(self, rule_method):
+    def call_rule(self, rule_method) -> None:
+        """
+        Call the rule on the node and save the reports.
+
+        :param rule_method: Particular rule method
+        :return: None
+        """
+
         reports: BaseRule = rule_method(self.node_to_lint)
         self.save_reports(reports=reports)
 
-    def save_reports(self, reports):
+    def save_reports(self, reports) -> None:
+        """
+        The logic of storing reports from the rule.
+
+        :param reports: BaseRule object
+        :return: None
+        """
+
         reports = reports.get_reports()
         for report in reports:
             self._reports.append(report)

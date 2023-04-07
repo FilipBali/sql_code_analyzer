@@ -7,12 +7,26 @@ if TYPE_CHECKING:
     from sql_code_analyzer.input.args_handler import CArgs
 
 
-def parse_dll_to_statements(args: CArgs, ddl: list):
+def parse_dll_to_statements(args: CArgs, ddl: list) -> None:
+    """
+    Provides parsing DLL data to statements.
+
+    :param args: Program argument object
+    :param ddl: DDL data
+    :return: None
+    """
+
     for ddl_item in ddl:
         args.statements.append(ddl_item.string)
 
 
-def database_connection_handler(args: CArgs):
+def database_connection_handler(args: CArgs) -> None:
+    """
+    Provides switch to implemented database connections.
+
+    :param args: Program arguments object.
+    :return: None
+    """
 
     match args.connection_file_option.lower():
         case "oracle":

@@ -6,7 +6,13 @@ if TYPE_CHECKING:
 
 
 def make_connection(db_config: DBConfig):
-    # do import if necessary
+    """
+    Makes connection with database with the entered login details.
+    :param db_config: Login details
+    :return: Engine and MetaData obtained after connection to database.
+    """
+
+    # do import here if necessary
     #
     from sqlalchemy import create_engine, MetaData
 
