@@ -15,6 +15,6 @@ def adapt_ast(ast):
         if stop_parse:
             break
 
-        class_factory(name=node.__class__.__name__ + "_", from_class=node.__class__).cast(node)
+        class_factory(name=node.__class__.__name__, library_class=node.__class__).cast(node)
 
     return ast

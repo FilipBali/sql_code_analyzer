@@ -5,14 +5,14 @@ from sql_code_analyzer.adapter.freature_class.accept_visitor import AcceptVisito
 from sql_code_analyzer.adapter.freature_class.base_cast import BaseCast
 
 
-def class_factory(name, from_class, base_class=BaseClass, base_cast: Type[BaseCast] = BaseCast, args_names=None):
+def class_factory(name, library_class, args_names=None):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             if key not in args_names:
                 raise TypeError("Argument %s not valid for %s"
                     % (key, self.__class__.__name__))
             setattr(self, key, value)
-        base_class.__init__(self, name[:-len("Class")])
+        BaseClass.__init__(self, name[:-len("Class")])
 
-    inherit_classes = (from_class, base_cast, AcceptVisitor)
-    return cast(Type[base_cast], type(name, inherit_classes, {"__init__": __init__}))
+    inherit_classes = (library_class, BaseCast, AcceptVisitor)
+    return cast(Type[BaseCast], type(name, inherit_classes, {"__init__": __init__}))
