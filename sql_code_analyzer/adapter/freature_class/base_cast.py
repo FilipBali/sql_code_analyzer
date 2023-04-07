@@ -1,6 +1,6 @@
 class BaseCast:
     @classmethod
-    def cast(cls, object):
+    def cast(cls, instance):
         """Cast an object from Class into a Class_."""
-        object.__class__ = cls
-        return object
+        instance.__class__ = cls
+        return instance
