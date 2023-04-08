@@ -55,8 +55,7 @@ column_constrains_list = (
 
 class Column(Base):
     """
-    TODO Column Description
-    Description
+    Represents table column in memory representation
     """
 
     ###################################
@@ -70,11 +69,10 @@ class Column(Base):
                  table: Table,
                  ):
         """
-        TODO Description
-        :param name:
-        :param datatype:
-        :param constrains:
-        :param table:
+        :param identifier: Node
+        :param datatype: Column datatype
+        :param constrains: List of column constrains
+        :param table: The table to which the column belongs
         """
         self.name: str = identifier.args['this']
         self.is_name_quoted: bool = identifier.args['quoted']
@@ -124,10 +122,6 @@ class Column(Base):
         self._table = value
 
     def __repr__(self):
-        """
-        TODO description
-        :return:
-        """
         return repr("Column "+str(self.name)+" "+str(self.datatype))
 
     ##################################################
@@ -138,10 +132,15 @@ class Column(Base):
     #          ADD
     #########################
     def _add_column_to_table(self) -> None:
+        """
+        Adds a column to the table to which it belongs
+        :return: None
+        """
+
         # Check if not already exists
         if self.table.check_if_column_exists(self.name):
             ProgramReporter.show_error_message(
-                message="Column " + self.name+ " already exists."
+                message="Column " + self.name + " already exists."
             )
 
         self.table.columns[self.name] = self
@@ -157,6 +156,12 @@ class Column(Base):
     #########################
 
     def add_constrain(self, constrain: Constrain) -> None:
+        """
+        Adds a constraint to the column
+        :param constrain: The constraint object
+        :return: None
+        """
+
         if self.verify_constrain(constrain_type=constrain.__class__):
             ProgramReporter.show_error_message(
                 message="Column: " + self.name + "\n"
@@ -167,6 +172,11 @@ class Column(Base):
         self.constrains.append(constrain)
 
     def delete_constrain(self, constrain: Constrain) -> None:
+        """
+        Delete a column to the table to which it belongs
+        :param constrain: The constraint object
+        :return: None
+        """
         if not self.verify_constrain(constrain_type=constrain.__class__):
             ProgramReporter.show_error_message(
                 message="Column: " + self.name + "\n"
@@ -180,7 +190,12 @@ class Column(Base):
     #        DATATYPE
     #########################
 
-    def change_datatype(self, new_datatype: Datatype):
+    def change_datatype(self, new_datatype: Datatype) -> None:
+        """
+        Change datatype of column
+        :param new_datatype: The datatype object
+        :return: None
+        """
         self.datatype = new_datatype
 
     #########################
@@ -189,8 +204,8 @@ class Column(Base):
 
     def delete_column(self) -> None:
         """
-
-        :return:
+        Delete column from memory representation
+        :return: None
         """
         # Check if column is not part of composite primary key
         if self.table.primary_key.composite:
@@ -210,7 +225,12 @@ class Column(Base):
     #     GET
     ################
 
-    def get_constrain(self, constrain_type: Type[Constrain]):
+    def get_constrain(self, constrain_type: Type[Constrain]) -> Constrain | None:
+        """
+        Get constrain from list of constrains
+        :param constrain_type: Constrain type (for example PreventNotNull)
+        :return: The constraint or None
+        """
         for constrain in self._constrains:
             if type(constrain) is constrain_type:
                 return constrain
@@ -218,12 +238,24 @@ class Column(Base):
         return None
 
     def get_constrains_count(self) -> int:
+        """
+        Return count of constrain which are belongs to column
+        :return: Count of constrains
+        """
         return len(self.constrains)
 
     def schema(self):
+        """
+        Returns the schema to which it belongs
+        :return:
+        """
         return self.table.schema
 
     def database(self):
+        """
+        Returns the database to which it belongs
+        :return:
+        """
         return self.table.database
 
     ################
@@ -231,9 +263,19 @@ class Column(Base):
     ################
 
     def verify_datatype(self, datatype: DataType.Type) -> bool:
+        """
+        Return True if column has this datatype otherwise False
+        :param datatype: The datatype
+        :return: True/False
+        """
         return datatype is self.datatype.column_datatype
 
     def verify_constrain(self, constrain_type: Type[Constrain]) -> bool:
+        """
+        Return True if column has this type of constrain otherwise False
+        :param constrain_type: The constraint type
+        :return: True/False
+        """
         for constrain in self._constrains:
             if type(constrain) is constrain_type:
                 return True
@@ -241,7 +283,17 @@ class Column(Base):
         return False
 
     def verify_constrains_count(self, expected_count) -> bool:
+        """
+        Return True if column has this count of constrains otherwise False
+        :param expected_count: Expected count
+        :return: True/False
+        """
         return len(self.constrains) == expected_count
 
     def verify_name(self, expected_name) -> bool:
+        """
+        Return True if column has this name otherwise False
+        :param expected_name: The name
+        :return: True/False
+        """
         return self.name == expected_name
