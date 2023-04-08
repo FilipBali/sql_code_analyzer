@@ -1,6 +1,5 @@
 import enum
 import importlib.util
-import ntpath
 from queue import LifoQueue
 
 from sql_code_analyzer.checker.rules.base import BaseRule
@@ -87,8 +86,6 @@ class RulesVisitor(Visitor):
         :return: The name of node type.
         """
 
-        # TODO _
-        # return node.__class__.__name__[:-1].lower()
         return node.__class__.__name__.lower()
 
     def traversing_ast_done(self) -> None:
