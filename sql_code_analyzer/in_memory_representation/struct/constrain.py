@@ -9,44 +9,59 @@ if TYPE_CHECKING:
 
 class Constrain(Base):
     """
-    TODO Description
+    This class provides constrain specific interface to children classes
     """
-    def set_name(self, name: str):
-        """
-        TODO Description
-        :param name:
-        :return:
-        """
-        self.name = name
 
-    def set_property(self, attr: str, val):
+    def __init__(self):
+        self.name: str = ""
+
+    def set_name(self, name: str) -> None:
         """
-        TODO Description
-        :param attr:
-        :param val:
-        :return:
+        Set name of constrain if needed
+        :param name: Name of constrain if needed
+        :return: None
         """
+
+        self.name: str = name
+
+    def set_property(self, attr: str, val) -> None:
+        """
+        Dynamically set property in instnace
+        :param attr: Attribute name
+        :param val: Attribute value
+        :return: None
+        """
+
         setattr(self, attr, val)
 
 
 class PreventNotNull(Constrain):
     """
-    TODO Description
+    Represent NOT NULL constrain in memory representation
     """
+
     def __init__(self, column: Column | None, name=None):
         """
-        TODO Description
-        :param column:
-        :param name:
+        :param column: Column to which the restriction applies
+        :param name: Name of constrain if needed
         """
+
+        super().__init__()
         self.set_name(name)
 
         self.column = column
 
 
 class PrimaryKey(Constrain):
-
+    """
+    Represent constrain PRIMARY KEY in memory representation
+    """
     def __init__(self, columns: list):
+        """
+        :param columns: Columns to which the restriction applies
+        """
+
+        super().__init__()
         if len(columns) > 1:
             self.composite = True
 
@@ -59,22 +74,19 @@ class PrimaryKey(Constrain):
 
 class ForeignKey(Constrain):
     """
-    TODO Description
+    Represent FOREIGN KEY constrain in memory representation
     """
-    def __init__(self,
-                 fk_columns: [Column],
-                 reference_columns: [Column],
-                 table_fk,
-                 table_ref,
-                 name: str = None):
+    def __init__(self, fk_columns: [Column], reference_columns: [Column], table_fk, table_ref, name: str = None):
         """
         TODO Description
         :param fk_columns:
         :param reference_columns:
         :param table_fk:
         :param table_ref:
-        :param name:
+        :param name: Name of constrain if needed
         """
+
+        super().__init__()
         self.set_name(name)
 
         self.table_fk: Table = table_fk
@@ -83,10 +95,10 @@ class ForeignKey(Constrain):
         self.fk_columns = fk_columns
         self.reference_columns = reference_columns
 
-    def delete_reference(self):
+    def delete_reference(self) -> None:
         """
-        TODO Description
-        :return:
+        Deletes reference of FOREIGN KEY in memory representation
+        :return: None
         """
         table_fk_constrains: dict = self.table_fk.constrains
         table_ref_constrains: dict = self.table_ref.constrains
@@ -106,14 +118,15 @@ class ForeignKey(Constrain):
 
 class UniqueValue(Constrain):
     """
-    TODO Description
+    Represent UNIQUE constrain in memory representation
     """
     def __init__(self, column: Column, primary_key=False, name=None):
         """
-        TODO Description
-        :param column:
-        :param name:
+        :param column: Column to which the restriction applies
+        :param name: Name of constrain if needed
         """
+
+        super().__init__()
         self.set_name(name)
         self.column = column
         self.primary_key = primary_key
@@ -124,15 +137,16 @@ class UniqueValue(Constrain):
 
 class DefaultValue(Constrain):
     """
-    TODO Description
+    Represent DEFAULT constrain in memory representation
     """
     def __init__(self, default_value, column: Column | None, name=None):
         """
-        TODO Description
-        :param default_value:
-        :param column:
-        :param name:
+        :param default_value: Default value of constrain
+        :param column: Column to which the restriction applies
+        :param name: Name of constrain if needed
         """
+
+        super().__init__()
         self.set_name(name)
         self.default_value = default_value
         self.column = column
@@ -140,28 +154,30 @@ class DefaultValue(Constrain):
 
 class Index(Constrain):
     """
-    TODO Description
+    Represent INDEX in memory representation
     """
     def __init__(self, column: Column, name=None):
         """
-        TODO Description
-        :param column:
-        :param name:
+        :param column: Column to which the restriction applies
+        :param name: Name of constrain if needed
         """
+
+        super().__init__()
         self.set_name(name)
         self.column = column
 
 
 class CheckExpression(Constrain):
     """
-    TODO Description
+    Represent CHECK constrain in memory representation
     """
     def __init__(self, expression, name=None):
         """
-        TODO Description
-        :param expression:
-        :param name:
+        :param expression: Representation of condition
+        :param name: Name of constrain if needed
         """
+
+        super().__init__()
         self.set_name(name)
 
         self.expression = expression
