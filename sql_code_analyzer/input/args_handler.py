@@ -17,7 +17,15 @@ from test_cases.sqlglot.tester import run_tests
 
 class CArgs:
     """
-    TODO description
+    Instance from CArgs class contains all data comes as input of program.
+
+    Provides:
+        Program arguments parsing and processing and interface to obtain these data.
+        Help message where are parameter described in detail.
+        Features retrieve SQL input from file/standard input/database server.
+        Possibility to create configuration template for proper database connection.
+        Create statements from raw SQL file
+
     """
 
     def __init__(self):
@@ -84,29 +92,23 @@ class CArgs:
             self.raw_sql = stdin.read()
             parse_raw_sql_to_statement(self)
 
-    # dialect: str = ""
-    # file: str = ""
-    # tests: bool = False
-    # raw_sql: str = ""
-    # statements: list = []
-    # rules_path: str = None
-    # include_folders: list = []
-    # exclude_folders: list = []
-    # serialization_path: str = None
-    # deserialization_path: str = None
-    # connection_file_create: bool = False
-    # connection_file_option: str = "Default"
-    # connection_file_path: str = None
-    # db_config = None
-    # report_output_nothing = None
-    # report_output_file = None
+    def update_parameters(self, args: argparse) -> None:
+        """
+        Dynamically creates/updates self object properties
+        :param args: Data that need to be saved to self object
+        :return: None
+        """
 
-    def update_parameters(self, args: argparse):
         for argument, value in vars(args).items():
             setattr(self, argument, value)
 
     @staticmethod
-    def create_database_connection_file():
+    def create_database_connection_file() -> None:
+        """
+        Create a template file as an example for proper database connection.
+        :return: None
+        """
+
         root_path = get_program_root_path()
 
         f = open(os.path.join(root_path, "db_connection.cfg"), "w")
@@ -144,12 +146,17 @@ class CArgs:
         f.close()
 
 
-def parse_raw_sql_to_statement(args_data):
+def parse_raw_sql_to_statement(args_data) -> None:
     """
-    TODO description
-    :param args_data:
-    :return:
+    Implements algorithm to detect statement from raw input file.
+    Statements are stored as items in list.
+    If appropriate, stand alone comments blocks are deleted.
+    Statements are detected by statement's terminating character ";"
+
+    :param args_data: Arguments data
+    :return: None
     """
+
     raw = args_data.raw_sql
 
     # match two or more lines
@@ -158,36 +165,42 @@ def parse_raw_sql_to_statement(args_data):
     # call lstrip method on every single statement
     statements = list(map(methodcaller("lstrip"), statements))
 
-    regex = r"(?:\r?\n){1,}"
-    to_remove = []
+    def delete_comment_blocks():
+        regex = r"(?:\r?\n){1,}"
+        to_remove = []
 
-    #####################################################################
-    # Find and delete all blocks of comments
-    # Reason: SQLGLot ends up with an error when it only parses comments
-    #####################################################################
-    for statement in statements:
-        stmt_split_by_line = re.split(regex, statement.strip())
-        stmt_split_by_line = list(map(methodcaller("lstrip"), stmt_split_by_line))
+        #####################################################################
+        # Find and delete all blocks of comments
+        # Reason: SQLGLot ends up with an error when it only parses comments
+        #####################################################################
+        for statement in statements:
+            stmt_split_by_line = re.split(regex, statement.strip())
+            stmt_split_by_line = list(map(methodcaller("lstrip"), stmt_split_by_line))
 
-        remove_statement = True
-        for statement_part in stmt_split_by_line:
-            # statement_part
-            if not (remove_statement and statement_part.startswith("--")):
-                remove_statement = False
-                break
+            remove_statement = True
+            for statement_part in stmt_split_by_line:
+                # statement_part
+                if not (remove_statement and statement_part.startswith("--")):
+                    remove_statement = False
+                    break
 
-        if remove_statement:
-            to_remove.append(statement)
+            if remove_statement:
+                to_remove.append(statement)
 
-    for comment_block in to_remove:
-        statements.remove(comment_block)
+        for comment_block in to_remove:
+            statements.remove(comment_block)
 
-    delimited_statements = []
-    d = ";"
-    for statement in statements:
-        delimited_statements.append([e + d for e in statement.split(d) if e])
+    # Delete comments block
+    delete_comment_blocks()
 
-    statements = [item for sublist in delimited_statements for item in sublist]
+    # Split statements
+    statement_delimiter = ";"
+    statements = ' '.join(statements).split(statement_delimiter)
+    statements = [item + statement_delimiter for item in statements]
+
+    # Delete comments block again
+    # There can be again because of statement split by delimiter ;
+    delete_comment_blocks()
 
     keep_statements = []
     for statement in statements:
@@ -208,9 +221,10 @@ def parse_raw_sql_to_statement(args_data):
 
 def parse_args() -> argparse:
     """
-    TODO description
-    :return:
+    Parse program arguments using Argparse library
+    :return: Argparse object
     """
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--tests",
                         action='store_true',
@@ -310,10 +324,16 @@ def parse_args() -> argparse:
     return args
 
 
-def process_file(self, args: argparse):
+def process_file(self, args: argparse) -> None:
     """
-    TODO description
-    :return:
+    Process and verify if file exists.
+    The arguments of the program need to be verified before they are used.
+    If the user makes a mistake and sets a path that is not correct,
+    for example it is not a file, the program will detect this
+    and give the user the opportunity to correct the path
+    or choose to exit the program.
+
+    :return: None
     """
 
     err_user_answer = False
