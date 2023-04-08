@@ -26,17 +26,15 @@ if TYPE_CHECKING:
 
 class Database(Base):
     """
-    TODO description
+    Represents database in memory representation.
     """
 
     ###################################
     #              INIT
     ###################################
-    def __init__(self,
-                 db_name: str = ""):
+    def __init__(self, db_name: str = ""):
         """
-        TODO description
-        :param db_name:
+        :param db_name: Database name
         """
 
         self.name = db_name
@@ -67,8 +65,6 @@ class Database(Base):
     def object_index(self, value):
         self._object_index = value
 
-
-
     ##################################################
     #                  PRIVATE METHODS
     ##################################################
@@ -80,10 +76,13 @@ class Database(Base):
     #########################
     #        INTERNAL
     #########################
+
     def set_default_scheme(self) -> Database:
         """
-        TODO description
-        :return:
+        Sets default scheme to database instance
+        In database system is common to have database scheme
+        But the name can be different based on implementation of database system
+        :return: Database instance
         """
 
         from sql_code_analyzer.in_memory_representation.struct.schema import Schema
@@ -99,19 +98,20 @@ class Database(Base):
     ###########################
     def index_registration(self, key, reg_object) -> None:
         """
-        TODO description
-        :param key:
-        :param reg_object:
-        :return:
+        Register object to database index
+        Database index is focusing on faster access to database objects
+        :param key: The registration key
+        :param reg_object: Reference to the object
+        :return: None
         """
 
         self.object_index[key] = reg_object
 
     def index_cancel_registration(self, key) -> None:
         """
-        TODO description
-        :param key:
-        :return:
+        Delete object from database index
+        :param key: The key of object in database index
+        :return: None
         """
 
         # list where are stored items that will be deleted from object_index
@@ -161,8 +161,8 @@ class Database(Base):
 
     def get_indexed_object(self, index_key):
         """
-        TODO description
-        :param index_key:
+        Get object from database using database index
+        :param index_key: The database index key which refers to the object
         :return:
         """
         if index_key in self.object_index:
@@ -177,9 +177,9 @@ class Database(Base):
     ###########################
     def check_if_schema_exists_bool(self, target_schema_name) -> bool:
         """
-        TODO description
-        :param target_schema_name:
-        :return:
+        Verify if target shcema exists in database
+        :param target_schema_name: The schema name
+        :return: True/False
         """
 
         return self.check_if_exists(target_schema_name, self.schemas)
@@ -189,9 +189,9 @@ class Database(Base):
     ###########################
     def get_schema_by_name_or_error(self, schema_name: str) -> Schema:
         """
-        TODO description
-        :param schema_name:
-        :return:
+        Return schema if exists in database or raise error
+        :param schema_name: The schema name
+        :return: The instance of schema or raised error
         """
 
         if schema_name == "":
@@ -206,7 +206,7 @@ class Database(Base):
     def get_or_create_schema(self, database, schema_name) -> Schema:
         """
         Get schema from database if already exists there, or it will be created
-        :param database:
+        :param database: TODO neda sa nahradit self?
         :param schema_name: Schema name
         :return: Schema object
         """
@@ -222,10 +222,10 @@ class Database(Base):
     ###########################
     def get_table_by_name_or_error(self, schema_name, table_name: str) -> Table:
         """
-        TODO description
-        :param schema_name:
-        :param table_name:
-        :return:
+        Get instance of table or raise error
+        :param schema_name: The schema name
+        :param table_name: The table name
+        :return: Returns table instance if exists otherwise raised error
         """
 
         schema_instance = self.get_schema_by_name_or_error(schema_name)
