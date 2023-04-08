@@ -25,6 +25,17 @@ def parse_foreign_key(visited_nodes,
                       schema,
                       table) -> None:
 
+    """
+    Contains logic to create foreign key and relations between two tables
+
+    :param visited_nodes: Visited nodes structure created in create_table function
+    :param ast_generator: Abstract syntax generator created in create_table function
+    :param mem_rep: Reference to memory representation
+    :param schema: Target database schema
+    :param table: Target database table
+    :return: None
+    """
+
     fk_columns: list = []
 
     ref_table: Table | None = None
@@ -80,10 +91,12 @@ def parse_foreign_key(visited_nodes,
 
 def create_table(ast: Expression, mem_rep: Database) -> None:
     """
-    
-    :param ast:
-    :param mem_rep:
-    :return:
+    Provides parsing of abstract syntax tree of CREATE TABLE statement
+    It creates new table in memory representation according to processed data
+
+    :param ast: Abstract syntax tree of CREATE TABLE statement
+    :param mem_rep: Reference to memory representation
+    :return: None
     """
 
     ast_generator = ast.walk(bfs=False)
@@ -372,7 +385,7 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
                 ProgramReporter.show_warning_message(
                     message="Unexpected expression in CREATE TABLE statement: " + node.name + " " + node.key + "."
                 )
-    ...
+
 
 def register(linter) -> None:
     linter.register_modify_representation_statement(
