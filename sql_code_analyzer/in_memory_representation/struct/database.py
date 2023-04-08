@@ -177,7 +177,7 @@ class Database(Base):
     ###########################
     def check_if_schema_exists_bool(self, target_schema_name) -> bool:
         """
-        Verify if target shcema exists in database
+        Verify if target schema exists in database
         :param target_schema_name: The schema name
         :return: True/False
         """
