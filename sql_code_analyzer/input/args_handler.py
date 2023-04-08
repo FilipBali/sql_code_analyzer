@@ -29,6 +29,7 @@ class CArgs:
 
     def __init__(self):
 
+        self.show_dll = False
         self.database_statements = []
         self.dialect: str = ""
         self.file: str = ""
