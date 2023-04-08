@@ -10,9 +10,6 @@ from typing import Generator
 #              sqlglot's IMPORT
 ###############################################
 import sqlglot
-from sql_code_analyzer.in_memory_representation.struct.column import Column
-from sql_code_analyzer.in_memory_representation.struct.constrain import PreventNotNull, ForeignKey
-from sql_code_analyzer.in_memory_representation.struct.table import Table
 from sql_code_analyzer.tools.get_program_root_path import get_program_root_path
 from sqlglot import expressions as exp
 
@@ -67,12 +64,6 @@ class Linter:
         self._get_modify_representation_statements()
         self._sql_statements_processing()
         self._make_serialization()
-        # col: Column = self.mem_rep.object_index[('dbo', 'TableExample', 'col10')]
-        # col.verify_constrain(constrain_type=ForeignKey)
-        # col.verify_datatype(datatype=DataType.Type.CHAR)
-
-        # tab: Table = self.mem_rep.object_index[('dbo', 'Table1')]
-        # tab.
 
         Terminator.exit(enums.ExitWith.Success)
 
