@@ -16,13 +16,14 @@ if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.database import Database
 
 
-def create_schema(ast: exp, mem_rep: Database):
+def create_schema(ast: exp, mem_rep: Database) -> None:
     """
-    TODO description
-    :param ast:
-    :param mem_rep:
-    :return:
+    Create schema in memory representation
+    :param ast: Abstract syntax tree of schema
+    :param mem_rep: Reference to memory representation
+    :return: None
     """
+
     ast_generator = ast.walk(bfs=False)
     visited_nodes = Queue()
 
@@ -44,6 +45,7 @@ def create_schema(ast: exp, mem_rep: Database):
                 schema_name = node.name
 
     Schema(database=mem_rep, schema_name=schema_name)
+
 
 def register(linter) -> None:
     linter.register_modify_representation_statement(
