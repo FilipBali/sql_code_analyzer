@@ -7,14 +7,14 @@ from queue import Queue
 from typing import Generator
 
 ###############################################
-#              sqlglot's IMPORT
+#              SQLGlot IMPORT
 ###############################################
 import sqlglot
 from sql_code_analyzer.tools.get_program_root_path import get_program_root_path
 from sqlglot import expressions as exp
 
 ###############################################
-#          sql_code_analyzer's IMPORT
+#          sql_code_analyzer IMPORT
 ###############################################
 
 from sql_code_analyzer.adapter.adapt_ast import adapt_ast
@@ -57,15 +57,18 @@ class Linter:
     def __init__(self):
 
         self._modify_representation_functions = {}
+        self._parse_error_occurred = False
 
         self._init_program_argument_class()
         self._init_rules_class()
         self._init_memory_database_representation()
         self._get_modify_representation_statements()
         self._sql_statements_processing()
-        self._make_serialization()
 
-        Terminator.exit(enums.ExitWith.Success)
+        # If serialization path is None
+        # Program assume that serialization is not wanted.
+        if self.args_data.serialization_path is not None:
+            self._make_serialization()
 
     def _init_program_argument_class(self) -> None:
         """
@@ -111,12 +114,17 @@ class Linter:
         :return: True/False
         """
 
-        # TODO Refractor to check if isinstance of class for example exp.Create?
         # Before doing that it must be done problem with alter statements
         # Because they have inconsistent naming.. key=AlterTable not key=Alter, kind=Table
         if hasattr(self.ast, "key"):
             # if self.ast.key.lower() in ["create_", "alter_", "altertable_", "drop_", "insert_", "update_", "delete_"]:
-            if self.ast.key.lower() in ["create", "alter", "altertable", "drop", "insert", "update", "delete"]:
+            # if self.ast.key.lower() in ["create", "alter", "altertable", "drop", "insert", "update", "delete"]:
+
+            modifying_classes = (exp.Create, exp.Drop,
+                                 exp.AlterTable, exp.AlterColumn,
+                                 exp.Insert, exp.Update, exp.Delete)
+
+            if isinstance(self.ast, modifying_classes):
                 return True
 
         return False
@@ -140,7 +148,17 @@ class Linter:
         # iterate over SQL statements
         for statement in self.args_data.statements:
 
-            self.ast, self.tokens = sqlglot.parse_one(statement)
+            try:
+                self.ast, self.tokens = sqlglot.parse_one(statement)
+            except (Exception,) as e:
+
+                self._parse_error_occurred = True
+
+                for arg in e.args:
+                    # TODO create report with parse error occurred tag
+                    ...
+
+                continue
 
             self._include_code_locations()
 
@@ -533,6 +551,33 @@ class Linter:
         :return: None
         """
 
+        if self._parse_error_occurred:
+
+            err_user_answer = False
+            while 1:
+
+                if err_user_answer:
+                    user_answer = input("\nPlease answer only [yes/no] or in short way [y/n]\n")
+                else:
+                    ProgramReporter.show_warning_message(
+                        message="An error occurred while parsing SQL statements.\n"
+                                "One or more statements failed to parse. \n"
+                                "Thus, these statements were not part of the linting \n"
+                                "or memory representation changes, and the resulting \n"
+                                "memory representation may be in an unexpected state. \n"
+                                "Do you still want to continue saving the memory representation?"
+                    )
+                    user_answer = input()
+
+                if user_answer.lower() == "n" or user_answer.lower() == "no":
+                    Terminator.exit(enums.ExitWith.Success)
+
+                elif user_answer.lower() == "y" or user_answer.lower() == "yes":
+                    break
+
+                else:
+                    err_user_answer = True
+
         # Provide serialization memory representation and store to serialization path
         if self.args_data.serialization_path is not None:
             self.mem_rep.serialize_and_save(
@@ -540,4 +585,4 @@ class Linter:
             )
         aa = pickle.dumps(self.mem_rep)
         bb = pickle.loads(aa)
-        ...
+
