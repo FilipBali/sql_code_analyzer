@@ -33,3 +33,4 @@ class ExitWith(enum.Enum):
     ArgumentError = -2
     ParsingError = -3
     ContextError = -4
+    TypeIntegrityError = -5

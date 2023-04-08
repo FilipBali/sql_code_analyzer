@@ -123,7 +123,7 @@ class DBConfig:
                               if getattr(self, name) is None]
 
         if len(properties_if_none):
-            ProgramReporter.show_error_message(
+            ProgramReporter.show_missing_property_error_message(
                 message="Parameter(s) " + " ".join(str(item) for item in properties_if_none) + " are not set!."
             )
 

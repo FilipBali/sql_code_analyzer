@@ -49,12 +49,12 @@ class BaseRule(metaclass=BaseRuleMetaclass):
         node = raw_report[1]
 
         if not isinstance(report_name, str):
-            ProgramReporter.show_warning_message(
+            ProgramReporter.show_type_integrity_warning_message(
                 message="First parameter of create_report method must be name (string) of reporting message."
             )
 
         if not issubclass(type(node), BaseCast):
-            ProgramReporter.show_warning_message(
+            ProgramReporter.show_type_integrity_warning_message(
                 message="Second parameter of create_report method must be node of abstract syntax tree."
             )
 
@@ -66,7 +66,7 @@ class BaseRule(metaclass=BaseRuleMetaclass):
             report_data_dict = self.reports[report_name]
 
         except (Exception,):
-            ProgramReporter.show_warning_message(
+            ProgramReporter.show_missing_property_warning_message(
                 message="Report name " + report_name + " not exists! The report can not be processed."
             )
             return
@@ -92,7 +92,7 @@ class BaseRule(metaclass=BaseRuleMetaclass):
             return
 
         else:
-            ProgramReporter.show_warning_message(
+            ProgramReporter.show_missing_property_warning_message(
                 message="Class attribute \"reports\" is not set! Reports from \n"
                         + self._get_class_name() + " rule are not accepted for now. \n" +
                         "Please create and set this attribute when using @include_class_reports decorator."
@@ -102,28 +102,28 @@ class BaseRule(metaclass=BaseRuleMetaclass):
     @staticmethod
     def _verify_report_data_dict(report_name: str, report_data_dict: dict) -> bool:
         if "id" not in report_data_dict:
-            ProgramReporter.show_warning_message(
+            ProgramReporter.show_missing_property_warning_message(
                 message="In report " + report_name + " is missing the id key! \n"
                         "The report can not be processed."
             )
             return False
 
         if not isinstance(report_data_dict["id"], str):
-            ProgramReporter.show_warning_message(
+            ProgramReporter.show_type_integrity_warning_message(
                 message="In report " + report_name + " the content of id key must be string! \n"
                         "The report can not be processed."
             )
             return False
 
         if "message" not in report_data_dict:
-            ProgramReporter.show_warning_message(
+            ProgramReporter.show_missing_property_warning_message(
                 message="In report " + report_name + " is missing the message key! \n"
                         "The report can not be processed."
             )
             return False
 
         if not isinstance(report_data_dict["message"], str):
-            ProgramReporter.show_warning_message(
+            ProgramReporter.show_type_integrity_warning_message(
                 message="In report " + report_name + " the content of message key must be string! \n"
                         "The report can not be processed."
             )

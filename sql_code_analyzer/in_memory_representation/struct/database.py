@@ -168,7 +168,7 @@ class Database(Base):
         if index_key in self.object_index:
             return self.object_index[index_key]
         else:
-            ProgramReporter.show_error_message(
+            ProgramReporter.show_missing_property_error_message(
                 message="Item" + index_key + " is not exists in indexed objects."
             )
 

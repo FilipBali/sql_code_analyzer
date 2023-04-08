@@ -88,6 +88,37 @@ class ProgramReporter(Reporter):
         return _ProgramMessage(message_type, message_text)
 
     @staticmethod
+    def show_type_integrity_error_message(message: str) -> None:
+        """
+        Implementation of program error message
+        The message is immediately displayed to the user.
+        This occurs when the integrity of the code is compromised.
+        For example if function arguments are not met with requirements (Expected list but string is passed).
+
+        :param message: Text message
+        :return: None
+        """
+
+        ProgramReporter._create_message(message_type=MessageType.Error,
+                                        message_text="Error (Type integrity): \n" + message).print()
+        Terminator.exit(enums.ExitWith.TypeIntegrityError)
+
+    @staticmethod
+    def show_missing_property_error_message(message: str) -> None:
+        """
+        Implementation of program error message
+        The message is immediately displayed to the user.
+        This occurs when missing some property/attribute in user defined input.
+
+        :param message: Text message
+        :return: None
+        """
+
+        ProgramReporter._create_message(message_type=MessageType.Error,
+                                        message_text="Error (Missing property): \n" + message).print()
+        Terminator.exit(enums.ExitWith.TypeIntegrityError)
+
+    @staticmethod
     def show_error_message(message: str, exit_code: enums.ExitWith = enums.ExitWith.InternalError) -> None:
         """
         Implementation of program error message
@@ -99,8 +130,39 @@ class ProgramReporter(Reporter):
         """
 
         ProgramReporter._create_message(message_type=MessageType.Error,
-                                        message_text="Error: " + message).print()
+                                        message_text="Error: \n" + message).print()
         Terminator.exit(exit_code)
+
+    @staticmethod
+    def show_type_integrity_warning_message(message: str) -> None:
+        """
+        Implementation of program type integrity warning message.
+        The message is immediately displayed to the user.
+        For example if function arguments are not met with requirements (Expected list but string is passed).
+
+
+        :param message: Text message
+        :return: None
+        """
+
+        ProgramReporter._create_message(message_type=MessageType.Warning,
+                                        message_text="Warning (Type integrity): \n"
+                                                     + message).print()
+
+    @staticmethod
+    def show_missing_property_warning_message(message: str) -> None:
+        """
+        Implementation of program type integrity warning message.
+        The message is immediately displayed to the user.
+        This occurs when missing some property/attribute in user defined input.
+
+        :param message: Text message
+        :return: None
+        """
+
+        ProgramReporter._create_message(message_type=MessageType.Warning,
+                                        message_text="Warning (Missing property): \n"
+                                                     + message).print()
 
     @staticmethod
     def show_warning_message(message: str) -> None:
@@ -113,14 +175,13 @@ class ProgramReporter(Reporter):
         """
 
         ProgramReporter._create_message(message_type=MessageType.Warning,
-                                        message_text="Warning: " + message).print()
+                                        message_text="Warning: \n" + message).print()
 
     @staticmethod
     def show_info_messages(message_list: [str],
                           origin: str = "Info",
                           head_message: str = "",
-                          tail_message: str = ""
-                          ) -> None:
+                          tail_message: str = "") -> None:
         """
         Implementation of program warning message.
         The message is immediately displayed to the user.
@@ -191,22 +252,22 @@ class RuleReport:
         # TODO implements report deletion if the requirements are not met.
 
         if not isinstance(self.rule_id, str):
-            ProgramReporter.show_warning_message(
+            ProgramReporter.show_type_integrity_warning_message(
                 message="Rule ID must be string!"
             )
 
         if not isinstance(self.rule_name, str):
-            ProgramReporter.show_warning_message(
+            ProgramReporter.show_type_integrity_warning_message(
                 message="Rule name must be string!"
             )
 
         if not isinstance(self.message, str):
-            ProgramReporter.show_warning_message(
+            ProgramReporter.show_type_integrity_warning_message(
                 message="Rule message must be string!"
             )
 
         if not issubclass(type(self.node), BaseCast):
-            ProgramReporter.show_warning_message(
+            ProgramReporter.show_type_integrity_warning_message(
                 message="The node must be node of abstract syntax tree."
             )
 
