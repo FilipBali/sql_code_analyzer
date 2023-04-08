@@ -78,11 +78,10 @@ class ForeignKey(Constrain):
     """
     def __init__(self, fk_columns: [Column], reference_columns: [Column], table_fk, table_ref, name: str = None):
         """
-        TODO Description
-        :param fk_columns:
-        :param reference_columns:
-        :param table_fk:
-        :param table_ref:
+        :param fk_columns: List of columns represents foreign key
+        :param reference_columns: List of columns to which foreign key references
+        :param table_fk: Table that have foreign key
+        :param table_ref: Table that have reference columns
         :param name: Name of constrain if needed
         """
 
