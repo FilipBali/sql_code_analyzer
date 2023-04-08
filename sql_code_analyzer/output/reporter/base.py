@@ -115,6 +115,38 @@ class ProgramReporter(Reporter):
         ProgramReporter._create_message(message_type=MessageType.Warning,
                                         message_text="Warning: " + message).print()
 
+    @staticmethod
+    def show_info_messages(message_list: [str],
+                          origin: str = "Info",
+                          head_message: str = "",
+                          tail_message: str = ""
+                          ) -> None:
+        """
+        Implementation of program warning message.
+        The message is immediately displayed to the user.
+
+        :param message_list: List of message
+        :param origin: Author/Source/Origin of the message
+        :param head_message: Introductory message
+        :param tail_message: Closing message
+        :return: None
+        """
+
+        if origin != "":
+            ProgramReporter._create_message(message_type=MessageType.Info,
+                                            message_text=origin + ": ").print()
+        if head_message != "":
+            ProgramReporter._create_message(message_type=MessageType.Info,
+                                            message_text=head_message).print()
+
+        for message in message_list:
+            ProgramReporter._create_message(message_type=MessageType.Info,
+                                            message_text=message).print()
+
+        if tail_message != "":
+            ProgramReporter._create_message(message_type=MessageType.Info,
+                                            message_text=tail_message).print()
+
 
 class RuleReporter(Reporter):
     """
