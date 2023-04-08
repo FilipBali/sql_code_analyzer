@@ -2,11 +2,13 @@ from sql_code_analyzer.in_memory_representation.struct.base import Base
 
 
 class Literal(Base):
-
-    def __init__(self,
-                 node,
-                 ):
-
+    """
+    Represents datatype additional arguments in memory representation
+    """
+    def __init__(self, node):
+        """
+        :param node: Node of literal from abstract syntax tree
+        """
         self.value = node.name
 
         self.is_int = node.is_int
