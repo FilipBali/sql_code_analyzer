@@ -9,12 +9,13 @@ if TYPE_CHECKING:
     from sqlalchemy import MetaData, create_engine
 
 
-def generate_dll(engine: create_engine, meta: MetaData):
+def generate_dll(engine: create_engine, meta: MetaData) -> list:
     """
+    Generate statements from database server
 
-    :param engine:
-    :param meta:
-    :return:
+    :param engine: Database engine provided by SQLAlchemy library
+    :param meta: Database meta provided by SQLAlchemy library
+    :return: List of statements
     """
 
     ddl = []
@@ -24,16 +25,16 @@ def generate_dll(engine: create_engine, meta: MetaData):
             ddl.append(CreateIndex(index).compile(engine))
 
     # TODO print if user wants
-    ...
+
     return ddl
 
 
-def oracle_handler(db_config):
+def oracle_handler(db_config) -> list:
     """
-    Makes connection
+    Encapsulate Oracle database connection and generating DLL
 
-    :param db_config:
-    :return:
+    :param db_config: Configuration data about database connection
+    :return: DLL
     """
 
     engine, meta = make_connection(db_config)
