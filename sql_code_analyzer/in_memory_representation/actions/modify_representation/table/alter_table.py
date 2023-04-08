@@ -7,6 +7,7 @@ from sql_code_analyzer.in_memory_representation.tools.ast_manipulation import ge
 
 from sqlglot import expressions as exp
 
+
 def alter_table(ast: Expression, mem_rep: Database):
 
     # TODO problem, alter nemaju dorobeny v poriadku
