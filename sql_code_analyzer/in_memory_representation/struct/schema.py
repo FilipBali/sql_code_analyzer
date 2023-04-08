@@ -7,8 +7,7 @@
 #        Stores: schema name,
 #                tables related to schema,
 #                connection to table database that belongs to
-
-#        TODO: change schema name
+#
 #######################################
 
 from __future__ import annotations
@@ -25,7 +24,7 @@ if TYPE_CHECKING:
 
 class Schema(Base):
     """
-    TODO description
+    Represents table schema in memory representation
     """
 
     ###################################
@@ -35,9 +34,8 @@ class Schema(Base):
                  database: Database,
                  schema_name: str):
         """
-        TODO description
-        :param database:
-        :param schema_name:
+        :param database: The database to which the schema belongs
+        :param schema_name: The schema name
         """
         self.name = schema_name
         self.tables: dict = {}
@@ -76,9 +74,10 @@ class Schema(Base):
     #########################
     def __add_schema_to_database(self) -> None:
         """
-        TODO description
+        Adds schema to database in memory representation
         :return: None
         """
+
         if self.database.check_if_schema_exists_bool(self.name):
             ProgramReporter.show_error_message(
                 message="Schema " + self.name + "  already exists."
@@ -96,10 +95,11 @@ class Schema(Base):
     #########################
     def check_if_table_exists(self, table) -> bool:
         """
-        TODO description
-        :param table:
-        :return:
+        Check if target table exists in schema
+        :param table: The table instance or its name
+        :return: True/False
         """
+
         if not isinstance(table, str):
             table = table.name
 
@@ -111,9 +111,10 @@ class Schema(Base):
     #########################
     def delete_schema(self) -> None:
         """
-        TODO description
+        Delete schema from memory representation
         :return: None
         """
+
         # TODO error ak je tabulka?
         del self.database.schemas[self.name]
         self.database.index_cancel_registration(key=self.name)
@@ -127,6 +128,11 @@ class Schema(Base):
     ################
 
     def get_table_count(self) -> int:
+        """
+        # Return count of tables which are belongs to this schema
+        :return: Count of tables
+        """
+
         return len(self.tables)
 
     ################
@@ -134,7 +140,19 @@ class Schema(Base):
     ################
 
     def verify_name(self, expected_name) -> bool:
+        """
+        Return True if schema has this name otherwise False
+        :param expected_name: The name
+        :return: True/False
+        """
+
         return self.name == expected_name
 
     def verify_table_count(self, expected_count) -> bool:
+        """
+        Return True if schema has this count of constrains otherwise False
+        :param expected_count: Expected count
+        :return: True/False
+        """
+
         return len(self.tables) == expected_count
