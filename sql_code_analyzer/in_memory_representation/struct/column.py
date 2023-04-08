@@ -74,6 +74,7 @@ class Column(Base):
         :param constrains: List of column constrains
         :param table: The table to which the column belongs
         """
+
         self.name: str = identifier.args['this']
         self.is_name_quoted: bool = identifier.args['quoted']
         self.datatype: Datatype = datatype
@@ -177,6 +178,7 @@ class Column(Base):
         :param constrain: The constraint object
         :return: None
         """
+
         if not self.verify_constrain(constrain_type=constrain.__class__):
             ProgramReporter.show_error_message(
                 message="Column: " + self.name + "\n"
@@ -196,6 +198,7 @@ class Column(Base):
         :param new_datatype: The datatype object
         :return: None
         """
+
         self.datatype = new_datatype
 
     #########################
@@ -207,6 +210,7 @@ class Column(Base):
         Delete column from memory representation
         :return: None
         """
+
         # Check if column is not part of composite primary key
         if self.table.primary_key.composite:
             if self in self.table.primary_key.columns:
@@ -231,6 +235,7 @@ class Column(Base):
         :param constrain_type: Constrain type (for example PreventNotNull)
         :return: The constraint or None
         """
+
         for constrain in self._constrains:
             if type(constrain) is constrain_type:
                 return constrain
@@ -242,6 +247,7 @@ class Column(Base):
         Return count of constrain which are belongs to column
         :return: Count of constrains
         """
+
         return len(self.constrains)
 
     def schema(self):
@@ -249,6 +255,7 @@ class Column(Base):
         Returns the schema to which it belongs
         :return:
         """
+
         return self.table.schema
 
     def database(self):
@@ -256,6 +263,7 @@ class Column(Base):
         Returns the database to which it belongs
         :return:
         """
+
         return self.table.database
 
     ################
@@ -268,6 +276,7 @@ class Column(Base):
         :param datatype: The datatype
         :return: True/False
         """
+
         return datatype is self.datatype.column_datatype
 
     def verify_constrain(self, constrain_type: Type[Constrain]) -> bool:
@@ -276,6 +285,7 @@ class Column(Base):
         :param constrain_type: The constraint type
         :return: True/False
         """
+
         for constrain in self._constrains:
             if type(constrain) is constrain_type:
                 return True
@@ -296,4 +306,5 @@ class Column(Base):
         :param expected_name: The name
         :return: True/False
         """
+
         return self.name == expected_name
