@@ -1,6 +1,5 @@
 import argparse
 import os
-import sys
 from operator import methodcaller
 from pathlib import Path
 from sys import stdin
@@ -30,6 +29,7 @@ class CArgs:
 
     def __init__(self):
 
+        self.database_statements = []
         self.dialect: str = ""
         self.file: str = ""
         self.tests: bool = False
@@ -318,6 +318,13 @@ def parse_args() -> argparse:
                         action='store_true',
                         required=False,
                         help="If set, expects path where program will store reports.",
+                        default=None)
+
+    parser.add_argument("-sddl", "--show-dll",
+                        action='store_true',
+                        required=False,
+                        help="If set, program show DLL on standard input "
+                             "after it is retrieved from database server.",
                         default=None)
 
     args = parser.parse_args()

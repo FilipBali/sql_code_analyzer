@@ -3,6 +3,9 @@ from __future__ import annotations
 from sql_code_analyzer.input.database_server.oracle.base import oracle_handler
 
 from typing import TYPE_CHECKING
+
+from sql_code_analyzer.output.reporter.base import ProgramReporter
+
 if TYPE_CHECKING:
     from sql_code_analyzer.input.args_handler import CArgs
 
@@ -17,7 +20,7 @@ def parse_dll_to_statements(args: CArgs, ddl: list) -> None:
     """
 
     for ddl_item in ddl:
-        args.statements.append(ddl_item.string)
+        args.database_statements.append(ddl_item.string)
 
 
 def database_connection_handler(args: CArgs) -> None:
@@ -42,3 +45,13 @@ def database_connection_handler(args: CArgs) -> None:
         case "mssql":
             # pip install pyodbc
             ...
+
+    dll_report(args=args)
+
+
+def dll_report(args: CArgs):
+    if args.show_dll:
+        ProgramReporter.show_info_messages(message_list=args.database_statements,
+                                           origin=args.connection_file_option.upper() + " database connector",
+                                           head_message="====== Preview of DDL ======",
+                                           tail_message="====== End of preview of DDL ======")

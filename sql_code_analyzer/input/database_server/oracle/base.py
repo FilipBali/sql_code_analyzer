@@ -24,8 +24,6 @@ def generate_dll(engine: create_engine, meta: MetaData) -> list:
         for index in table.indexes:
             ddl.append(CreateIndex(index).compile(engine))
 
-    # TODO print if user wants
-
     return ddl
 
 
