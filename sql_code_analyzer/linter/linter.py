@@ -334,19 +334,12 @@ class Linter:
 
             statement: str = self.ast.key.lower() + "" + self.ast.args["kind"].lower()
             expect_set.add(statement)
-            # TODO _
-            # head, tail = statement.split("_")
-            # expect_set.add(head)
-            # expect_set.add(tail)
             expect_set.add(self.ast.key.lower())
             expect_set.add(self.ast.args["kind"].lower())
 
         elif hasattr(self.ast, "key"):
             statement: str = self.ast.key.lower()
             expect_set.add(statement)
-            # TODO _
-            # head, tail = statement.split("_")
-            # expect_set.add(head)
 
         return expect_set
 
@@ -355,7 +348,7 @@ class Linter:
         Call functions that are responsible for modifying the memory representation.
         The function is determined by current node.
 
-        :return:
+        :return: None
         """
 
         if hasattr(self.ast, "key") and "kind" in self.ast.args and self.ast.args["kind"] is not None:
@@ -367,12 +360,8 @@ class Linter:
                 function(ast=self.ast, mem_rep=self.mem_rep)
 
             else:
-                # TODO _
-                # print(self.ast.key.upper()[:-1] + " " + self.ast.args["kind"].upper() + " is not supported")
                 print(self.ast.key.upper() + " " + self.ast.args["kind"].upper() + " is not supported")
 
-        # TODO _
-        # elif hasattr(self.ast, "key") and self.ast.key == "altertable_":
         elif hasattr(self.ast, "key") and self.ast.key == "altertable":
             function = self._modify_representation_functions["alter_table"]
             function(self.ast, self.mem_rep)
