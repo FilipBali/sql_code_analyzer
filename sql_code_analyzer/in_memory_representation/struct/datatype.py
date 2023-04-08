@@ -3,16 +3,13 @@ from sql_code_analyzer.in_memory_representation.struct.base import Base
 
 class Datatype(Base):
     """
-    TODO description
+    Represents column datatype in memory representation
     """
 
-    def __init__(self,
-                 node,
-                 literals: list):
+    def __init__(self, node, literals: list):
         """
-        TODO description
-        :param column_datatype:
-        :param value:
+        :param node: Datatype node from abstract syntax tree
+        :param literals: List of literal which are define datatype arguments
         """
         self.column_datatype = node.this
 
