@@ -13,7 +13,6 @@
 #
 #        TODO: add constrain, delete constrain
 #
-#
 #######################################
 
 from __future__ import annotations
@@ -33,8 +32,7 @@ if TYPE_CHECKING:
 
 class Table(Base):
     """
-    TODO Table Description
-    Description
+    Represents table in memory representation
     """
 
     ###################################
@@ -46,10 +44,9 @@ class Table(Base):
                  database: Database,
                  node=None):
         """
-        TODO description
-        :param name:
-        :param schema:
-        :param database:
+        :param name: Table name
+        :param schema: The schema to which the table belongs
+        :param database: The database to which the table belongs
         """
         self.name: str = name
         self.schema: Schema = schema
@@ -115,10 +112,6 @@ class Table(Base):
         self._constrains = value
 
     def __repr__(self):
-        """
-        TODO description
-        :return:
-        """
         return self.name
 
     ##################################################
@@ -129,6 +122,11 @@ class Table(Base):
     #########################
 
     def __add_table_to_schema(self) -> None:
+        """
+        Add table to the schema and memory representation index
+        :return: None
+        """
+
         if self.schema.check_if_table_exists(table=self):
             ProgramReporter.show_error_message(
                 message="Table " + self.name + " already exists."
@@ -147,9 +145,9 @@ class Table(Base):
 
     def check_if_column_exists(self, column_name) -> bool:
         """
-        TODO description check_if_column_exists
-        :param column_name:
-        :return:
+        Verify if table has a column with that name
+        :param column_name: The column name
+        :return: True/False
         """
 
         return self.check_if_exists(find_attr_val=column_name,
@@ -160,6 +158,12 @@ class Table(Base):
     #########################
 
     def add_primary_key(self, primary_key: PrimaryKey) -> None:
+        """
+        Adds primary key to table
+        :param primary_key: The primary key
+        :return: None
+        """
+
         if self.primary_key is not None:
             ProgramReporter.show_error_message(
                 message="Primary key already exists."
@@ -176,8 +180,8 @@ class Table(Base):
 
     def delete_table(self) -> None:
         """
-        TODO Description
-        :return:
+        Delete table from memory representation
+        :return: None
         """
 
         if not self.verify_can_be_deleted:
@@ -197,12 +201,23 @@ class Table(Base):
     ################
 
     def get_column(self, column_name: str) -> Column | None:
+        """
+        Return column by the name if exists
+        :param column_name: Column name
+        :return: Instance of column or none
+        """
+
         if not self.verify_column(column_name=column_name):
             return None
 
         return self.columns[column_name]
 
     def get_columns_count(self) -> int:
+        """
+        Returns how many columns table has
+        :return: Count of columns
+        """
+
         return len(self.columns)
 
     ################
@@ -210,6 +225,11 @@ class Table(Base):
     ################
 
     def verify_column(self, column_name: str) -> bool:
+        """
+        Verify if the column with that name exists
+        :param column_name: The column name
+        :return: True/False
+        """
         for colum in self.columns:
             colum: Column
             if colum.name == column_name:
@@ -218,20 +238,43 @@ class Table(Base):
         return False
 
     def verify_columns_count(self, expected_count) -> bool:
+        """
+        Return count of columns which are belongs to table
+        :param expected_count:
+        :return: True/False
+        """
         return len(self.columns) == expected_count
 
     def verify_name(self, expected_name) -> bool:
+        """
+         Return True if table has this name otherwise False
+        :param expected_name: The name
+        :return: True/False
+        """
         return self.name == expected_name
 
     def verify_can_be_deleted(self) -> bool:
+        """
+        Verify if table meets requirements to be deleted from memory representation
+        :return: True/False
+        """
         if len(self.constrains) > 1:
             return False
         else:
             return True
 
     def verify_is_relationship_with_another_table(self) -> bool:
+        """
+        Verify if table have the relationship with another table
+        :return: True/False
+        """
         return self.verify_can_be_deleted()
 
     def verify_relationship_with_another_table(self, table: Table) -> bool:
+        """
+        Verify if table have the relationship with table provided in arguments
+        :param table: The table object
+        :return: True/False
+        """
         ...
 
