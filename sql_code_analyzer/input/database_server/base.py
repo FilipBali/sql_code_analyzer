@@ -50,8 +50,7 @@ def database_connection_handler(args: CArgs) -> None:
 
 
 def dll_report(args: CArgs):
-    if args.show_dll:
-        ProgramReporter.show_info_messages(message_list=args.database_statements,
-                                           origin=args.connection_file_option.upper() + " database connector",
-                                           head_message="====== Preview of DDL ======",
-                                           tail_message="====== End of preview of DDL ======")
+    ProgramReporter.show_verbose_messages(message_list=args.database_statements,
+                                          origin=args.connection_file_option.upper() + " database connector",
+                                          head_message="====== Preview of DDL ======",
+                                          tail_message="====== End of preview of DDL ======")
