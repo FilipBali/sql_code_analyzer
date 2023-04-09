@@ -67,13 +67,16 @@ class Reporter(ABC):
     Abstract class providing interface to create a reporter class for a particular purpose.
     """
 
-    report_output_loc = OutputType.Stdout
+    report_output = OutputType.Stdout
+    report_output_file = None
 
 
 class ProgramReporter(Reporter):
     """
     Provides a way to create reports about the program events.
     """
+
+    verbose = False
 
     @staticmethod
     def _create_message(message_type: MessageType, message_text: str):
@@ -178,12 +181,13 @@ class ProgramReporter(Reporter):
                                         message_text="Warning: \n" + message).print()
 
     @staticmethod
-    def show_info_messages(message_list: [str],
-                          origin: str = "Info",
-                          head_message: str = "",
-                          tail_message: str = "") -> None:
+    def show_verbose_messages(message_list: [str],
+                              origin: str = "Info",
+                              head_message: str = "",
+                              tail_message: str = "") -> None:
         """
-        Implementation of a program warning message.
+        Implementation of a program verbose message.
+        "Show additional info about program running."
         The message is immediately displayed to the user.
 
         :param message_list: List of message
@@ -192,6 +196,9 @@ class ProgramReporter(Reporter):
         :param tail_message: Closing message
         :return: None
         """
+
+        if not ProgramReporter.verbose:
+            return
 
         if origin != "":
             ProgramReporter._create_message(message_type=MessageType.Info,
