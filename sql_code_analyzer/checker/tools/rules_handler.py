@@ -23,17 +23,16 @@ class CRules:
 
         self.include_folders = include_folders
         self.exclude_folders = exclude_folders
-
-        if path_to_rules_folder is not None:
-            self.path_to_rules_folder = path_to_rules_folder
-
-        else:
-            checker_root = os.path.dirname(os.path.dirname(__file__))
-            self.path_to_rules_folder = os.path.join(checker_root, "rules")
+        self.path_to_rules_folder = path_to_rules_folder
 
         if len(self.include_folders) > 0 and len(self.exclude_folders) > 0:
             ProgramReporter.show_error_message(
                 message="Forbidden parameter combination. Both include and exclude folders are set."
+            )
+
+        if self.path_to_rules_folder is None:
+            ProgramReporter.show_error_message(
+                message="Internal problem. Path targeting to rules is empty."
             )
 
         # get all paths

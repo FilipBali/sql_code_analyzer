@@ -10,7 +10,7 @@ from typing import Generator
 #              SQLGlot IMPORT
 ###############################################
 import sqlglot
-from sql_code_analyzer.tools.get_program_root_path import get_program_root_path
+from sql_code_analyzer.tools.path import get_program_root_path, get_absolute_path
 from sqlglot import expressions as exp
 
 ###############################################
@@ -102,8 +102,12 @@ class Linter:
 
         if self.args_data.deserialization_path is not None:
             # Provide deserialization memory representation from file and initialise database structure
-            self.mem_rep: Database = Database() \
-                .load_deserialization_path(deserialization_path=self.args_data.deserialization_path)
+            # self.mem_rep: Database = Database() \
+            #     .load_deserialization_path(deserialization_path=self.args_data.deserialization_path)
+
+            # TODO
+            ...
+
         else:
             # initialise in memory representation
             self.mem_rep: Database = Database("MemoryDB").set_default_scheme()
@@ -569,9 +573,8 @@ class Linter:
                     err_user_answer = True
 
         # Provide serialization memory representation and store to a serialization path
-        if self.args_data.serialization_path is not None:
-            self.mem_rep.serialize_and_save(
-                serialization_path=self.args_data.serialization_path
-            )
-        aa = pickle.dumps(self.mem_rep)
-        bb = pickle.loads(aa)
+        with open(self.args_data.serialization_path, 'wb') as f:
+            pickle.dump(self.mem_rep, f)
+
+        # aa = pickle.dumps(self.mem_rep)
+        # bb = pickle.loads(aa)
