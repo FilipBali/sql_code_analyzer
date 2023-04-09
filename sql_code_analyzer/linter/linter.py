@@ -63,6 +63,7 @@ class Linter:
         self._init_rules_class()
         self._init_memory_database_representation()
         self._get_modify_representation_statements()
+        self._apply_statements_from_database_server()
         self._sql_statements_processing()
 
         # If serialization path is None
@@ -105,8 +106,28 @@ class Linter:
             # self.mem_rep: Database = Database() \
             #     .load_deserialization_path(deserialization_path=self.args_data.deserialization_path)
 
-            # TODO
-            ...
+            path = self.args_data.deserialization_path / "memory_representation_backup.p"
+
+            try:
+                with open(path, 'rb') as f:
+                    self.mem_rep = pickle.load(f)
+
+            except FileNotFoundError:
+                ProgramReporter.show_error_message(
+                    message="Deserialization failed, file not found!\nPath: "
+                            + self.args_data.deserialization_path
+                )
+            except pickle.UnpicklingError:
+                ProgramReporter.show_error_message(
+                    message="Deserialization failed, can not unpickle file!\nPath: "
+                            + self.args_data.deserialization_path
+                )
+
+            except (Exception,):
+                ProgramReporter.show_error_message(
+                    message="Deserialization failed!\nPath: "
+                            + self.args_data.deserialization_path
+                )
 
         else:
             # initialise in memory representation
@@ -133,6 +154,41 @@ class Linter:
 
         return False
 
+    def _parse_statement(self, statement) -> bool:
+        try:
+            self.ast, self.tokens = sqlglot.parse_one(statement)
+            return True
+
+        except (Exception,) as e:
+
+            self._parse_error_occurred = True
+
+            for arg in e.args:
+                # TODO create report with parse error occurred tag
+                ...
+
+            return False
+
+    def _apply_statements_from_database_server(self) -> None:
+        """
+
+        :return: None
+        """
+        # iterate over database SQL statements
+        for statement in self.args_data.database_statements:
+
+            success = self._parse_statement(statement=statement)
+
+            if not success:
+                # Next statement
+                continue
+
+            self.ast = adapt_ast(self.ast)
+
+            # provide changes based on SQL statement to memory representation
+            if self._check_if_modifying_statement():
+                self._modify_representation()
+
     def _sql_statements_processing(self) -> None:
         """
         Iterates over SQL statements from input
@@ -152,16 +208,10 @@ class Linter:
         # iterate over SQL statements
         for statement in self.args_data.statements:
 
-            try:
-                self.ast, self.tokens = sqlglot.parse_one(statement)
-            except (Exception,) as e:
+            success = self._parse_statement(statement=statement)
 
-                self._parse_error_occurred = True
-
-                for arg in e.args:
-                    # TODO create report with parse error occurred tag
-                    ...
-
+            if not success:
+                # Next statement
                 continue
 
             self._include_code_locations()
@@ -527,7 +577,7 @@ class Linter:
             ProgramReporter.show_warning_message(
                 message="During registration of function for representation modifying was found that\n"
                         "the function " + new_func_name + " has incorrect (inconsistent with the rest of program)\n"
-                        "function arguments. This leads to unsuccessfull registration of this function.\n"
+                        "function arguments. This leads to unsuccessfully registration of this function.\n"
                         "The function needs to have arguments \"ast\" and \"mem_rep\".\n"
                         "Please change function declaration to " + new_func_name + "(ast, mem_rep)\n"
                         "or more specifically " + new_func_name + "(ast: Expression, mem_rep: Database)\n"
@@ -573,8 +623,22 @@ class Linter:
                     err_user_answer = True
 
         # Provide serialization memory representation and store to a serialization path
-        with open(self.args_data.serialization_path, 'wb') as f:
-            pickle.dump(self.mem_rep, f)
+        path = self.args_data.serialization_path / "memory_representation_backup.p"
 
-        # aa = pickle.dumps(self.mem_rep)
-        # bb = pickle.loads(aa)
+        try:
+            with open(path, 'wb') as f:
+                pickle.dump(self.mem_rep, f)
+
+        except FileNotFoundError:
+            ProgramReporter.show_error_message(
+                message="Serialization failed, file not found!\nPath: " + self.args_data.serialization_path
+            )
+        except pickle.PicklingError:
+            ProgramReporter.show_error_message(
+                message="Serialization failed, can not unpickle file!\nPath: " + self.args_data.serialization_path
+            )
+
+        except (Exception,):
+            ProgramReporter.show_error_message(
+                message="Serialization failed!\nPath: " + self.args_data.serialization_path
+            )
