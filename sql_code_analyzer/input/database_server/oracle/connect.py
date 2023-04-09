@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+
+from sql_code_analyzer.output.reporter.base import ProgramReporter
+
 if TYPE_CHECKING:
     from sql_code_analyzer.input.database_server.config import DBConfig
 
@@ -37,13 +40,13 @@ def make_connection(db_config: DBConfig):
 
     connection_string = database_specific + user_credential + database_home
 
-    print("Connecting to " + dialect.lower() + " database..")
-    print("Using connection string: " + connection_string)
+    ProgramReporter.show_verbose_messages("Connecting to " + dialect.lower() + " database..")
+    ProgramReporter.show_verbose_messages("Using connection string: " + connection_string)
 
     engine = create_engine(connection_string)
 
-    print("Connection succeed.")
-    print("Generating DDL script..")
+    ProgramReporter.show_verbose_messages("Connection succeed.")
+    ProgramReporter.show_verbose_messages("Generating DDL script..")
 
     meta = MetaData()
     meta.reflect(bind=engine)
