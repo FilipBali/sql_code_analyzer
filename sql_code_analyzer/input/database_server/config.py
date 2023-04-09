@@ -1,5 +1,6 @@
 import configparser
 import inspect
+from pathlib import Path
 
 from sql_code_analyzer.output.reporter.base import ProgramReporter
 
@@ -9,19 +10,35 @@ class DBConfig:
     Encapsulate the entered login details to object.
     """
 
-    def __init__(self, path: str, option: str):
+    def __init__(self, path: Path, option: str):
+
+        if not path.is_file():
+            ProgramReporter.show_error_message(
+                message="The path that was entered as --connection-file-path is not a path to file!"
+            )
 
         self.config = configparser.ConfigParser()
         self.config.read(path)
 
         self.option = option
-
-        self.dialect = self.config.get(self._option, "dialect", fallback=None)
-        self.username = self.config.get(self._option, "username", fallback=None)
-        self.password = self.config.get(self._option, "password", fallback=None)
-        self.host = self.config.get(self._option, "host", fallback=None)
-        self.port = self.config.get(self._option, "port", fallback=None)
-        self.service = self.config.get(self._option, "service", fallback=None)
+        try:
+            self.dialect = self.config.get(self._option, "dialect", fallback=None)
+            self.username = self.config.get(self._option, "username", fallback=None)
+            self.password = self.config.get(self._option, "password", fallback=None)
+            self.host = self.config.get(self._option, "host", fallback=None)
+            self.port = self.config.get(self._option, "port", fallback=None)
+            self.service = self.config.get(self._option, "service", fallback=None)
+        except (Exception,):
+            ProgramReporter.show_error_message(
+                message="Retrieving the data to connect to the database failed.\n"
+                        "This can occur if:\n"
+                        "1) The name of the configuration option that is set "
+                        "as a parameter does not exist in the configuration file or is misspelled.\n"
+                        "2) The configuration does not contain all the necessary items. \n"
+                        "   (DIALECT, USERNAME, PASSWORD, HOST, PORT, SERVICE) \n"
+                        "For more help the program can generate database connection file template if the"
+                        "parameter -cfc or --connection-file-create is set."
+            )
 
         self.validate_args_presence()
 

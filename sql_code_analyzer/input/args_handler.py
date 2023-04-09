@@ -10,7 +10,7 @@ from sql_code_analyzer.input.database_server.config import DBConfig
 from sql_code_analyzer.output import enums
 from sql_code_analyzer.output.reporter.base import ProgramReporter, OutputType
 from sql_code_analyzer.output.terminator.base import Terminator
-from sql_code_analyzer.tools.get_program_root_path import get_program_root_path
+from sql_code_analyzer.tools.path import get_program_root_path, get_absolute_path
 from test_cases.sqlglot.tester import run_tests
 
 
@@ -20,7 +20,7 @@ class CArgs:
 
     Provides:
         Program arguments parsing and processing and interface to obtain these data.
-        Help message where are parameter described in detail.
+        Help a message where parameters are described in detail.
         Features retrieve SQL input from file/standard input/database server.
         Possibility to create configuration template for proper database connection.
         Create statements from raw SQL file
@@ -32,31 +32,33 @@ class CArgs:
         self.show_dll = False
         self.database_statements = []
         self.dialect: str = ""
-        self.file: str = ""
+        self.file: str | Path = ""
         self.tests: bool = False
         self.raw_sql: str = ""
         self.statements: list = []
-        self.rules_path: str = None
+        self.rules_path: str = ""
         self.include_folders: list = []
         self.exclude_folders: list = []
-        self.serialization_path: str = None
-        self.deserialization_path: str = None
+        self.serialization_path: str | None = None
+        self.deserialization_path: str | None = None
         self.connection_file_create: bool = False
         self.connection_file_option: str = "Default"
-        self.connection_file_path: str = None
+        self.connection_file_path: str | None = None
         self.db_config = None
         self.report_output_nothing = None
         self.report_output_file = None
 
         args = parse_args()
 
-        process_file(self, args)
+        # If file path sets, then verify its correctness
+        verify_file_path(self, args)
 
-        # run tests
+        # Run tests
         if self.tests:
             run_tests()
             Terminator.exit(enums.ExitWith.Success)
 
+        # Create database connection file template
         if self.connection_file_create:
             self.create_database_connection_file()
             Terminator.exit(enums.ExitWith.Success)
@@ -74,7 +76,7 @@ class CArgs:
 
         if self.connection_file_path:
             # load from an existing database
-            self.db_config = DBConfig(path=self.connection_file_path,
+            self.db_config = DBConfig(path=get_absolute_path(path=self.connection_file_path),
                                       option=self.connection_file_option)
 
             database_connection_handler(args=self)
@@ -92,6 +94,15 @@ class CArgs:
             print("Enter target SQL:")
             self.raw_sql = stdin.read()
             parse_raw_sql_to_statement(self)
+
+        if self.serialization_path is not None:
+            self.serialization_path = get_absolute_path(path=self.serialization_path)
+
+        if self.deserialization_path is not None:
+            self.deserialization_path = get_absolute_path(path=self.deserialization_path)
+
+        if self.rules_path != os.path.join(get_program_root_path(), "checker", "rules"):
+            self.rules_path = get_absolute_path(path=self.rules_path)
 
     def update_parameters(self, args: argparse) -> None:
         """
@@ -149,8 +160,8 @@ class CArgs:
 
 def parse_raw_sql_to_statement(args_data) -> None:
     """
-    Implements algorithm to detect statement from raw input file.
-    Statements are stored as items in list.
+    Implements algorithm to detect a statement from raw input file.
+    Statements are stored as items in a list.
     If appropriate, stand alone comments blocks are deleted.
     Statements are detected by statement's terminating character ";"
 
@@ -171,7 +182,7 @@ def parse_raw_sql_to_statement(args_data) -> None:
         to_remove = []
 
         #####################################################################
-        # Find and delete all blocks of comments
+        # Find and delete all comment blocks
         # Reason: SQLGLot ends up with an error when it only parses comments
         #####################################################################
         for statement in statements:
@@ -200,7 +211,7 @@ def parse_raw_sql_to_statement(args_data) -> None:
     statements = [item + statement_delimiter for item in statements]
 
     # Delete comments block again
-    # There can be again because of statement split by delimiter ;
+    # There can be again because of a statement split by delimiter ;
     delete_comment_blocks()
 
     keep_statements = []
@@ -231,6 +242,21 @@ def parse_args() -> argparse:
                         action='store_true',
                         required=False,
                         help="Run tests.",
+                        default=None)
+
+    parser.add_argument("-d", "--dialect",
+                        metavar="",
+                        required=False,
+                        help="Expect target dialect.",
+                        default=None)
+
+    parser.add_argument("-f", "--file",
+                        type=str,
+                        metavar="",
+                        required=False,
+                        help="Expect file with target SQL, "
+                             "if this parameter is not present "
+                             "then the program expects it on standard input.",
                         default=None)
 
     parser.add_argument("-cfc", "--connection-file-create",
@@ -271,7 +297,7 @@ def parse_args() -> argparse:
                         required=False,
                         help="Specify folder with rules. If not set then default is "
                              "..\\sql_code_analyzer\\checker\\rules",
-                        default=None)
+                        default=os.path.join(get_program_root_path(), "checker", "rules"))
 
     parser.add_argument("-if", "--include-folders",
                         nargs='+',
@@ -292,21 +318,6 @@ def parse_args() -> argparse:
                              "are mutually exclusive and only one of them can be set. "
                              "Accepted format: -ef folder1 folder2 folderN",
                         default=[])
-
-    parser.add_argument("-d", "--dialect",
-                        metavar="",
-                        required=False,
-                        help="Expect target dialect.",
-                        default=None)
-
-    parser.add_argument("-f", "--file",
-                        type=str,
-                        metavar="",
-                        required=False,
-                        help="Expect file with target SQL, "
-                             "if this parameter is not present "
-                             "then the program expects it on standard input.",
-                        default=None)
 
     parser.add_argument("-rof", "--report-output-file",
                         type=str,
@@ -332,12 +343,12 @@ def parse_args() -> argparse:
     return args
 
 
-def process_file(self, args: argparse) -> None:
+def verify_file_path(self, args: argparse) -> None:
     """
-    Process and verify if file exists.
+    Process and verify if the file exists.
     The arguments of the program need to be verified before they are used.
     If the user makes a mistake and sets a path that is not correct,
-    for example it is not a file, the program will detect this
+    for example, it is not a file, the program will detect this
     and give the user the opportunity to correct the path
     or choose to exit the program.
 
@@ -345,10 +356,12 @@ def process_file(self, args: argparse) -> None:
     """
 
     err_user_answer = False
+
     if args.file is not None:
+
+        self.file = get_absolute_path(path=args.file)
         while 1:
-            path = Path(args.file)
-            if not path.is_file():
+            if not self.file.is_file():
 
                 if err_user_answer:
                     user_answer = input("\nPlease answer only [yes/no] or in short way [y/n]\n"
@@ -371,4 +384,11 @@ def process_file(self, args: argparse) -> None:
             else:
                 break
 
+    # If the file is None, then the program will be asking for SQL code through standard input
+
+    # All args will be synchronized with "self" object.
+    # But self.file now contains a Path version of a file path, not a string one.
+    # So self.file needs to be passed to args.file otherwise self.file will be overwritten by old string input.
+
+    args.file = self.file
     self.update_parameters(args=args)
