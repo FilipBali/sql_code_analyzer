@@ -6,12 +6,12 @@
 #     Table:
 #        Stores: table name
 #                table columns
-#                table level constrains(foreign key, check constrain etc.)
+#                table level constrains(foreign key, check constraint etc.)
 #                table primary key
 #                connection to the schema that belongs to
 #                connection to the database that belongs to
 #
-#        TODO: add constrain, delete constrain
+#        TODO: add constraint, delete constraint
 #
 #######################################
 

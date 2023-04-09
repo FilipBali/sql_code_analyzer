@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class Constrain(Base):
     """
-    This class provides constrain specific interface to children classes
+    This class provides constraint specific interface to children classes
     """
 
     def __init__(self):
@@ -17,8 +17,8 @@ class Constrain(Base):
 
     def set_name(self, name: str) -> None:
         """
-        Set name of constrain if needed
-        :param name: Name of constrain if needed
+        Set name of constraint if needed
+        :param name: Name of constraint if needed
         :return: None
         """
 
@@ -26,7 +26,7 @@ class Constrain(Base):
 
     def set_property(self, attr: str, val) -> None:
         """
-        Dynamically set property in instnace
+        Dynamically set property in instance
         :param attr: Attribute name
         :param val: Attribute value
         :return: None
@@ -37,13 +37,13 @@ class Constrain(Base):
 
 class PreventNotNull(Constrain):
     """
-    Represent NOT NULL constrain in memory representation
+    Represent NOT NULL constraint in memory representation
     """
 
     def __init__(self, column: Column | None, name=None):
         """
         :param column: Column to which the restriction applies
-        :param name: Name of constrain if needed
+        :param name: Name of constraint if needed
         """
 
         super().__init__()
@@ -54,7 +54,7 @@ class PreventNotNull(Constrain):
 
 class PrimaryKey(Constrain):
     """
-    Represent constrain PRIMARY KEY in memory representation
+    Represent constraint PRIMARY KEY in memory representation
     """
     def __init__(self, columns: list):
         """
@@ -74,7 +74,7 @@ class PrimaryKey(Constrain):
 
 class ForeignKey(Constrain):
     """
-    Represent FOREIGN KEY constrain in memory representation
+    Represent FOREIGN KEY constraint in memory representation
     """
     def __init__(self, fk_columns: [Column], reference_columns: [Column], table_fk, table_ref, name: str = None):
         """
@@ -82,7 +82,7 @@ class ForeignKey(Constrain):
         :param reference_columns: List of columns to which foreign key references
         :param table_fk: Table that have foreign key
         :param table_ref: Table that have reference columns
-        :param name: Name of constrain if needed
+        :param name: Name of constraint if needed
         """
 
         super().__init__()
@@ -117,12 +117,12 @@ class ForeignKey(Constrain):
 
 class UniqueValue(Constrain):
     """
-    Represent UNIQUE constrain in memory representation
+    Represent UNIQUE constraint in memory representation
     """
     def __init__(self, column: Column, primary_key=False, name=None):
         """
         :param column: Column to which the restriction applies
-        :param name: Name of constrain if needed
+        :param name: Constraint name if needed
         """
 
         super().__init__()
@@ -136,13 +136,13 @@ class UniqueValue(Constrain):
 
 class DefaultValue(Constrain):
     """
-    Represent DEFAULT constrain in memory representation
+    Represent DEFAULT constraint in memory representation
     """
     def __init__(self, default_value, column: Column | None, name=None):
         """
-        :param default_value: Default value of constrain
+        :param default_value: Default value of constraint
         :param column: Column to which the restriction applies
-        :param name: Name of constrain if needed
+        :param name: Constraint name if needed
         """
 
         super().__init__()
@@ -158,7 +158,7 @@ class Index(Constrain):
     def __init__(self, column: Column, name=None):
         """
         :param column: Column to which the restriction applies
-        :param name: Name of constrain if needed
+        :param name: Constraint name if needed
         """
 
         super().__init__()
@@ -168,12 +168,12 @@ class Index(Constrain):
 
 class CheckExpression(Constrain):
     """
-    Represent CHECK constrain in memory representation
+    Represent CHECK constraint in memory representation
     """
     def __init__(self, expression, name=None):
         """
         :param expression: Representation of condition
-        :param name: Name of constrain if needed
+        :param name: Constraint name if needed
         """
 
         super().__init__()

@@ -40,10 +40,10 @@ class Base:
     @staticmethod
     def get_instance_or_error(find_attr_val, find_in_struct, error_message: str, search_by_attr: str = None):
         """
-        Return instance of object if exists or raise error
+        Return instance of an object if exists or raise error
         :param find_attr_val: Value that will be searched for
         :param find_in_struct: Structure where the search will take place
-        :param error_message: Error message in case instance not exists
+        :param error_message: An error message in case instance not exists
         :param search_by_attr: Attribute name if necessary
         :return: Instance or raise error
         """
@@ -61,7 +61,7 @@ class Base:
     @staticmethod
     def get_instance_or_none(find_attr_val, find_in_struct, search_by_attr: str = None):
         """
-        Return instance of object if exists or return None
+        Return instance of an object if exists or return None
         :param find_attr_val: Value that will be searched for
         :param find_in_struct: Structure where the search will take place
         :param search_by_attr: Attribute name if necessary
@@ -77,6 +77,3 @@ class Base:
                 return find_in_struct[find_attr_val]
 
         return None
-
-
-

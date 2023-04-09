@@ -150,10 +150,10 @@ class Column(Base):
 
     ##################################################
     #                 PUBLIC METHODS
-    ##################################################
+    #############################   #####################
 
     #########################
-    #      CONSTRAIN
+    #      CONSTRAINT
     #########################
 
     def add_constrain(self, constrain: Constrain) -> None:
@@ -166,7 +166,7 @@ class Column(Base):
         if self.verify_constrain(constrain_type=constrain.__class__):
             ProgramReporter.show_error_message(
                 message="Column: " + self.name + "\n"
-                        "Constrain " + constrain.__class__.__name__ + " already exists!\n"
+                        "Constraint " + constrain.__class__.__name__ + " already exists!\n"
                         "This kind modification to memory representation is not allowed."
             )
 
@@ -183,7 +183,7 @@ class Column(Base):
             ProgramReporter.show_error_message(
                 message="Column: " + self.name + "\n"
                         "Constrain " + constrain.__class__.__name__ + " in not exists!\n"
-                        "Your code try to delete a constrain that is not exists.\n"
+                        "Your code try to delete a constraint that is not exists.\n"
                         "This kind modification to memory representation is not allowed."
             )
         self.get_constrain(constrain_type=constrain.__class__)
@@ -211,7 +211,7 @@ class Column(Base):
         :return: None
         """
 
-        # Check if column is not part of composite primary key
+        # Check if column is not part of a composite primary key
         if self.table.primary_key.composite:
             if self in self.table.primary_key.columns:
                 ProgramReporter.show_error_message(
@@ -231,8 +231,8 @@ class Column(Base):
 
     def get_constrain(self, constrain_type: Type[Constrain]) -> Constrain | None:
         """
-        Get constrain from list of constrains
-        :param constrain_type: Constrain type (for example PreventNotNull)
+        Get constraint from a list of constrained
+        :param constrain_type: Constraint type (for example, PreventNotNull)
         :return: The constraint or None
         """
 
@@ -244,7 +244,7 @@ class Column(Base):
 
     def get_constrains_count(self) -> int:
         """
-        Return count of constrain which are belongs to column
+        Return count of constraint which is belonged to column
         :return: Count of constrains
         """
 
@@ -281,7 +281,7 @@ class Column(Base):
 
     def verify_constrain(self, constrain_type: Type[Constrain]) -> bool:
         """
-        Return True if column has this type of constrain otherwise False
+        Return True if column has this type of constraint otherwise False
         :param constrain_type: The constraint type
         :return: True/False
         """
