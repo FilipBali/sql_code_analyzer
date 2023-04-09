@@ -2,6 +2,8 @@ import os
 import sys
 from pathlib import Path
 
+from sql_code_analyzer.output.reporter.base import ProgramReporter
+
 
 def get_program_root_path() -> Path:
     """
@@ -21,8 +23,25 @@ def get_absolute_path(path: str) -> Path:
     :return: Absolute path
     """
 
-    if not Path(path).is_absolute():
+    path = Path(path)
+    if not path.is_absolute():
         root_path = get_program_root_path()
         path = root_path / path
 
     return path
+
+
+def verify_path_exists(path: Path):
+
+    if not path.exists():
+        ProgramReporter.show_error_message(
+            message="The path not exists!\nPath: " + str(path)
+        )
+
+
+def verify_path_access(path: Path):
+
+    if not os.access(str(path), os.W_OK):
+        ProgramReporter.show_error_message(
+            message="Program does not have the access to path folders or files!\nPath: " + str(path)
+        )
