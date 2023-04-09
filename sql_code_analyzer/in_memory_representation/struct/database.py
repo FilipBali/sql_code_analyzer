@@ -266,14 +266,3 @@ class Database(Base):
                      schema=schema_instance,
                      name=table_name,
                      node=create_node)
-
-    ###########################
-    #   BACKUP SERIALIZATION
-    ###########################
-    def load_deserialization_path(self, deserialization_path: str):
-        # TODO
-        pass
-
-    def serialize_and_save(self, serialization_path: str):
-        # TODO
-        pass
