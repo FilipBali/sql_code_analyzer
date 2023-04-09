@@ -10,7 +10,8 @@ from sql_code_analyzer.input.database_server.config import DBConfig
 from sql_code_analyzer.output import enums
 from sql_code_analyzer.output.reporter.base import ProgramReporter, OutputType
 from sql_code_analyzer.output.terminator.base import Terminator
-from sql_code_analyzer.tools.path import get_program_root_path, get_absolute_path
+from sql_code_analyzer.tools.path import get_program_root_path, get_absolute_path, verify_path_access, \
+    verify_path_exists
 from test_cases.sqlglot.tester import run_tests
 
 
@@ -50,6 +51,9 @@ class CArgs:
 
         args = parse_args()
 
+        if args.verbose:
+            ProgramReporter.verbose = True
+
         # If file path sets, then verify its correctness
         verify_file_path(self, args)
 
@@ -64,15 +68,28 @@ class CArgs:
             Terminator.exit(enums.ExitWith.Success)
 
         if self.report_output_nothing:
-            ProgramReporter.report_output_loc = OutputType.NoReport
+            if self.report_output_file:
+                ProgramReporter.show_error_message(
+                    message="Parameters --report-output-nothing and --report-output-file are mutually exclusive."
+                )
+
+            ProgramReporter.report_output = OutputType.NoReport
 
         if self.report_output_file:
-            if ProgramReporter.report_output_loc == OutputType.NoReport:
-                # TODO error
-                ...
-
+            if self.report_output_nothing:
+                ProgramReporter.show_error_message(
+                    message="Parameters --report-output-nothing and --report-output-file are mutually exclusive."
+                )
             ProgramReporter.report_output = OutputType.File
-            # TODO ulozit cestu
+            ProgramReporter.report_output_file = get_absolute_path(path=self.report_output_file)
+            verify_path_exists(path=ProgramReporter.report_output_file)
+            verify_path_access(path=ProgramReporter.report_output_file)
+
+        if self.connection_file_path and self.deserialization_path:
+            ProgramReporter.show_error_message(
+                message="Attributes --connection_file_path and --deserialization-path are mutually exclusive.\n"
+                        "It possible to load memory representation either from serialized file or database server."
+            )
 
         if self.connection_file_path:
             # load from an existing database
@@ -97,17 +114,23 @@ class CArgs:
 
         if self.serialization_path is not None:
             self.serialization_path = get_absolute_path(path=self.serialization_path)
+            verify_path_exists(path=self.serialization_path)
+            verify_path_access(path=self.serialization_path)
 
         if self.deserialization_path is not None:
             self.deserialization_path = get_absolute_path(path=self.deserialization_path)
+            verify_path_exists(path=self.deserialization_path)
+            verify_path_access(path=self.deserialization_path)
 
         if self.rules_path != os.path.join(get_program_root_path(), "checker", "rules"):
             self.rules_path = get_absolute_path(path=self.rules_path)
+            verify_path_exists(path=self.rules_path)
+            verify_path_access(path=self.rules_path)
 
     def update_parameters(self, args: argparse) -> None:
         """
         Dynamically creates/updates self object properties
-        :param args: Data that need to be saved to self object
+        :param args: Data that need to be saved to self-object
         :return: None
         """
 
@@ -323,20 +346,21 @@ def parse_args() -> argparse:
                         type=str,
                         metavar="",
                         required=False,
-                        help="If set, expects path where program will store reports.",
+                        help="If set, expects path where program will store reports. "
+                             "Mutually exclusive with parameter --report-output-nothing",
                         default=None)
 
     parser.add_argument("-ron", "--report-output-nothing",
                         action='store_true',
                         required=False,
-                        help="If set, expects path where program will store reports.",
+                        help="If set, program will no store reports. "
+                             "Mutually exclusive with parameter --report-output-file",
                         default=None)
 
-    parser.add_argument("-sddl", "--show-dll",
+    parser.add_argument("-v", "--verbose",
                         action='store_true',
                         required=False,
-                        help="If set, program show DLL on standard input "
-                             "after it is retrieved from database server.",
+                        help="If set, program show information messages on standard input.",
                         default=None)
 
     args = parser.parse_args()
