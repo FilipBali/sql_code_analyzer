@@ -9,7 +9,7 @@ class Datatype(Base):
     def __init__(self, node, literals: list):
         """
         :param node: Datatype node from abstract syntax tree
-        :param literals: List of literal which are define datatype arguments
+        :param literals: List of literal which are defining datatype arguments
         """
         self.column_datatype = node.this
 

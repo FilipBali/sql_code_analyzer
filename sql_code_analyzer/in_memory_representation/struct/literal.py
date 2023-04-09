@@ -64,4 +64,3 @@ class Literal(Base):
     @args.setter
     def args(self, val):
         self._args = val
-

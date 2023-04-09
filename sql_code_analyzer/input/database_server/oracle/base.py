@@ -37,4 +37,3 @@ def oracle_handler(db_config) -> list:
 
     engine, meta = make_connection(db_config)
     return generate_dll(engine=engine, meta=meta)
-

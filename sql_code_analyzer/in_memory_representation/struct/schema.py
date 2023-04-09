@@ -6,7 +6,7 @@
 #     Schema:
 #        Stores: schema name,
 #                tables related to schema,
-#                connection to table database that belongs to
+#                connection to a table database that belongs to
 #
 #######################################
 
@@ -74,7 +74,7 @@ class Schema(Base):
     #########################
     def __add_schema_to_database(self) -> None:
         """
-        Adds schema to database in memory representation
+        Adds schema to a database in memory representation
         :return: None
         """
 
@@ -129,7 +129,7 @@ class Schema(Base):
 
     def get_table_count(self) -> int:
         """
-        # Return count of tables which are belongs to this schema
+        # Return count of tables which are belonged to this schema
         :return: Count of tables
         """
 

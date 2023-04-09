@@ -73,7 +73,7 @@ class CArgs:
             # TODO ulozit cestu
 
         if self.connection_file_path:
-            # load from existing database
+            # load from an existing database
             self.db_config = DBConfig(path=self.connection_file_path,
                                       option=self.connection_file_option)
 

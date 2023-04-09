@@ -6,7 +6,7 @@
 #     Database:
 #        Stores: database name,
 #                database schemas
-#                index with points to every object in database providing shortcuts
+#                index with points to every object in a database providing shortcuts
 #
 #######################################
 
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 class Database(Base):
     """
-    Represents database in memory representation.
+    Represents a database in memory representation.
     """
 
     ###################################
@@ -79,9 +79,9 @@ class Database(Base):
 
     def set_default_scheme(self) -> Database:
         """
-        Sets default scheme to database instance
-        In database system is common to have database scheme
-        But the name can be different based on implementation of database system
+        Sets a default scheme to database instance
+        In a database system is common to have a database scheme,
+        But the name can be different based on the implementation of database system
         :return: Database instance
         """
 
@@ -98,7 +98,7 @@ class Database(Base):
     ###########################
     def index_registration(self, key, reg_object) -> None:
         """
-        Register object to database index
+        Register an object to database index.
         Database index is focusing on faster access to database objects
         :param key: The registration key
         :param reg_object: Reference to the object
@@ -109,7 +109,7 @@ class Database(Base):
 
     def index_cancel_registration(self, key) -> None:
         """
-        Delete object from database index
+        Delete an object from database index
         :param key: The key of object in database index
         :return: None
         """
@@ -120,7 +120,7 @@ class Database(Base):
         # iterate through all items in object_index
         for o in self.object_index:
 
-            # because algorithm works with __len__() then functionality is different
+            # because the algorithm works with __len__() then functionality is different
             # when str, then __len__() counts number of chars
             # when tuple, then __len() counts number of items in tuple
 
@@ -138,8 +138,10 @@ class Database(Base):
                 continue
 
             # check if tuples have mutual attributes in structure like
-            # we need to delete all references to sub-level parts of deleted item
-            # so all objects that have same attributes(on same level) as deleted one, they need to be deleted as well
+            # we need to delete all references to sublevel parts of deleted item
+            # so all objects that have the same attributes(on the same level) as deleted one,
+            # they need to be deleted as well
+            #
             #       |level0|  |level1|  |level2| ... |level n||
             # 1) (  schema1,  table1,    col1   )
             # 2) (  schema1,  table1,    col2   )
@@ -161,7 +163,7 @@ class Database(Base):
 
     def get_indexed_object(self, index_key):
         """
-        Get object from database using database index
+        Get an object from a database using database index
         :param index_key: The database index key which refers to the object
         :return:
         """
@@ -189,8 +191,8 @@ class Database(Base):
     ###########################
     def get_schema_by_name_or_error(self, schema_name: str) -> Schema:
         """
-        Return schema if exists in database or raise error
-        :param schema_name: The schema name
+        Return schema if exists in a database or raise error
+        :param schema_name: Schema name
         :return: The instance of schema or raised error
         """
 
@@ -223,8 +225,8 @@ class Database(Base):
     def get_table_by_name_or_error(self, schema_name, table_name: str) -> Table:
         """
         Get instance of table or raise error
-        :param schema_name: The schema name
-        :param table_name: The table name
+        :param schema_name: Schema name
+        :param table_name: Table name
         :return: Returns table instance if exists otherwise raised error
         """
 
@@ -242,7 +244,7 @@ class Database(Base):
                             table_name,
                             create_node=None) -> Table:
         """
-        Get table from database if already exists there, or it will be created
+        Get table from a database if already exists there, or it will be created
         :param database:
         :param schema_name: Schema name
         :param table_name: Table name

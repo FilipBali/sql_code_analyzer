@@ -3,21 +3,21 @@ import importlib.util
 from queue import LifoQueue
 
 from sql_code_analyzer.checker.rules.base import BaseRule
-from sql_code_analyzer.output.enums import MessageType, ExitWith
-from sql_code_analyzer.output.reporter.base import ProgramReporter, RuleReport
+from sql_code_analyzer.output.enums import ExitWith
+from sql_code_analyzer.output.reporter.base import ProgramReporter
 from sql_code_analyzer.visitor.visitor import Visitor
 
 
 class RuleType(enum.Enum):
     """
     Enumerator of rule types.
-    Provides option to call rules when node is entered or leaved.
-    The rule is mostly the root node of some sub-tree of abstract syntax tree.
+    Provides an option to call rules when a node is entered or leaved.
+    The rule is mostly the root node of some subtree of abstract syntax tree.
     So this provides also provides functionality to call rules when
-    sub-tree is visited or leaved.
+    subtree is visited or leaved.
 
     The enumerator value is always combined by node class name.
-    By this design it is possible to call only rules that are
+    By this design, it is possible to call only rules that are
     expecting this kind of node
 
     _visit rule is called when the node entered/visited.
@@ -25,8 +25,8 @@ class RuleType(enum.Enum):
 
     Examples of using:
     The node is called: ColumnDef
-    ColumnDef provides sub-tree to definition of column.
-    To call rule when ColumnDef is visited it is necessary to
+    ColumnDef provides subtree to definition of column.
+    To call rule when ColumnDef is visited, it is necessary to
     create a method called columndef_visit.
 
     For rule leaving ColumDef-tree the method is columndef_leave.
@@ -46,10 +46,10 @@ class RulesVisitor(Visitor):
     the rule to only some nodes. Restriction is defined by
     appointing the node names.
 
-    Permanent feature is providing option to have an
+    Permanent feature is providing an option to have an
     indestructible rule object. When the rule is called
-    between nodes, the rule object is always new instance.
-    If permanent feature is set to true, the object is
+    between nodes, the rule object is always a new instance.
+    If a permanent feature is set to true, the object is
     saved and called also with another nodes. This can
     be useful if we want to transfer data about linting
     from one node to another one.
@@ -62,7 +62,7 @@ class RulesVisitor(Visitor):
         :param rules_args_data: Provides data about available rules and additional data about them.
 
         :param expect_set: The set of expecting rules. The restrict feature. The expect_set comes from
-        statement that will be visited.
+        a statement that will be visited.
         """
 
         self.expect_set = expect_set
@@ -91,11 +91,11 @@ class RulesVisitor(Visitor):
     def traversing_ast_done(self) -> None:
         """
         It is used when traversing of abstract syntax tree is done.
-        Over time as the RuleVisitor visits nodes there are saved
+        Over time as the RuleVisitor visits nodes, there are saved
         _leave functions of these nodes.
         When traversing of the abstract syntax tree is done, there
         are always some _leave functions that need to be called.
-        This function do this work.
+        This function does this work.
 
         :return: None
         """
@@ -115,7 +115,7 @@ class RulesVisitor(Visitor):
     def visit(self, node) -> None:
         """
         Provides the main logic of RuleVisitor.
-        As the abstract syntax tree is traversed
+        As the abstract syntax tree is traversed,
         the visit function calls the rules over
         particular nodes and provides node linting.
 
@@ -142,7 +142,7 @@ class RulesVisitor(Visitor):
                 # Going from node 2 to node 3
                 # As we are going to more depth
                 # there is no need to call _leave function
-                # because we are not leaving sub-tree
+                # because we are not leaving subtree
                 # bud instead entering new one
                 #             ---
                 #            | 1 |
@@ -195,9 +195,9 @@ class RulesVisitor(Visitor):
                 # Going from node 3 to node 4
                 # As we are going to visit upper node
                 # we must call _leave function to all
-                # nodes in node 2 sub-tree
+                # nodes in node 2 subtree
                 # We can use that node 2 and node 4
-                # are in same depth,
+                # are in the same depth,
                 # so we call _leave function for all
                 # nodes which have depth <= node 4
                 #
@@ -236,11 +236,11 @@ class RulesVisitor(Visitor):
         This function encapsulates the application of rules
         to a node.
 
-        :param visit_or_leave: Specify rule type.
+        :param visit_or_leave: Specify a rule type.
         :return: None
         """
 
-        # Apply rules based on node type
+        # Apply rules based on a node type
         self.apply_rules(visit_or_leave=visit_or_leave)
 
     def apply_rules(self, visit_or_leave: RuleType) -> None:
@@ -248,7 +248,7 @@ class RulesVisitor(Visitor):
         Provides logic of application of particular
         rules to node.
 
-        :param visit_or_leave: Specify rule type.
+        :param visit_or_leave: Specify a rule type.
         :return: None
         """
 

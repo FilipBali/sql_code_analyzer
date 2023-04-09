@@ -3,7 +3,6 @@ from __future__ import annotations
 from queue import Queue
 
 from sql_code_analyzer.in_memory_representation.struct.constrain import ForeignKey
-# from sql_code_analyzer.in_memory_representation.struct.database import Database
 from sql_code_analyzer.in_memory_representation.struct.schema import Schema
 from sql_code_analyzer.in_memory_representation.struct.table import Table
 from sql_code_analyzer.in_memory_representation.tools.ast_manipulation import get_next_node

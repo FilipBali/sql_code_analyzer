@@ -65,7 +65,7 @@ def parse_foreign_key(visited_nodes,
                 if isinstance(node, exp.Identifier):
                     if ref_table is None:
                         ref_table: Table = mem_rep.get_indexed_object(index_key=(schema.name,
-                                                                                          node.name))
+                                                                                 node.name))
                     else:
                         fk_reference_column: Column = mem_rep.get_indexed_object(index_key=(schema.name,
                                                                                             ref_table.name,
@@ -117,7 +117,7 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
             # Node layer: root -> CREATE
             ###############################
 
-            # In creation node we expect info about statement creation properties like:
+            # In the creation node we expect info about statement creation properties like:
             # -> with, exists, properties, replace, unique, volatile, indexes, no_schema_binding, begin
             # Available properties can be found in exp.Create class
             create_node = node
@@ -134,7 +134,7 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
             context_layer_node_depth = node.depth
 
             # Getting table node
-            # Here we expect schema and table name arguments
+            # Here, we expect schema and table name arguments
 
             # get schema by schema name
             schema: Schema = mem_rep.get_schema_by_name_or_error(node.db)
@@ -191,9 +191,9 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
                             # Node layer: DATATYPE -> LITERAL
                             ##################################
                             # Here we expect info about datatype literal like:
-                            # -> datatype value, is_int, is_number, is_star, is_string
-                            # Creating literal object and save it into literals lists
-                            # List of literals will be added later in datatype object
+                            # -> datatype value, is_int, is_number, is_star, an is_string
+                            # Creating a literal object and save it into a literal list.
+                            # The list of literals will be added later in a datatype object
 
                             # Literals are in fact datatype argument, there can be more arguments like:
                             # Datatype with one literal(15): VARCHAR(15)
@@ -204,8 +204,8 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
                             )
 
                         else:
-                            # Here we expect node that is not part of datatype information anymore
-                            # So we create datatype object which will be stored in column object later
+                            # Here we expect a node that is not part of datatype information anymore,
+                            # So we create a datatype object which will be stored in a column object later
                             datatype = Datatype(node=datatype_node,
                                                 literals=literals)
                             visited_nodes.put(nodes)
@@ -264,7 +264,7 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
             #    ADD COLUMN TO THE TABLE
             ##################################
 
-            # As we have all info to create column object, lets create it
+            # As we have all the info to create a column object, let's create it
             new_col = Column(
                         identifier=identifier,
                         datatype=datatype,
@@ -272,9 +272,9 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
                         constrains=[],
                     )
 
-            # As we do not have column object as soon as we traverse all column's nodes
+            # As we do not have a column object as soon as we traverse all column's nodes,
             # we do not have enough information to fulfill all column constrain data
-            # due to column constrain has reference to Column object which not exists
+            # due to column constrain has reference to a Column object which not exists
             # in time when we traversed column constrain nodes
 
             # So now we must dynamically add constrains to column
@@ -391,4 +391,3 @@ def register(linter) -> None:
     linter.register_modify_representation_statement(
         modify_representation_function=create_table
     )
-

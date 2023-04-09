@@ -36,21 +36,21 @@ class Linter:
     """
     Encapsulates program logic.
     Contains data about:
-        Program arguments parsed to program arguments object.
+        Program arguments parsed to a program arguments object.
         Parsed rules data represents location where are expected to find rules, which rules are allowed to use or
-        are need to excluded/skipped.
+        are need to exclude/skipped.
         List of functions which can be used to parse and modify memory representation.
-        Reference to tokens of statement.
-        Reference to abstract syntax tree  of statement.
+        Reference to tokens of a statement.
+        Reference to abstract syntax tree of a statement.
         Reference to memory representation.
 
     Features:
         Initialise memory database (or memory representation) which is used to simulate database schema objects.
         Create a copy of real database schema if user provides connection credentials.
-        Load previous used and serialized  memory representation.
+        Load previous used and serialized memory representation.
         Call SQLGlot library to parse statements to abstract syntax tree
         Provide linting of abstract syntax tree
-        Makes a modification of memory representation based on statements
+        Makes a modification of memory representation based on statement
         Serialization and deserialization of memory representation for future use
     """
 
@@ -72,7 +72,7 @@ class Linter:
 
     def _init_program_argument_class(self) -> None:
         """
-        Creates object from CArgs class which encapsulate parsed program arguments data and save it to linter object
+        Creates an object from CArgs class which encapsulate parsed program arguments data and save it to linter object
         :return: None
         """
 
@@ -81,7 +81,7 @@ class Linter:
 
     def _init_rules_class(self) -> None:
         """
-        Creates object from CRules class which encapsulate parsed rule data and save it to linter object
+        Creates an object from CRules class which encapsulate parsed rule data and save it to linter object
         :return: None
         """
 
@@ -92,7 +92,7 @@ class Linter:
 
     def _init_memory_database_representation(self) -> None:
         """
-        Creates object from Database class which providing simulation of database representation which is created
+        Creates an object from Database class which providing simulation of database representation which is created
         by SQL statements.
 
         Default database name is called MemoryDB
@@ -114,7 +114,7 @@ class Linter:
         :return: True/False
         """
 
-        # Before doing that it must be done problem with alter statements
+        # Before doing that, it must be done a problem with alter statements
         # Because they have inconsistent naming.. key=AlterTable not key=Alter, kind=Table
         if hasattr(self.ast, "key"):
             # if self.ast.key.lower() in ["create_", "alter_", "altertable_", "drop_", "insert_", "update_", "delete_"]:
@@ -184,25 +184,26 @@ class Linter:
         """
         Try to include code locations to abstract syntax tree nodes
 
-        There are two possible approaches how to get this work.
+        There are two possible approaches to how to get this work.
         1) Rewrite some part of SQLGlot library
-           This mean some incompatibility with source repository of SQLGlot
-           It is reliable solution, but it needs to maintain changes and update process if thera are incoming
+           This means some incompatibility with source repository of SQLGlot
+           It is a reliable solution, but it needs to maintain changes and update process if thera are incoming
            changes from source repository
 
         2) Try to associate node with token
-           Tokens from SQLGlot libary already have code location inside
+           Tokens from SQLGlot library already have code location inside
            The problem is that SQLGlot library does not include this information also to abstract syntax tree
            By text or TokenType in token there is a high possibility that find out match with node
            abstract syntax tree, if they are used in node.
 
         This function combines these two approaches. Some changes have been made to SQLGlot library, this function
         detects if code location is already set.
-        During testing appears that 2) approach can cover most cases and the only problem are nodes that are created
-        from two or more tokens like CREATE TABLE, NOT NULL, PRIMARY KEY where every word is represents single token.
+        During testing, it appears that 2) approach can cover most cases, and the only problem is nodes that are created
+        from two or more tokens like CREATE TABLE, NOT NULL, PRIMARY KEY where every word is representing a single
+        token.
 
-        This means, the program can use change-free library of SQLGlot, but code location data will be missing in nodes
-        where are used more than one token during node creation.
+        This means the program can use a change-free library of SQLGlot, but code location data will be missing
+        in nodes where are used more than one token during node creation.
 
         :return:
         """
@@ -294,7 +295,7 @@ class Linter:
         """
         Encapsulate logic of linting process
         Creates the generator from abstract syntax tree
-        Creates the queue where node is saved if it is belongs to another context part
+        Creates the queue where node is saved if it is belonged to another context part
 
         :return: None
         """
@@ -324,7 +325,7 @@ class Linter:
         Creates restriction set from statement data.
         Restriction set is then used to select only the appropriate rules.
 
-        :return: Restriction set for actual statement
+        :return: Restriction set for an actual statement
         """
 
         expect_set = set()
@@ -346,7 +347,7 @@ class Linter:
     def _modify_representation(self) -> None:
         """
         Call functions that are responsible for modifying the memory representation.
-        The function is determined by current node.
+        The function is determined by the current node.
 
         :return: None
         """
@@ -491,8 +492,8 @@ class Linter:
 
     def register_modify_representation_statement(self, modify_representation_function) -> None:
         """
-        Encapsulates registration of each memory representation change functions.
-        If successful then function is registered for future use
+        Encapsulates the registration of each memory representation change function.
+        If successful, then function is registered for future use
         :param modify_representation_function: Memory representation change function
         :return: None
         """
@@ -567,11 +568,10 @@ class Linter:
                 else:
                     err_user_answer = True
 
-        # Provide serialization memory representation and store to serialization path
+        # Provide serialization memory representation and store to a serialization path
         if self.args_data.serialization_path is not None:
             self.mem_rep.serialize_and_save(
                 serialization_path=self.args_data.serialization_path
             )
         aa = pickle.dumps(self.mem_rep)
         bb = pickle.loads(aa)
-

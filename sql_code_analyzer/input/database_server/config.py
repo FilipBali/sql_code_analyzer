@@ -126,4 +126,3 @@ class DBConfig:
             ProgramReporter.show_missing_property_error_message(
                 message="Parameter(s) " + " ".join(str(item) for item in properties_if_none) + " are not set!."
             )
-

@@ -7,9 +7,9 @@ if TYPE_CHECKING:
 
 def make_connection(db_config: DBConfig):
     """
-    Makes connection with database with the entered login details.
+    Makes connection with a database with the entered login details.
     :param db_config: Login details
-    :return: Engine and MetaData obtained after connection to database.
+    :return: Engine and MetaData obtained after connection to a database.
     """
 
     # do import here if necessary
@@ -31,9 +31,11 @@ def make_connection(db_config: DBConfig):
     port = db_config.port
     service = db_config.service
 
-    connection_string = dialect + '+' + sql_driver + \
-                        '://' + username + ':' + password + '@' + host + ':' + str(port) + \
-                        '/?service_name=' + service
+    database_specific = dialect + '+' + sql_driver
+    user_credential = '://' + username + ':' + password
+    database_home = '@' + host + ':' + str(port) + '/?service_name=' + service
+
+    connection_string = database_specific + user_credential + database_home
 
     print("Connecting to " + dialect.lower() + " database..")
     print("Using connection string: " + connection_string)

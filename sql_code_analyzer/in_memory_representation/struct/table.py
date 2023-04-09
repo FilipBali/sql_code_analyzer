@@ -44,7 +44,7 @@ class Table(Base):
                  database: Database,
                  node=None):
         """
-        :param name: Table name
+        :param name: Table's name
         :param schema: The schema to which the table belongs
         :param database: The database to which the table belongs
         """
@@ -214,7 +214,7 @@ class Table(Base):
 
     def get_columns_count(self) -> int:
         """
-        Returns how many columns table has
+        Returns count of how many columns the table has
         :return: Count of columns
         """
 
@@ -239,7 +239,7 @@ class Table(Base):
 
     def verify_columns_count(self, expected_count) -> bool:
         """
-        Return count of columns which are belongs to table
+        Return count of columns which are belonged to table
         :param expected_count:
         :return: True/False
         """
@@ -255,7 +255,7 @@ class Table(Base):
 
     def verify_can_be_deleted(self) -> bool:
         """
-        Verify if table meets requirements to be deleted from memory representation
+        Verify if the table meets requirements to be deleted from memory representation
         :return: True/False
         """
         if len(self.constrains) > 1:
@@ -265,16 +265,15 @@ class Table(Base):
 
     def verify_is_relationship_with_another_table(self) -> bool:
         """
-        Verify if table have the relationship with another table
+        Verify if table has the relationship with another table
         :return: True/False
         """
         return self.verify_can_be_deleted()
 
     def verify_relationship_with_another_table(self, table: Table) -> bool:
         """
-        Verify if table have the relationship with table provided in arguments
-        :param table: The table object
+        Verify if table has the relationship with table provided in argument
+        :param table: Table object
         :return: True/False
         """
         ...
-
