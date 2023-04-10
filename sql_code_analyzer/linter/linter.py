@@ -28,7 +28,7 @@ from sql_code_analyzer.output.terminator.base import Terminator
 ################################
 #           OUTPUT
 ################################
-from sql_code_analyzer.output.reporter.base import ProgramReporter
+from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 from sql_code_analyzer.visitor.rules_visitor import RulesVisitor
 
 
@@ -212,6 +212,7 @@ class Linter:
 
             if not success:
                 # Next statement
+                # TODO create erorr or warnign or report
                 continue
 
             self._include_code_locations()
@@ -374,6 +375,8 @@ class Linter:
             else:
                 node.accept(rules_visitor)
 
+        ...
+
     def _create_restriction_set_from_statement(self) -> set:
         """
         Creates restriction set from statement data.
@@ -387,7 +390,7 @@ class Linter:
                 "kind" in self.ast.args and \
                 self.ast.args["kind"] is not None:
 
-            statement: str = self.ast.key.lower() + "" + self.ast.args["kind"].lower()
+            statement: str = self.ast.key.lower() + "_" + self.ast.args["kind"].lower()
             expect_set.add(statement)
             expect_set.add(self.ast.key.lower())
             expect_set.add(self.ast.args["kind"].lower())

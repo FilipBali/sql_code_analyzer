@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 from sql_code_analyzer.in_memory_representation.struct.base import Base
-from sql_code_analyzer.output.reporter.base import ProgramReporter
+from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 from sqlglot import expressions as exp
 
 from typing import TYPE_CHECKING, Type

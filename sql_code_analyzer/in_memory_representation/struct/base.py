@@ -3,7 +3,7 @@
 # Purpose: Base class contains common functionality for every class which represent some database object
 #
 #######################################
-from sql_code_analyzer.output.reporter.base import ProgramReporter
+from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 
 
 class Base:

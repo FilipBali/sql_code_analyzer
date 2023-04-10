@@ -2,7 +2,7 @@ import os
 import sys
 from pathlib import Path
 
-from sql_code_analyzer.output.reporter.base import ProgramReporter
+from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 
 
 def get_program_root_path() -> Path:

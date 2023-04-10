@@ -4,7 +4,7 @@ from queue import LifoQueue
 
 from sql_code_analyzer.checker.rules.base import BaseRule
 from sql_code_analyzer.output.enums import ExitWith
-from sql_code_analyzer.output.reporter.base import ProgramReporter
+from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 from sql_code_analyzer.visitor.visitor import Visitor
 
 
@@ -50,7 +50,7 @@ class RulesVisitor(Visitor):
     indestructible rule object. When the rule is called
     between nodes, the rule object is always a new instance.
     If a permanent feature is set to true, the object is
-    saved and called also with another nodes. This can
+    saved and called also with another node. This can
     be useful if we want to transfer data about linting
     from one node to another one.
 
@@ -278,7 +278,7 @@ class RulesVisitor(Visitor):
                 # Call/Apply rule
 
                 self.call_rule(rule_method=rule_method)
-                ...
+        ...
 
     def get_rules(self) -> None:
         """

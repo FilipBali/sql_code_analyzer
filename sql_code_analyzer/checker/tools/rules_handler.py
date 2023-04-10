@@ -2,7 +2,7 @@ import glob
 import os
 import re
 
-from sql_code_analyzer.output.reporter.base import ProgramReporter
+from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 
 
 class CRules:

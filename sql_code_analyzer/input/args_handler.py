@@ -8,7 +8,8 @@ import re
 from sql_code_analyzer.input.database_server.base import database_connection_handler
 from sql_code_analyzer.input.database_server.config import DBConfig
 from sql_code_analyzer.output import enums
-from sql_code_analyzer.output.reporter.base import ProgramReporter, OutputType
+from sql_code_analyzer.output.reporter.base import OutputType
+from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 from sql_code_analyzer.output.terminator.base import Terminator
 from sql_code_analyzer.tools.path import get_program_root_path, get_absolute_path, verify_path_access, \
     verify_path_exists

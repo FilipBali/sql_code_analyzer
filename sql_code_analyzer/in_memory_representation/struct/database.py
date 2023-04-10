@@ -18,7 +18,7 @@ from sql_code_analyzer.in_memory_representation.struct.table import Table
 
 from typing import TYPE_CHECKING
 
-from sql_code_analyzer.output.reporter.base import ProgramReporter
+from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 
 if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.schema import Schema

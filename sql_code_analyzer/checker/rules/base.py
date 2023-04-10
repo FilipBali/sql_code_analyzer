@@ -1,6 +1,7 @@
 from sql_code_analyzer.adapter.base_class import BaseClass
 from sql_code_analyzer.adapter.freature_class.base_cast import BaseCast
-from sql_code_analyzer.output.reporter.base import RuleReport, ProgramReporter
+from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
+from sql_code_analyzer.output.reporter.rule_reporter import RuleReport
 
 
 class BaseRuleMetaclass(type):
@@ -67,7 +68,9 @@ class BaseRule(metaclass=BaseRuleMetaclass):
 
         except (Exception,):
             ProgramReporter.show_missing_property_warning_message(
-                message="Report name " + report_name + " not exists! The report can not be processed."
+                message="A report called " + report_name + " does not exists! The report can not be processed.\n"
+                        "Class name: " + self._get_class_name() + "\n"
+                        "Path: " + self.__module__
             )
             return
 

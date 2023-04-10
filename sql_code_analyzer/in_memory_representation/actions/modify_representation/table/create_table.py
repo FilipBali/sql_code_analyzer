@@ -7,7 +7,8 @@ from sql_code_analyzer.in_memory_representation.struct.datatype import Datatype
 from sql_code_analyzer.in_memory_representation.struct.literal import Literal
 
 from sql_code_analyzer.in_memory_representation.tools.ast_manipulation import get_next_node, skip_lower_nodes
-from sql_code_analyzer.output.reporter.base import ProgramReporter
+from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
+
 from sqlglot import Expression
 from sqlglot import expressions as exp
 from queue import Queue
