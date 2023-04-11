@@ -10,6 +10,7 @@ from typing import Generator
 #              SQLGlot IMPORT
 ###############################################
 import sqlglot
+from sql_code_analyzer.output.reporter.rule_reporter import RuleReporter
 from sql_code_analyzer.tools.path import get_program_root_path, get_absolute_path
 from sqlglot import expressions as exp
 
@@ -58,6 +59,8 @@ class Linter:
 
         self._modify_representation_functions = {}
         self._parse_error_occurred = False
+        self.rule_reporter = RuleReporter()
+        self.statement = None
 
         self._init_program_argument_class()
         self._init_rules_class()
@@ -70,6 +73,8 @@ class Linter:
         # Program assume that serialization is not wanted.
         if self.args_data.serialization_path is not None:
             self._make_serialization()
+
+        self._show_reports()
 
     def _init_program_argument_class(self) -> None:
         """
@@ -154,9 +159,9 @@ class Linter:
 
         return False
 
-    def _parse_statement(self, statement) -> bool:
+    def _parse_statement(self) -> bool:
         try:
-            self.ast, self.tokens = sqlglot.parse_one(statement)
+            self.ast, self.tokens = sqlglot.parse_one(self.statement)
             return True
 
         except (Exception,) as e:
@@ -164,6 +169,7 @@ class Linter:
             self._parse_error_occurred = True
 
             for arg in e.args:
+                print(arg)
                 # TODO create report with parse error occurred tag
                 ...
 
@@ -175,9 +181,9 @@ class Linter:
         :return: None
         """
         # iterate over database SQL statements
-        for statement in self.args_data.database_statements:
+        for self.statement in self.args_data.database_statements:
 
-            success = self._parse_statement(statement=statement)
+            success = self._parse_statement()
 
             if not success:
                 # Next statement
@@ -206,9 +212,9 @@ class Linter:
         """
 
         # iterate over SQL statements
-        for statement in self.args_data.statements:
+        for self.statement in self.args_data.statements:
 
-            success = self._parse_statement(statement=statement)
+            success = self._parse_statement()
 
             if not success:
                 # Next statement
@@ -375,6 +381,10 @@ class Linter:
             else:
                 node.accept(rules_visitor)
 
+        self.rule_reporter.add_reports(
+            statement=self.statement,
+            reports=rules_visitor.reports
+        )
         ...
 
     def _create_restriction_set_from_statement(self) -> set:
@@ -645,3 +655,6 @@ class Linter:
             ProgramReporter.show_error_message(
                 message="Serialization failed!\nPath: " + self.args_data.serialization_path
             )
+
+    def _show_reports(self):
+        self.rule_reporter.print_reports()
