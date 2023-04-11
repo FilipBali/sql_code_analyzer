@@ -231,12 +231,41 @@ def parse_raw_sql_to_statement(args_data) -> None:
 
     # Split statements
     statement_delimiter = ";"
-    statements = ' '.join(statements).split(statement_delimiter)
+
+    t_statements = []
+    append_to_new_line = False
+    for statement in statements:
+        if len(t_statements) == 0:
+            t_statements.append(statement)
+            continue
+
+        if append_to_new_line:
+            t_statements.append(statement)
+            append_to_new_line = False
+            continue
+
+        t_statements[-1] += statement
+
+        if statement_delimiter in statement:
+            append_to_new_line = True
+
+    statements = t_statements
+
+    # statements = ' '.join(statements).split(statement_delimiter)
+    t_statements = []
+    for statement in statements:
+        t_statements += statement.split(statement_delimiter)
+
+    statements = t_statements
     statements = [item + statement_delimiter for item in statements]
 
     # Delete comments block again
     # There can be again because of a statement split by delimiter ;
     delete_comment_blocks()
+
+    # The last one is always statement_delimiter or some useless text because of .split(statement_delimiter)
+    if len(statements) != 0:
+        statements.pop()
 
     keep_statements = []
     for statement in statements:
