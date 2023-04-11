@@ -38,6 +38,7 @@ class Database(Base):
         """
 
         self.name = db_name
+        self.default_schema = "dbo"
         self.schemas = {}
         self.object_index = {}
 
@@ -65,6 +66,14 @@ class Database(Base):
     def object_index(self, value):
         self._object_index = value
 
+    @property
+    def default_schema(self):
+        return self._default_schema
+
+    @default_schema.setter
+    def default_schema(self, value):
+        self._default_schema = value
+
     ##################################################
     #                  PRIVATE METHODS
     ##################################################
@@ -87,9 +96,9 @@ class Database(Base):
 
         from sql_code_analyzer.in_memory_representation.struct.schema import Schema
 
-        schema = Schema(self, "dbo")
-        self.schemas["dbo"] = schema
-        self.index_registration(key="dbo",
+        schema = Schema(self, self.default_schema)
+        self.schemas[self.default_schema] = schema
+        self.index_registration(key=self.default_schema,
                                 reg_object=schema)
         return self
 
@@ -171,7 +180,7 @@ class Database(Base):
             return self.object_index[index_key]
         else:
             ProgramReporter.show_missing_property_error_message(
-                message="Item" + index_key + " is not exists in indexed objects."
+                message="Item " + str(index_key) + " is not exists in indexed objects."
             )
 
     ###########################
@@ -197,7 +206,7 @@ class Database(Base):
         """
 
         if schema_name == "":
-            schema_name = "dbo"
+            schema_name = self.default_schema
 
         schema_instance = self.get_instance_or_error(find_attr_val=schema_name,
                                                      find_in_struct=self.schemas,
