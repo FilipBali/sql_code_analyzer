@@ -257,15 +257,11 @@ def parse_raw_sql_to_statement(args_data) -> None:
         t_statements += statement.split(statement_delimiter)
 
     statements = t_statements
-    statements = [item + statement_delimiter for item in statements]
+    statements = [statement + statement_delimiter for statement in statements if statement != ""]
 
     # Delete comments block again
     # There can be again because of a statement split by delimiter ;
     delete_comment_blocks()
-
-    # The last one is always statement_delimiter or some useless text because of .split(statement_delimiter)
-    if len(statements) != 0:
-        statements.pop()
 
     keep_statements = []
     for statement in statements:
