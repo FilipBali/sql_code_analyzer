@@ -25,7 +25,7 @@ from sql_code_analyzer.in_memory_representation.struct.column import Column
 from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 
 if TYPE_CHECKING:
-    from sql_code_analyzer.in_memory_representation.struct.constrain import PrimaryKey
+    from sql_code_analyzer.in_memory_representation.struct.constrain import PrimaryKey, ForeignKey
     from sql_code_analyzer.in_memory_representation.struct.database import Database
     from sql_code_analyzer.in_memory_representation.struct.schema import Schema
 
@@ -177,6 +177,14 @@ class Table(Base):
     #########################
     #         DELETE
     #########################
+
+    def delete_cascade(self) -> Table:
+        constrain_key: tuple = (self, self)
+        for constrain in self.constrains[constrain_key]:
+            if isinstance(constrain, ForeignKey):
+                constrain.delete_reference()
+
+        return self
 
     def delete_table(self) -> None:
         """

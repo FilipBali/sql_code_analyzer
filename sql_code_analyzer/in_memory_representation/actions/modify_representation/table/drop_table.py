@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from queue import Queue
 
-from sql_code_analyzer.in_memory_representation.struct.constrain import ForeignKey
 from sql_code_analyzer.in_memory_representation.struct.schema import Schema
 from sql_code_analyzer.in_memory_representation.struct.table import Table
 from sql_code_analyzer.in_memory_representation.tools.ast_manipulation import get_next_node
 from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
+
 from sqlglot import Expression
 from sqlglot import expressions as exp
 
@@ -15,12 +15,14 @@ if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.database import Database
 
 
-def drop_table(ast: Expression, mem_rep: Database):
+def drop_table(ast: Expression, mem_rep: Database) -> None:
     """
-    TODO description
-    :param ast:
-    :param mem_rep:
-    :return:
+    Provides parsing of abstract syntax tree of DROP TABLE statement
+    It deletes table in memory representation according to processed data
+
+    :param ast: Abstract syntax tree of DROP talbe state,emt
+    :param mem_rep: Reference to memory representation
+    :return: None
     """
 
     ast_generator = ast.walk(bfs=False)
@@ -59,11 +61,16 @@ def drop_table(ast: Expression, mem_rep: Database):
                     # Trying to get scheme name
                     schema_name = node.name
 
+    # Get schema name
+    # If schema name is None, then the program will work with the default schema of a database
     if schema_name is not None:
         schema: Schema = mem_rep.get_indexed_object(index_key=schema_name)
     else:
-        schema: Schema = mem_rep.get_indexed_object(index_key="Default")
+        schema: Schema = mem_rep.get_indexed_object(index_key=mem_rep.default_schema)
 
+    # Get table from memory representation
+    # If not exists, then its error state because we have nothing to delete
+    table: Table | None = None
     if table_name is not None:
         table: Table = mem_rep.get_indexed_object(index_key=(schema.name,
                                                              table_name))
@@ -72,21 +79,22 @@ def drop_table(ast: Expression, mem_rep: Database):
             message="Missing table name while executing TABLE DROP."
         )
 
+    # According to arguments in AST, the program
+    # chooses an operation
     if cascade:
-        constrain_key: tuple = (table, table)
-        for constrain in table.constrains[constrain_key]:
-            if isinstance(constrain, ForeignKey):
-                constrain.delete_reference()
+        # Delete table cascade
+        # TODO ALTER TABLE table1 DROP CONSTRAINT fk_table1_table2;
+        # TODO test
+        table.delete_cascade().delete_table()
 
     elif materialized:
-        ...
+        pass
 
     elif temporary:
-        ...
+        pass
 
     else:
         # Delete table
-        # mem_rep.delete_table(table)
         table.delete_table()
 
 
