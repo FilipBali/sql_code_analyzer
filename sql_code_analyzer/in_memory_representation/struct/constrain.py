@@ -1,7 +1,8 @@
 from __future__ import annotations
 from sql_code_analyzer.in_memory_representation.struct.base import Base
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Dict
+
 if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.column import Column
     from sql_code_analyzer.in_memory_representation.struct.table import Table
@@ -155,15 +156,15 @@ class Index(Constrain):
     """
     Represent INDEX in memory representation
     """
-    def __init__(self, column: Column, name=None):
+    def __init__(self, name: str, columns: List[Column]):
         """
-        :param column: Column to which the restriction applies
+        :param columns: Columns to which the restriction applies
         :param name: Constraint name if needed
         """
 
         super().__init__()
         self.set_name(name)
-        self.column = column
+        self.columns = columns
 
 
 class CheckExpression(Constrain):
