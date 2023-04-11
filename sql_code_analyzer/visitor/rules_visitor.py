@@ -1,12 +1,18 @@
+from __future__ import annotations
+
 import enum
 import importlib.util
 from queue import LifoQueue
+
 
 from sql_code_analyzer.checker.rules.base import BaseRule
 from sql_code_analyzer.output.enums import ExitWith
 from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 from sql_code_analyzer.visitor.visitor import Visitor
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import List, Set, Dict
 
 class RuleType(enum.Enum):
     """
@@ -66,15 +72,88 @@ class RulesVisitor(Visitor):
         """
 
         self.expect_set = expect_set
-        self._restrict_rules = {}
+        self.restrict_rules = {}
         self.rules_args_data = rules_args_data
         self.node = None
         self.node_to_lint = None
-        self._rules = []
-        self._persistent_rules = []
+        self.rules = []
+        self.persistent_rules = []
         self.visit_leave_queue = LifoQueue()
         self.get_rules()
-        self._reports = []
+        self.reports = []
+
+    @property
+    def expect_set(self) -> Set:
+        return self._expect_set
+
+    @expect_set.setter
+    def expect_set(self, value):
+        self._expect_set = value
+
+    @property
+    def restrict_rules(self) -> Dict:
+        return self._restrict_rules
+
+    @restrict_rules.setter
+    def restrict_rules(self, value):
+        self._restrict_rules = value
+
+    @property
+    def rules_args_data(self):
+        return self._rules_args_data
+
+    @rules_args_data.setter
+    def rules_args_data(self, value):
+        self._rules_args_data = value
+
+    @property
+    def node(self):
+        return self._node
+
+    @node.setter
+    def node(self, value):
+        self._node = value
+
+    @property
+    def node_to_lint(self):
+        return self._node_to_lint
+
+    @node_to_lint.setter
+    def node_to_lint(self, value):
+        self._node_to_lint = value
+
+    @property
+    def rules(self) -> List:
+        return self._rules
+
+    @rules.setter
+    def rules(self, value):
+        self._rules = value
+
+    @property
+    def persistent_rules(self) -> List:
+        return self._persistent_rules
+
+    @persistent_rules.setter
+    def persistent_rules(self, value):
+        self._persistent_rules = value
+
+
+    @property
+    def visit_leave_queue(self) -> LifoQueue:
+        return self._visit_leave_queue
+
+    @visit_leave_queue.setter
+    def visit_leave_queue(self, value):
+        self._visit_leave_queue = value
+
+    @property
+    def reports(self) -> List:
+        return self._reports
+
+    @reports.setter
+    def reports(self, value):
+        self._reports = value
 
     @staticmethod
     def _get_node_type(node) -> str:
@@ -253,14 +332,14 @@ class RulesVisitor(Visitor):
         """
 
         # Get rules that satisfy restrictions or have no restrictions
-        rules_result = [obj for obj, restrictions in self._restrict_rules.items()
+        rules_result = [obj for obj, restrictions in self.restrict_rules.items()
                         if not restrictions or restrictions.intersection(self.expect_set)]
 
         # Iterating over rules which comply with restriction
         for rule in rules_result:
 
             rule_instance = None
-            for item in self._persistent_rules:
+            for item in self.persistent_rules:
                 if type(item) is rule:
                     rule_instance = item
                     break
@@ -313,16 +392,16 @@ class RulesVisitor(Visitor):
         """
 
         # Register rule
-        self._rules.append(rule)
+        self.rules.append(rule)
 
         if hasattr(rule, "persistent"):
             if rule.persistent:
-                self._persistent_rules.append(rule())
+                self.persistent_rules.append(rule())
 
         if hasattr(rule, "restrict"):
-            self._restrict_rules[rule] = rule.restrict
+            self.restrict_rules[rule] = rule.restrict
         else:
-            self._restrict_rules[rule] = {}
+            self.restrict_rules[rule] = {}
 
         ...
 
@@ -347,4 +426,4 @@ class RulesVisitor(Visitor):
 
         reports = reports.get_reports()
         for report in reports:
-            self._reports.append(report)
+            self.reports.append(report)
