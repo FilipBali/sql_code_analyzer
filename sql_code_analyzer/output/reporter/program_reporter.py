@@ -150,7 +150,7 @@ class ProgramReporter(Reporter):
                               tail_message: str = "") -> None:
         """
         Implementation of a program verbose message.
-        "Show additional info about program running."
+        "Show additional info about the program running."
         The message is immediately displayed to the user.
 
         :param message_list: List of message
@@ -177,4 +177,3 @@ class ProgramReporter(Reporter):
         if tail_message != "":
             ProgramReporter._create_message(message_type=MessageType.Info,
                                             message_text=tail_message).print()
-
