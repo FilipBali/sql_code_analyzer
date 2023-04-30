@@ -11,59 +11,58 @@ class HelpClass:
         ...
 
 
-reports = {
-    "dara-lora": {
-        "id": "L150",
-        "message": "Lorem Impum Hat"
+messages = {
+    "table-not-exists": {
+        "message": "Table not exists"
     },
-    "zveq-dmes-laranc": {
-        "id": "L151",
-        "message": "Lorem Impum Hat"
+    "column-not-exists": {
+        "message": "Column not exists"
     },
-    "darq-lard-mda": {
-        "id": "L152",
-        "message": "Lorem Impum Hat"
+    "column-wrong-datatype": {
+        "message": "Column has wrong datatype"
     },
-    "fora-mora-gola": {
-        "id": "L153",
-        "message": "Lorem Impum Hat"
-    }
 }
 
 
 class Create01(BaseRule):
-    persistent = True
+    # persistent = True
+    # temporary = True
 
-    restrict = {"drop", "select", "create_table"}
-
-    reports = reports
+    restrict = {"create_table", "select", "drop"}
+    messages = messages
 
     # @include_reports(reports=reports)
     @include_class_reports()
-    def create_visit(self, node):
-        self.create_report("darq-lard-mda", node)
-        print("create_visit")
+    def create_visit(self):
+        self.create_report("table-not-exists", self.node)
+        # print("create_visit")
+        self.nieco = 15
+        ...
 
     @include_class_reports()
-    def create_leave(self, node):
-        print("create_leave")
+    def create_leave(self):
+        # print("create_leave")
+        ...
 
     @include_class_reports()
-    def identifier_visit(self, node):
-        print("identifier_visit1 " + node.name)
+    def identifier_visit(self):
+        self.create_report("column-not-exists", self.node)
+        # print("identifier_visit1 " + self.node.name)
 
     @include_class_reports()
-    def identifier_leave(self, node):
-        print("identifier_leave2 " + node.name)
+    def identifier_leave(self):
+        # print("identifier_leave2 " + self.node.name)
+        ...
 
     @include_class_reports()
-    def table_visit(self, node):
-        print("table_visit1 " + node.name)
+    def table_visit(self):
+        # print("table_visit1 " + self.node.name)
+        ...
 
     @include_class_reports()
-    def table_leave(self, node):
-        print("table_leave2 " + node.name)
-
+    def table_leave(self):
+        # print("table_leave2 " + self.node.name)
+        ...
 
 def register(checker) -> None:
     checker.register_rule(Create01)

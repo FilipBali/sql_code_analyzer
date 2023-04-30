@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.database import Database
     from sqlglot import Expression
 
+
 def drop_index(ast: Expression, mem_rep: Database):
     ast_generator = ast.walk(bfs=False)
     visited_nodes = Queue()
@@ -36,8 +37,8 @@ def drop_index(ast: Expression, mem_rep: Database):
     else:
         ...
 
+
 def register(linter) -> None:
     linter.register_modify_representation_statement(
         modify_representation_function=drop_index
     )
-

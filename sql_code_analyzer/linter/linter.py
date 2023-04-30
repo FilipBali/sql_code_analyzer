@@ -10,6 +10,7 @@ from typing import Generator
 #              SQLGlot IMPORT
 ###############################################
 import sqlglot
+from sqlglot import Tokenizer
 from sql_code_analyzer.output.reporter.rule_reporter import RuleReporter
 from sql_code_analyzer.tools.path import get_program_root_path, get_absolute_path
 from sqlglot import expressions as exp
@@ -57,6 +58,8 @@ class Linter:
 
     def __init__(self):
 
+        # TODO Prepisat v praci: connection_file_option -> connection_file_section
+
         self._modify_representation_functions = {}
         self._parse_error_occurred = False
         self.rule_reporter = RuleReporter()
@@ -71,7 +74,7 @@ class Linter:
 
         # If serialization path is None
         # Program assume that serialization is not wanted.
-        if self.args_data.serialization_path is not None:
+        if self.args_data.serialization_file is not None:
             self._make_serialization()
 
         self._show_reports()
@@ -106,12 +109,9 @@ class Linter:
         :return:
         """
 
-        if self.args_data.deserialization_path is not None:
+        if self.args_data.deserialization_file is not None:
             # Provide deserialization memory representation from file and initialise database structure
-            # self.mem_rep: Database = Database() \
-            #     .load_deserialization_path(deserialization_path=self.args_data.deserialization_path)
-
-            path = self.args_data.deserialization_path / "memory_representation_backup.p"
+            path = self.args_data.deserialization_path / self.args_data.deserialization_file
 
             try:
                 with open(path, 'rb') as f:
@@ -119,19 +119,16 @@ class Linter:
 
             except FileNotFoundError:
                 ProgramReporter.show_error_message(
-                    message="Deserialization failed, file not found!\nPath: "
-                            + self.args_data.deserialization_path
+                    message=f"Deserialization failed, file not found!\nPath: {path}"
                 )
             except pickle.UnpicklingError:
                 ProgramReporter.show_error_message(
-                    message="Deserialization failed, can not unpickle file!\nPath: "
-                            + self.args_data.deserialization_path
+                    message=f"Deserialization failed, can not unpickle file!\nPath: {path}"
                 )
 
             except (Exception,):
                 ProgramReporter.show_error_message(
-                    message="Deserialization failed!\nPath: "
-                            + self.args_data.deserialization_path
+                    message=f"Deserialization failed!\nPath: {path}"
                 )
 
         else:
@@ -161,18 +158,17 @@ class Linter:
 
     def _parse_statement(self) -> bool:
         try:
-            self.ast, self.tokens = sqlglot.parse_one(self.statement)
+            self.tokens = Tokenizer().tokenize(self.statement)
+            self.ast = sqlglot.parse_one(self.statement)
             return True
 
         except (Exception,) as e:
+            ProgramReporter.show_warning_message(
+                message="An error occurred during SQL statement processing by the SQLGlot library."
+                        f"SQLGlot library report: {e}"
+            )
 
             self._parse_error_occurred = True
-
-            for arg in e.args:
-                print(arg)
-                # TODO create report with parse error occurred tag
-                ...
-
             return False
 
     def _apply_statements_from_database_server(self) -> None:
@@ -187,6 +183,11 @@ class Linter:
 
             if not success:
                 # Next statement
+                ProgramReporter.show_warning_message(
+                    message=f"An error occurred while processing an SQL statement from database.\n"
+                            "This statement will be skipped.\n"
+                            f"Statement: \n{self.statement}"
+                )
                 continue
 
             self.ast = adapt_ast(self.ast)
@@ -211,29 +212,58 @@ class Linter:
         :return: None
         """
 
+        self.rules_visitor: RulesVisitor = RulesVisitor(rules_args_data=self.rules_args_data)
+
         # iterate over SQL statements
-        for self.statement in self.args_data.statements:
+        for self.statement, position in self.args_data.statements:
 
             success = self._parse_statement()
 
             if not success:
                 # Next statement
-                # TODO create erorr or warnign or report
+                lines = self.statement.split("\n")
+                result = []
+                for line in lines:
+                    if "--" in line:
+                        text, index = line.split("--")
+                        result.append((text, int(index)))
+
+                # TOTO if verbose
+                # ProgramReporter.show_warning_message(
+                #     message=f"An error occurred while processing an SQL statement that starts at line {result[0][1]}.\n"
+                #             "This statement will be skipped.\n"
+                #             f"Statement: \n{self.statement}"
+                # )
+
+                ProgramReporter.show_warning_message(
+                    message=f"An error occurred while processing an SQL statement that starts at line {result[0][1]}. \n"
+                            "This statement will be skipped.\n"
+                )
                 continue
 
-            self._include_code_locations()
+            # Library counts the rows from one
+            # It is necessary to calculate the rows to match the input file
+            # The approach is to find out the position of the start of the statement
+            # and add it as a constant to location (line value)
+            # Since we are adding the number of rows to the location, so we have to count from zero
+            # Therefore we have to subtract the value from which we count
+            library_initial_count_number = 1
+            self._include_code_locations(position_const=position - library_initial_count_number)
 
-            ast_ast = self.ast.walk(bfs=False)
-
-            for nodes in ast_ast:
-                if nodes is not None:
-                    node = nodes[0]
-                    if node.code_location is None:
-                        print(node)
-                    else:
-                        print(str(node) + " " + str(node.code_location))
+            # TODO DELETE
+            # ast_ast = self.ast.walk(bfs=False)
+            #
+            # for nodes in ast_ast:
+            #     if nodes is not None:
+            #         node = nodes[0]
+            #         if node.code_location is None:
+            #             print(node)
+            #         else:
+            #             print(str(node) + " " + str(node.code_location))
 
             self.ast = adapt_ast(self.ast)
+
+            self.rule_reporter.statement = (self.statement, position)
 
             self._lint_statement()
 
@@ -241,7 +271,7 @@ class Linter:
             if self._check_if_modifying_statement():
                 self._modify_representation()
 
-    def _include_code_locations(self) -> None:
+    def _include_code_locations(self, position_const: int) -> None:
         """
         Try to include code locations to abstract syntax tree nodes
 
@@ -266,7 +296,7 @@ class Linter:
         This means the program can use a change-free library of SQLGlot, but code location data will be missing
         in nodes where are used more than one token during node creation.
 
-        :return:
+        :return: None
         """
 
         ast_gen = self.ast.walk(bfs=False)
@@ -275,12 +305,13 @@ class Linter:
         #     if nodes is not None:
         #         nodes[0].code_location = None
 
+        # Transform to dict structure
         for nodes in ast_gen:
             if nodes is not None:
                 if nodes[0].code_location is not None:
                     tlist = []
                     for token in nodes[0].code_location:
-                        tlist.append({"line": token.line,
+                        tlist.append({"line": token.line + position_const,
                                       "col": token.col,
                                       "text": token.text})
                     nodes[0].code_location = tlist
@@ -302,7 +333,7 @@ class Linter:
                             token.text.lower() == node_key.lower():
 
                         if node.code_location is None or len(node.code_location) < 2:
-                            node.code_location = [{"line": token.line,
+                            node.code_location = [{"line": token.line + position_const,
                                                   "col": token.col,
                                                   "text": token.text}]
                         found = True
@@ -313,7 +344,7 @@ class Linter:
                             t = token.token_type.value.upper()
                             ttype = exp.DataType.Type[t]
                             if node.this == ttype:
-                                node.code_location = [{"line": token.line,
+                                node.code_location = [{"line": token.line + position_const,
                                                       "col": token.col,
                                                       "text": token.text}]
 
@@ -334,7 +365,7 @@ class Linter:
                     for stoken in seen_tokens:
                         if stoken.text.lower() == node_name.lower() or \
                                 stoken.text.lower() == node_key.lower():
-                            node.code_location = [{"line": stoken.line,
+                            node.code_location = [{"line": stoken.line + position_const,
                                                   "col": stoken.col,
                                                   "text": stoken.text}]
                             break
@@ -344,7 +375,7 @@ class Linter:
                                 t = stoken.token_type.value.upper()
                                 ttype = exp.DataType.Type[t]
                                 if node.this == ttype:
-                                    node.code_location = [{"line": stoken.line,
+                                    node.code_location = [{"line": stoken.line + position_const,
                                                            "col": stoken.col,
                                                            "text": stoken.text}]
                                 break
@@ -364,10 +395,7 @@ class Linter:
         ast_generator: Generator = self._get_generator_based_on_statement()
         visited_nodes = Queue()
 
-        expect_set: set = self._create_restriction_set_from_statement()
-
-        rules_visitor: RulesVisitor = RulesVisitor(rules_args_data=self.rules_args_data,
-                                                   expect_set=expect_set)
+        self.rules_visitor.expect_set = self._create_restriction_set_from_statement()
 
         stop_parse = False
         while 1 and stop_parse is not True:
@@ -377,15 +405,14 @@ class Linter:
                                                     ast_generator=ast_generator)
 
             if node is None:
-                rules_visitor.traversing_ast_done()
+                self.rules_visitor.traversing_ast_done()
             else:
-                node.accept(rules_visitor)
+                node.accept(self.rules_visitor)
 
         self.rule_reporter.add_reports(
-            statement=self.statement,
-            reports=rules_visitor.reports
+            reports=self.rules_visitor.reports
         )
-        ...
+        self.rules_visitor.clear_lint_variables()
 
     def _create_restriction_set_from_statement(self) -> set:
         """
@@ -435,7 +462,7 @@ class Linter:
             function(self.ast, self.mem_rep)
 
         else:
-            ProgramReporter.show_error_message(
+            ProgramReporter.show_warning_message(
                 message="Unknown command."
             )
 
@@ -574,8 +601,8 @@ class Linter:
             ProgramReporter.show_warning_message(
                 message="Conflict detected during registering functions for representation modifying, "
                         "registration failed. \n" +
-                        "Function " + new_func_name + " which is stored in file " + new_file_name + "\n"
-                        " has same the name as already registered function in file " + existing_func_file_name + ".\n" +
+                        f"Function {new_func_name} which is stored in file {new_file_name} \n"
+                        f" has same the name as already registered function in file {existing_func_file_name} \n" +
                         "This is not allowed, function names must be unique, please change the name one of them. "
             )
             return
@@ -589,11 +616,11 @@ class Linter:
 
             ProgramReporter.show_warning_message(
                 message="During registration of function for representation modifying was found that\n"
-                        "the function " + new_func_name + " has incorrect (inconsistent with the rest of program)\n"
+                        f"the function {new_func_name} has incorrect (inconsistent with the rest of program)\n"
                         "function arguments. This leads to unsuccessfully registration of this function.\n"
                         "The function needs to have arguments \"ast\" and \"mem_rep\".\n"
-                        "Please change function declaration to " + new_func_name + "(ast, mem_rep)\n"
-                        "or more specifically " + new_func_name + "(ast: Expression, mem_rep: Database)\n"
+                        f"Please change function declaration to {new_func_name}(ast, mem_rep)\n"
+                        f"or more specifically {new_func_name}(ast: Expression, mem_rep: Database)\n"
                         "where:\n"
                         "\t\"ast\" stands for abstract syntax tree of statement\n"
                         "\t\"mem_rep\" stands for reference to the in memory database representation"
@@ -636,24 +663,24 @@ class Linter:
                     err_user_answer = True
 
         # Provide serialization memory representation and store to a serialization path
-        path = self.args_data.serialization_path / "memory_representation_backup.p"
+        path = self.args_data.serialization_path / self.args_data.serialization_file
 
         try:
             with open(path, 'wb') as f:
                 pickle.dump(self.mem_rep, f)
 
         except FileNotFoundError:
-            ProgramReporter.show_error_message(
-                message="Serialization failed, file not found!\nPath: " + self.args_data.serialization_path
+            ProgramReporter.show_warning_message(
+                message=f"Serialization failed, file not found!\nPath: {path}"
             )
         except pickle.PicklingError:
-            ProgramReporter.show_error_message(
-                message="Serialization failed, can not unpickle file!\nPath: " + self.args_data.serialization_path
+            ProgramReporter.show_warning_message(
+                message=f"Serialization failed, can not unpickle file!\nPath: {path}"
             )
 
         except (Exception,):
-            ProgramReporter.show_error_message(
-                message="Serialization failed!\nPath: " + self.args_data.serialization_path
+            ProgramReporter.show_warning_message(
+                message=f"Serialization failed!\nPath: {path}"
             )
 
     def _show_reports(self):

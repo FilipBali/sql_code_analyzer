@@ -8,7 +8,7 @@ class OutputType(enum.Enum):
 
     Stdout = 1
     File = 2
-    NoReport = 3
+    Silent = 3
 
 
 class MessageType(enum.Enum):

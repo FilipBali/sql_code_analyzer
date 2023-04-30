@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class Constrain(Base):
     """
-    This class provides constraint specific interface to children classes
+    This class provides a constraint-specific interface to children classes
     """
 
     def __init__(self):

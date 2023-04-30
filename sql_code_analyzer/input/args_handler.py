@@ -1,6 +1,5 @@
 import argparse
 import os
-from operator import methodcaller
 from pathlib import Path
 from sys import stdin
 import re
@@ -8,11 +7,11 @@ import re
 from sql_code_analyzer.input.database_server.base import database_connection_handler
 from sql_code_analyzer.input.database_server.config import DBConfig
 from sql_code_analyzer.output import enums
-from sql_code_analyzer.output.reporter.base import OutputType
+from sql_code_analyzer.output.reporter.base import OutputType, Reporter
 from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 from sql_code_analyzer.output.terminator.base import Terminator
 from sql_code_analyzer.tools.path import get_program_root_path, get_absolute_path, verify_path_access, \
-    verify_path_exists
+    verify_path_exists, create_path_if_not_exists, ProgramPathConfig
 from test_cases.sqlglot.tester import run_tests
 
 
@@ -38,68 +37,108 @@ class CArgs:
         self.tests: bool = False
         self.raw_sql: str = ""
         self.statements: list = []
+
         self.rules_path: str = ""
         self.include_folders: list = []
         self.exclude_folders: list = []
+
+        self.serialization_file: str | None = None
         self.serialization_path: str | None = None
+        self.deserialization_file: str | None = None
         self.deserialization_path: str | None = None
+
         self.connection_file_create: bool = False
-        self.connection_file_option: str = "Default"
+        self.connection_file_section: str | None = None
+        self.connection_file: str | None = None
         self.connection_file_path: str | None = None
+
         self.db_config = None
-        self.report_output_nothing = None
+        self.report_output_silent = None
         self.report_output_file = None
 
         args = parse_args()
 
-        if args.verbose:
-            ProgramReporter.verbose = True
-
         # If file path sets, then verify its correctness
         verify_file_path(self, args)
 
+        ################################
+        #        PROGRAM OUTPUT
+        ################################
+        ProgramReporter.verbose = args.verbose
+
+        if self.report_output_silent and args.verbose:
+            ProgramReporter.show_warning_message(
+                message="The output on the program is set to silent(--report-output-silent). "
+                        "Using the verbose parameter does not make sense."
+            )
+
+        if self.report_output_silent and self.report_output_file:
+            ProgramReporter.show_error_message(
+                message="Parameters --report-output-silent and --report-output-file are mutually exclusive."
+            )
+
+        if self.report_output_silent:
+            Reporter.report_output = OutputType.Silent
+
+        if self.report_output_file:
+
+            # If an output file path is None, then use the default one
+            # This also creates necessary folders!
+            # if self.report_output_file is None:
+            #     self.report_output_file = create_path_if_not_exists(
+            #                 path=get_program_default_output_path() / self.report_output_file)
+
+            Reporter.set_output_file(
+                path=ProgramPathConfig.get_program_output_path() / self.report_output_file
+            )
+
+            # Reporter.report_output = OutputType.File
+
+            # Reporter.report_output_file = get_program_default_output_path() / self.report_output_file
+            # verify_path_exists(path=ProgramReporter.report_output_file)
+            # verify_path_access(path=ProgramReporter.report_output_file)
+
+        ################################
+        #            TESTS
+        ################################
         # Run tests
         if self.tests:
             run_tests()
             Terminator.exit(enums.ExitWith.Success)
 
+        ################################
+        #           DATABASE
+        ################################
         # Create database connection file template
         if self.connection_file_create:
             self.create_database_connection_file()
             Terminator.exit(enums.ExitWith.Success)
 
-        if self.report_output_nothing:
-            if self.report_output_file:
-                ProgramReporter.show_error_message(
-                    message="Parameters --report-output-nothing and --report-output-file are mutually exclusive."
-                )
-
-            ProgramReporter.report_output = OutputType.NoReport
-
-        if self.report_output_file:
-            if self.report_output_nothing:
-                ProgramReporter.show_error_message(
-                    message="Parameters --report-output-nothing and --report-output-file are mutually exclusive."
-                )
-            ProgramReporter.report_output = OutputType.File
-            ProgramReporter.report_output_file = get_absolute_path(path=self.report_output_file)
-            verify_path_exists(path=ProgramReporter.report_output_file)
-            verify_path_access(path=ProgramReporter.report_output_file)
-
-        if self.connection_file_path and self.deserialization_path:
+        if self.connection_file_path is not None and self.deserialization_file is not None:
             ProgramReporter.show_error_message(
-                message="Attributes --connection_file_path and --deserialization-path are mutually exclusive.\n"
+                message="Attributes --connection_file_path and --deserialization-file are mutually exclusive.\n"
                         "It possible to load memory representation either from serialized file or database server."
             )
 
-        if self.connection_file_path:
+        # If is section set, then its activates a database connection feature
+        if self.connection_file_section is not None:
+
+            # If a connection file path is None, then use the default one
+            # This also creates necessary folders!
+            if self.connection_file_path is None:
+                self.connection_file_path = ProgramPathConfig.get_database_configuration_path()
+
             # load from an existing database
             self.db_config = DBConfig(path=get_absolute_path(path=self.connection_file_path),
-                                      option=self.connection_file_option)
+                                      file=self.connection_file,
+                                      option=self.connection_file_section)
 
             database_connection_handler(args=self)
 
-        self.db_config = None
+        ################################
+        #            INPUT
+        ################################
+        # Get SQL from file or standard input
         if self.file:
             # load sql from file
             with open(self.file, 'r') as file:
@@ -113,18 +152,51 @@ class CArgs:
             self.raw_sql = stdin.read()
             parse_raw_sql_to_statement(self)
 
-        if self.serialization_path is not None:
+        ################################
+        #         SERIALIZATION
+        ################################
+        # If serialization file is set, the then program provides serialization
+        if self.serialization_file is not None:
+
+            # If a serialization path is None, then use the default one
+            # This also creates necessary folders!
+            if self.serialization_path is None:
+                self.serialization_path = create_path_if_not_exists(
+                            path=ProgramPathConfig.get_program_backup_path())
+
+            # Make sure the path is absolute
             self.serialization_path = get_absolute_path(path=self.serialization_path)
+
+            # Verify path
             verify_path_exists(path=self.serialization_path)
             verify_path_access(path=self.serialization_path)
 
-        if self.deserialization_path is not None:
-            self.deserialization_path = get_absolute_path(path=self.deserialization_path)
-            verify_path_exists(path=self.deserialization_path)
-            verify_path_access(path=self.deserialization_path)
+        # If serialization file is set, the then program provides deserialization
+        if self.deserialization_file is not None:
 
+            # If a deserialization path is None, then use the default one
+            # This also creates necessary folders!
+            if self.deserialization_path is None:
+                self.deserialization_path = create_path_if_not_exists(
+                    path=ProgramPathConfig.get_program_backup_path())
+
+            # Make sure the path is absolute
+            self.deserialization_path = get_absolute_path(path=self.deserialization_path)
+
+            # Verify path
+            verify_path_exists(path=self.deserialization_path / self.deserialization_file)
+            verify_path_access(path=self.deserialization_path / self.deserialization_file)
+
+        ################################
+        #            RULES
+        ################################
+        # If a rule path is not default, then process the user-defined path
         if self.rules_path != os.path.join(get_program_root_path(), "checker", "rules"):
+
+            # Make sure the path is absolute
             self.rules_path = get_absolute_path(path=self.rules_path)
+
+            # Verify path
             verify_path_exists(path=self.rules_path)
             verify_path_access(path=self.rules_path)
 
@@ -145,7 +217,9 @@ class CArgs:
         :return: None
         """
 
-        root_path = get_program_root_path()
+        root_path = create_path_if_not_exists(
+            path=ProgramPathConfig.get_database_configuration_path()
+        )
 
         f = open(os.path.join(root_path, "db_connection.cfg"), "w")
         f.write(
@@ -181,6 +255,11 @@ class CArgs:
         )
         f.close()
 
+        # TODO print successful green
+        print("The configuration template has been successfully created.\n"
+              f"Path: {root_path}\n"
+              f"File: db_connection.cfg")
+
 
 def parse_raw_sql_to_statement(args_data) -> None:
     """
@@ -195,89 +274,173 @@ def parse_raw_sql_to_statement(args_data) -> None:
 
     raw = args_data.raw_sql
 
-    # match two or more lines
-    regex = r"(?:\r?\n){2,}"
-    statements = re.split(regex, raw.strip())
-    # call lstrip method on every single statement
-    statements = list(map(methodcaller("lstrip"), statements))
+    # Delete everything between /* and */ but keeps newlines
+    raw = re.sub(r'/\*.*?\*/', lambda x: x.group().count('\n') * '\n', raw, flags=re.DOTALL)
 
-    def delete_comment_blocks():
-        regex = r"(?:\r?\n){1,}"
-        to_remove = []
+    # Delete everything between -- and newline but keeps newline
+    raw = re.sub(r'--.*?\n', '\n', raw)
 
-        #####################################################################
-        # Find and delete all comment blocks
-        # Reason: SQLGLot ends up with an error when it only parses comments
-        #####################################################################
-        for statement in statements:
-            stmt_split_by_line = re.split(regex, statement.strip())
-            stmt_split_by_line = list(map(methodcaller("lstrip"), stmt_split_by_line))
+    # long_string = raw
+    # # long_string = "This is a string -- with a substring\n that needs to be removed. -- Another substring\n to remove."
+    # removed_substr_start = "--"
+    # removed_substr_end = "\n"
+    # while long_string.find(removed_substr_start) != -1:
+    #     lindex = long_string.find(removed_substr_start)
+    #     rindex = long_string.find(removed_substr_end, lindex)
+    #     long_string = long_string[0:lindex] + long_string[rindex:]
+    # # print(long_string)
 
-            remove_statement = True
-            for statement_part in stmt_split_by_line:
-                # statement_part
-                if not (remove_statement and statement_part.startswith("--")):
-                    remove_statement = False
-                    break
+    # lines = long_string.split("\n")
+    lines = raw.split("\n")
+    result = ""
+    for i, line in enumerate(lines):
+        result += line + " -- " + str(i + 1) + "\n"
 
-            if remove_statement:
-                to_remove.append(statement)
+    # print(result)
 
-        for comment_block in to_remove:
-            statements.remove(comment_block)
+    # long_string = result
+    #
+    # lines = long_string.split("\n")
+    # result = ""
+    # for line in lines:
+    #     if line.find("--") > 0:
+    #         result += line + "\n"
+    # print(result)
 
-    # Delete comments block
-    delete_comment_blocks()
+    # long_string = result
+    # lines = long_string.split("\n")
+    # result = ""
+    # for line in lines:
+    #     if line.find(" --") > 0:
+    #         result += line + "\n"
+    # print(result)
 
-    # Split statements
-    statement_delimiter = ";"
+    long_string = result
+    lines = long_string.split("\n")
+    result = []
+    temp = ""
+    for line in lines:
+        if ";" in line:
+            temp += line + "\n"
+            result.append(temp)
+            temp = ""
+        else:
+            temp += line + "\n"
+    # if temp != "":
+    #     result.append(temp)
+    # print(result)
 
-    t_statements = []
-    append_to_new_line = False
-    for statement in statements:
-        if len(t_statements) == 0:
-            t_statements.append(statement)
-            continue
+    # The last entry never contains anything important
+    # only comments or lines after the last SQL statement
+    # result.pop()
 
-        if append_to_new_line:
-            t_statements.append(statement)
-            append_to_new_line = False
-            continue
+    # lines = result
+    # result = []
+    # for line in lines:
+    #     index = int(line.split("--")[1].split("\n")[0])
+    #     result.append((line, index))
+    # print(result)
 
-        t_statements[-1] += statement
+    for index, statement in enumerate(result):
+        long_string = statement
+        lines = long_string.split("\n")
+        tmp = ""
+        for line in lines:
+            if line.lstrip().find("--") > 0:
+                tmp += line + "\n"
+        result[index] = tmp
 
-        if statement_delimiter in statement:
-            append_to_new_line = True
+    lines = result
+    result = []
+    for line in lines:
+        index = int(line.split("--")[1].split("\n")[0])
+        result.append((line, index))
 
-    statements = t_statements
+    args_data.statements += result
 
-    # statements = ' '.join(statements).split(statement_delimiter)
-    t_statements = []
-    for statement in statements:
-        t_statements += statement.split(statement_delimiter)
-
-    statements = t_statements
-    statements = [statement + statement_delimiter for statement in statements if statement != ""]
-
-    # Delete comments block again
-    # There can be again because of a statement split by delimiter ;
-    delete_comment_blocks()
-
-    keep_statements = []
-    for statement in statements:
-        statement_list = statement.splitlines()
-        statement_list_tmp = list(map(methodcaller("lstrip"), statement_list))
-        for index, line in enumerate(statement_list_tmp):
-            if len(line) == 1:
-                keep_statements.append(statement_list)
-                break
-            if len(line) > 1:
-                if line[0:2] != "--":
-                    statement_with_code = statement_list[index:]
-                    keep_statements.append('\n'.join(statement_with_code))
-                    break
-
-    args_data.statements += keep_statements
+    # # match two or more lines
+    # regex = r"(?:\r?\n){2,}"
+    # statements = re.split(regex, raw.strip())
+    # # call lstrip method on every single statement
+    # statements = list(map(methodcaller("lstrip"), statements))
+    #
+    # def delete_comment_blocks():
+    #     regex = r"(?:\r?\n){1,}"
+    #     to_remove = []
+    #
+    #     #####################################################################
+    #     # Find and delete all comment blocks
+    #     # Reason: SQLGLot ends up with an error when it only parses comments
+    #     #####################################################################
+    #     for statement in statements:
+    #         stmt_split_by_line = re.split(regex, statement.strip())
+    #         stmt_split_by_line = list(map(methodcaller("lstrip"), stmt_split_by_line))
+    #
+    #         remove_statement = True
+    #         for statement_part in stmt_split_by_line:
+    #             # statement_part
+    #             if not (remove_statement and statement_part.startswith("--")):
+    #                 remove_statement = False
+    #                 break
+    #
+    #         if remove_statement:
+    #             to_remove.append(statement)
+    #
+    #     for comment_block in to_remove:
+    #         statements.remove(comment_block)
+    #
+    # # Delete comments block
+    # delete_comment_blocks()
+    #
+    # # Split statements
+    # statement_delimiter = ";"
+    #
+    # t_statements = []
+    # append_to_new_line = False
+    # for statement in statements:
+    #     if len(t_statements) == 0:
+    #         t_statements.append(statement)
+    #         continue
+    #
+    #     if append_to_new_line:
+    #         t_statements.append(statement)
+    #         append_to_new_line = False
+    #         continue
+    #
+    #     t_statements[-1] += statement
+    #
+    #     if statement_delimiter in statement:
+    #         append_to_new_line = True
+    #
+    # statements = t_statements
+    #
+    # # statements = ' '.join(statements).split(statement_delimiter)
+    # t_statements = []
+    # for statement in statements:
+    #     t_statements += statement.split(statement_delimiter)
+    #
+    # statements = t_statements
+    # statements = [statement + statement_delimiter for statement in statements if statement != ""]
+    #
+    # # Delete comments block again
+    # # There can be again because of a statement split by delimiter ;
+    # delete_comment_blocks()
+    #
+    # keep_statements = []
+    # for statement in statements:
+    #     statement_list = statement.splitlines()
+    #     statement_list_tmp = list(map(methodcaller("lstrip"), statement_list))
+    #     for index, line in enumerate(statement_list_tmp):
+    #         if len(line) == 1:
+    #             keep_statements.append(statement_list)
+    #             break
+    #         if len(line) > 1:
+    #             if line[0:2] != "--":
+    #                 statement_with_code = statement_list[index:]
+    #                 keep_statements.append('\n'.join(statement_with_code))
+    #                 break
+    #
+    # args_data.statements += keep_statements
 
 
 def parse_args() -> argparse:
@@ -293,6 +456,7 @@ def parse_args() -> argparse:
                         help="Run tests.",
                         default=None)
 
+    # TODO Implemetovať dialekt Oracle/MSSQL
     parser.add_argument("-d", "--dialect",
                         metavar="",
                         required=False,
@@ -308,18 +472,28 @@ def parse_args() -> argparse:
                              "then the program expects it on standard input.",
                         default=None)
 
+    ############################
+    #         DATABASE
+    ############################
     parser.add_argument("-cfc", "--connection-file-create",
                         action='store_true',
                         required=False,
                         help="Create template file for database connection.",
                         default=None)
 
-    parser.add_argument("-cfo", "--connection-file-option",
+    # Activates database-connection feature
+    parser.add_argument("-cfo", "--connection-file-section",
                         required=False,
                         type=str,
-                        help="Specify option in config file. Config file may contain several configurations "
-                             "which can be selected by this parameter. Default value is \"Default\"",
-                        default="Default")
+                        help="Specify section in config file. Config file may contain several configurations "
+                             "which can be selected by this parameter.",
+                        default=None)
+
+    parser.add_argument("-cf", "--connection-file",
+                        required=False,
+                        type=str,
+                        help="Name of file where is expected to be a data for database connection.",
+                        default="db_connection.cfg")
 
     parser.add_argument("-cfp", "--connection-file-path",
                         required=False,
@@ -327,20 +501,44 @@ def parse_args() -> argparse:
                         help="Path where is expected to be a file with data for database connection.",
                         default=None)
 
+    ############################
+    #       SERIALIZATION
+    ############################
+    # Activates serialization feature
+    parser.add_argument("-sf", "--serialization-file",
+                        required=False,
+                        type=str,
+                        help="If set, the program will provide a backup representation of the results in memory "
+                             "to a file with the specified name and save them to selected/default path.",
+                        default=None)
+
+    # The default value will be set later
+    # This avoids unnecessary directory creation for output.
     parser.add_argument("-sp", "--serialization-path",
                         required=False,
                         type=str,
-                        help="If set, program provides backup of result memory representation"
-                             " and saves it to that path.",
+                        help="If specified, then the serialization path will be changed to the specified path.",
                         default=None)
 
+    # Activates deserialization feature
+    parser.add_argument("-df", "--deserialization-file",
+                        required=False,
+                        type=str,
+                        help="If set, the program reads the memory representation and initializes it "
+                             "from a file with the specified name on the selected/default path.",
+                        default=None)
+
+    # The default value will be set later
+    # This avoids unnecessary directory creation for output.
     parser.add_argument("-dp", "--deserialization-path",
                         required=False,
                         type=str,
-                        help="If set, program loads a memory representation and initialise memory representation "
-                             "from it at the beginning",
+                        help="If specified, then the deserialization path will be changed to the specified path.",
                         default=None)
 
+    ############################
+    #           RULES
+    ############################
     parser.add_argument("-rp", "--rules-path",
                         type=str,
                         required=False,
@@ -368,26 +566,30 @@ def parse_args() -> argparse:
                              "Accepted format: -ef folder1 folder2 folderN",
                         default=[])
 
-    parser.add_argument("-rof", "--report-output-file",
-                        type=str,
-                        metavar="",
-                        required=False,
-                        help="If set, expects path where program will store reports. "
-                             "Mutually exclusive with parameter --report-output-nothing",
-                        default=None)
-
-    parser.add_argument("-ron", "--report-output-nothing",
+    ############################
+    #          REPORT
+    ############################
+    parser.add_argument("-ros", "--report-output-silent",
                         action='store_true',
                         required=False,
                         help="If set, program will no store reports. "
                              "Mutually exclusive with parameter --report-output-file",
                         default=None)
 
+    parser.add_argument("-rof", "--report-output-file",
+                        type=str,
+                        metavar="",
+                        required=False,
+                        help="If set, expects path where program will store reports."
+                             ""
+                             "Mutually exclusive with parameter --report-output-silent",
+                        default=None)
+
     parser.add_argument("-v", "--verbose",
-                        action='store_true',
+                        action='count',
                         required=False,
                         help="If set, program show information messages on standard input.",
-                        default=None)
+                        default=0)
 
     args = parser.parse_args()
     return args

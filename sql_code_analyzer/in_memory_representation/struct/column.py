@@ -140,9 +140,10 @@ class Column(Base):
 
         # Check if not already exists
         if self.table.check_if_column_exists(self.name):
-            ProgramReporter.show_error_message(
-                message="Column " + self.name + " already exists."
+            ProgramReporter.show_warning_message(
+                message=f"Column {self.name} already exists."
             )
+            return
 
         self.table.columns[self.name] = self
         self.table.database.index_registration(key=(self.table.schema.name, self.table.name, self.name),
@@ -164,11 +165,12 @@ class Column(Base):
         """
 
         if self.verify_constrain(constrain_type=constrain.__class__):
-            ProgramReporter.show_error_message(
-                message="Column: " + self.name + "\n"
-                        "Constraint " + constrain.__class__.__name__ + " already exists!\n"
+            ProgramReporter.show_warning_message(
+                message=f"Column: {self.name} \n"
+                        f"Constraint {constrain.__class__.__name__} already exists!\n"
                         "This kind modification to memory representation is not allowed."
             )
+            return
 
         self.constrains.append(constrain)
 
@@ -180,12 +182,14 @@ class Column(Base):
         """
 
         if not self.verify_constrain(constrain_type=constrain.__class__):
-            ProgramReporter.show_error_message(
-                message="Column: " + self.name + "\n"
-                        "Constrain " + constrain.__class__.__name__ + " in not exists!\n"
+            ProgramReporter.show_warning_message(
+                message=f"Column: {self.name} \n"
+                        f"Constrain {constrain.__class__.__name__} in not exists!\n"
                         "Your code try to delete a constraint that is not exists.\n"
                         "This kind modification to memory representation is not allowed."
             )
+            return
+
         self.get_constrain(constrain_type=constrain.__class__)
 
     #########################
@@ -214,9 +218,10 @@ class Column(Base):
         # Check if column is not part of a composite primary key
         if self.table.primary_key.composite:
             if self in self.table.primary_key.columns:
-                ProgramReporter.show_error_message(
-                    message="Column " + self.name + " is part of primary key and can not be deleted!."
+                ProgramReporter.show_warning_message(
+                    message=f"Column {self.name} is part of primary key and can not be deleted!"
                 )
+                return
 
         self.table.database.index_cancel_registration(key=(self.table.schema.name, self.table.name, self.name))
         del self.table.columns[self.name]

@@ -384,7 +384,7 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
             ##################################
             if node is not None:
                 ProgramReporter.show_warning_message(
-                    message="Unexpected expression in CREATE TABLE statement: " + node.name + " " + node.key + "."
+                    message=f"Unexpected expression in CREATE TABLE statement: {node.name} {node.key}."
                 )
 
 

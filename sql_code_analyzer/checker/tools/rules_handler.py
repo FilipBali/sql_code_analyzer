@@ -38,15 +38,18 @@ class CRules:
         # get all paths
         t_paths = list(glob.glob(self.path_to_rules_folder + "\\**\\*.py", recursive=True))
 
-        # TODO \\ for Windows-based system, todo for Linux-based systems
+        import os
+
+        # TODO \\ for Windows-based system, todo for Linux-based systems, solved but TEST IT!
         if len(self.exclude_folders) > 0:
             self.paths = t_paths
             for exclude_folder in self.exclude_folders:
-                regex = re.compile(r".*\\"+exclude_folder+r"\\.*")
+                # regex = re.compile(r".*\\"+exclude_folder+r"\\.*") TODO DELETE
+                regex = re.compile(r".*" + os.sep*2 + exclude_folder + os.sep*2 + r".*")
                 self.paths = [i for i in self.paths if not regex.match(i)]
 
         elif len(self.include_folders) > 0:
             for include_folder in self.include_folders:
-                regex = re.compile(r".*\\"+include_folder+r"\\.*")
+                # regex = re.compile(r".*\\"+include_folder+r"\\.*") TODO DELETE
+                regex = re.compile(r".*" + os.sep * 2 + include_folder + os.sep * 2 + r".*")
                 self.paths += [i for i in t_paths if regex.match(i)]
-

@@ -48,22 +48,18 @@ def drop_table(ast: Expression, mem_rep: Database) -> None:
         if isinstance(node, exp.Table):
             # Target table
 
+            # TODO ostrit ak nema atribut.. pridat aj do inych parsovani
+            # Trying to get scheme name
+            if hasattr(node, "db"):
+                schema_name = node.db
+
             # Trying to get table name
             if hasattr(node, "name"):
                 table_name = node.name
 
-            while 1 and stop_parse is not True:
-                # Iterate over Table details
-                node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
-                                                        ast_generator=ast_generator)
-
-                if isinstance(node, exp.Identifier) and node.arg_key == "db":
-                    # Trying to get scheme name
-                    schema_name = node.name
-
     # Get schema name
     # If schema name is None, then the program will work with the default schema of a database
-    if schema_name is not None:
+    if schema_name is not None and len(schema_name) > 1:
         schema: Schema = mem_rep.get_indexed_object(index_key=schema_name)
     else:
         schema: Schema = mem_rep.get_indexed_object(index_key=mem_rep.default_schema)

@@ -8,6 +8,7 @@ from queue import LifoQueue
 from sql_code_analyzer.checker.rules.base import BaseRule
 from sql_code_analyzer.output.enums import ExitWith
 from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
+from sql_code_analyzer.tools.path import get_path_object
 from sql_code_analyzer.visitor.visitor import Visitor
 
 from typing import TYPE_CHECKING
@@ -62,7 +63,8 @@ class RulesVisitor(Visitor):
     from one node to another one.
 
     """
-    def __init__(self, rules_args_data, expect_set):
+    # def __init__(self, rules_args_data, expect_set):
+    def __init__(self, rules_args_data):
         """
         Initial method for RulesVisitor instance
 
@@ -72,19 +74,45 @@ class RulesVisitor(Visitor):
         a statement that will be visited.
         """
 
-        self.expect_set = expect_set
-        self.restrict_rules = {}
+        # Parameters
         self.rules_args_data = rules_args_data
+
+        # Lint variables
+        self._expect_set = set()
         self.node = None
         self.node_to_lint = None
+        self.visit_leave_queue = LifoQueue()
+        self.reports = []
+
+        # Rules
         self.rules = []
         self.persistent_rules = []
-        self.visit_leave_queue = LifoQueue()
+        self.normal_rules = []
+        self.temporary_rules = []
+        self.restrict_rules = {}
         self.get_rules()
+
+    def clear_lint_variables(self):
+        self._expect_set = set()
+        self.node = None
+        self.node_to_lint = None
+        self.visit_leave_queue = LifoQueue()
         self.reports = []
+        self._reset_normal_rules()
+
+    def _reset_normal_rules(self):
+        for i, rule_object in enumerate(self.normal_rules):
+            self.normal_rules[i] = rule_object.__class__()
+
 
     @property
     def expect_set(self) -> Set:
+        """
+        The set of expecting rules.
+        This is part of the rule restriction feature.
+        The expect_set comes from a statement that will be visited.
+        :return: The set of expecting rules.
+        """
         return self._expect_set
 
     @expect_set.setter
@@ -139,6 +167,21 @@ class RulesVisitor(Visitor):
     def persistent_rules(self, value):
         self._persistent_rules = value
 
+    @property
+    def normal_rules(self) -> List:
+        return self._normal_rules
+
+    @normal_rules.setter
+    def normal_rules(self, value):
+        self._normal_rules = value
+
+    @property
+    def temporary_rules(self) -> List:
+        return self._temporary_rules
+
+    @temporary_rules.setter
+    def temporary_rules(self, value):
+        self._temporary_rules = value
 
     @property
     def visit_leave_queue(self) -> LifoQueue:
@@ -340,25 +383,44 @@ class RulesVisitor(Visitor):
         for rule in rules_result:
 
             rule_instance = None
-            for item in self.persistent_rules:
-                if type(item) is rule:
-                    rule_instance = item
-                    break
 
-            if rule_instance is None:
+            # Search for persistent rule if persistent
+            if hasattr(rule, "persistent") and rule.persistent is True:
+                for item in self.persistent_rules:
+                    if type(item) is rule:
+                        rule_instance = item
+                        break
+
+            # Create temporary rule if temporary
+            elif hasattr(rule, "temporary") and rule.temporary is True:
                 rule_instance = rule()
+
+            # Search for normal rule if temporary
+            else:
+                for item in self.normal_rules:
+                    if type(item) is rule:
+                        rule_instance = item
+                        break
+
+            # If instance of rule is still None(instance not found), then error, program integrity violated
+            if rule_instance is None:
+                ProgramReporter.show_warning_message(
+                    message=f"The program could not find the rule object of class {rule.__name__},\n"
+                            "this can occur when program integrity is violated."
+                )
+                continue
 
             # Check if the rule class has _visit method for this node
             if hasattr(rule_instance, self._get_node_type(node=self.node_to_lint) + visit_or_leave.value) and \
                callable(getattr(rule_instance, self._get_node_type(node=self.node_to_lint) + visit_or_leave.value)):
 
+                rule_instance.node = self.node_to_lint
+
                 # Get the method
                 rule_method = getattr(rule_instance, self._get_node_type(node=self.node_to_lint) + visit_or_leave.value)
 
                 # Call/Apply rule
-
                 self.call_rule(rule_method=rule_method)
-        ...
 
     def get_rules(self) -> None:
         """
@@ -369,20 +431,44 @@ class RulesVisitor(Visitor):
 
         # Go through all rule files
         for path in self.rules_args_data.paths:
+            path_object = get_path_object(path)
 
-            # Load file as module
-            # Necessary to access the content
-            spec = importlib.util.spec_from_file_location(path, path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
+            try:
 
-            # Check if the file has register method
-            if "register" in dir(module):
-                # Get method
-                register_method = getattr(module, "register")
+                # Load file as module
+                # Necessary to access the content
+                spec = importlib.util.spec_from_file_location(path, path)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
 
-                # Apply registration to this visitor
-                register_method(self)
+                # Check if the file has register method
+                if "register" in dir(module):
+
+                    try:
+                        # Get method
+                        register_method = getattr(module, "register")
+
+                        # Apply registration to this visitor
+                        register_method(self)
+
+                    except TypeError as e:
+                        ProgramReporter.show_warning_message(
+                            message=f"Unable to register rule in {path_object.name},"
+                                    "probably missing parameter for checker.\n"
+                                    f"Python interpreter report: {e}"
+                        )
+
+                    except Exception as e:
+                        ProgramReporter.show_warning_message(
+                            message=f"Unable to register rule in {path_object.name}.\n"
+                                    f"Python interpreter report: {e}"
+                        )
+
+            except (Exception, ) as e:
+                ProgramReporter.show_warning_message(
+                    message=f"Unable to load a module with rule in {path_object.name}.\n"
+                            f"Python interpreter report: {e}"
+                )
 
     def register_rule(self, rule) -> None:
         """
@@ -392,19 +478,31 @@ class RulesVisitor(Visitor):
         :return: Nome
         """
 
+        if hasattr(rule, "persistent") and rule.persistent is True and \
+                hasattr(rule, "temporary") and rule.temporary is True:
+            ProgramReporter.show_warning_message(
+                message="Bad configuration rule, functions persistent and temporary are mutually exclusive.\n"
+                        f"Rule {rule.__name__} will not be accepted for checking."
+            )
+            return
+
         # Register rule
         self.rules.append(rule)
 
-        if hasattr(rule, "persistent"):
-            if rule.persistent:
-                self.persistent_rules.append(rule())
+        if hasattr(rule, "persistent") and rule.persistent is True:
+            self.persistent_rules.append(rule())
+
+        elif hasattr(rule, "temporary") and rule.temporary is True:
+            self.temporary_rules.append(rule())
+
+        else:
+            self.normal_rules.append(rule())
 
         if hasattr(rule, "restrict"):
             self.restrict_rules[rule] = rule.restrict
+
         else:
             self.restrict_rules[rule] = {}
-
-        ...
 
     def call_rule(self, rule_method) -> None:
         """
@@ -414,7 +512,7 @@ class RulesVisitor(Visitor):
         :return: None
         """
 
-        reports: BaseRule = rule_method(self.node_to_lint)
+        reports: BaseRule = rule_method()
         self.save_reports(reports=reports)
 
     def save_reports(self, reports) -> None:

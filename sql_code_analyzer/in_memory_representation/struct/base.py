@@ -11,6 +11,8 @@ class Base:
     Base class contains common functionality for every class which represent some database object
     """
 
+    RuleReporter = None
+
     @staticmethod
     def check_if_exists(find_attr_val, struct, search_by_attr: str = None) -> bool:
         """

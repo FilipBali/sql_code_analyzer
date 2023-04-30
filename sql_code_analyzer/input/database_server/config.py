@@ -10,11 +10,13 @@ class DBConfig:
     Encapsulate the entered login details to object.
     """
 
-    def __init__(self, path: Path, option: str):
-
+    def __init__(self, path: Path, file: str, option: str):
+        path = path / file
         if not path.is_file():
             ProgramReporter.show_error_message(
-                message="The path that was entered as --connection-file-path is not a path to file!"
+                message="The path (--connection-file-path) to configuration file or "
+                        "name of configuration file is not correct! \n"
+                        f"Path: {path}"
             )
 
         self.config = configparser.ConfigParser()

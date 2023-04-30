@@ -180,7 +180,7 @@ class Database(Base):
             return self.object_index[index_key]
         else:
             ProgramReporter.show_missing_property_error_message(
-                message="Item " + str(index_key) + " is not exists in indexed objects."
+                message=f"Item {str(index_key)} is not exists in indexed objects."
             )
 
     ###########################

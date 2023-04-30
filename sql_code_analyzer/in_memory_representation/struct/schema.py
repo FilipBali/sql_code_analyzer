@@ -79,9 +79,10 @@ class Schema(Base):
         """
 
         if self.database.check_if_schema_exists_bool(self.name):
-            ProgramReporter.show_error_message(
-                message="Schema " + self.name + "  already exists."
+            ProgramReporter.show_warning_message(
+                message=f"Schema {self.name} already exists."
             )
+            return
 
         self.database.schemas[self.name] = self
         self.database.index_registration(key=self.name,

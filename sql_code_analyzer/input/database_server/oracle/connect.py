@@ -40,13 +40,13 @@ def make_connection(db_config: DBConfig):
 
     connection_string = database_specific + user_credential + database_home
 
-    ProgramReporter.show_verbose_messages("Connecting to " + dialect.lower() + " database..")
-    ProgramReporter.show_verbose_messages("Using connection string: " + connection_string)
+    ProgramReporter.show_verbose_messages(message="Connecting to " + dialect.lower() + " database..")
+    ProgramReporter.show_verbose_messages(message="Using connection string: " + connection_string)
 
     engine = create_engine(connection_string)
 
-    ProgramReporter.show_verbose_messages("Connection succeed.")
-    ProgramReporter.show_verbose_messages("Generating DDL script..")
+    ProgramReporter.show_verbose_messages(message="Connection succeed.")
+    ProgramReporter.show_verbose_messages(message="Generating DDL script..")
 
     meta = MetaData()
     meta.reflect(bind=engine)

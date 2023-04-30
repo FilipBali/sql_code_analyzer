@@ -31,7 +31,7 @@ def database_connection_handler(args: CArgs) -> None:
     :return: None
     """
 
-    match args.connection_file_option.lower():
+    match args.connection_file_section.lower():
         case "oracle":
             ddl = oracle_handler(args.db_config)
             parse_dll_to_statements(args, ddl)
@@ -50,7 +50,13 @@ def database_connection_handler(args: CArgs) -> None:
 
 
 def dll_report(args: CArgs):
-    ProgramReporter.show_verbose_messages(message_list=args.database_statements,
-                                          origin=args.connection_file_option.upper() + " database connector",
-                                          head_message="====== Preview of DDL ======",
-                                          tail_message="====== End of preview of DDL ======")
+    ProgramReporter.show_verbose_messages(message="====== Preview of DDL ======"
+                                                  f"{args.connection_file_section.upper()} database connector:",
+                                          origin=None)
+
+    for s in args.database_statements:
+        ProgramReporter.show_verbose_messages(message=s,
+                                              origin=None)
+
+    ProgramReporter.show_verbose_messages(message="====== End of preview of DDL ======",
+                                          origin=None)
