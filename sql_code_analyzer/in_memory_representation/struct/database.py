@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 
+from sql_code_analyzer.in_memory_representation.exceptions import MissingTableException, MissingSchemaException
 from sql_code_analyzer.in_memory_representation.struct.base import Base
 from sql_code_analyzer.in_memory_representation.struct.table import Table
 
@@ -210,7 +211,7 @@ class Database(Base):
 
         schema_instance = self.get_instance_or_error(find_attr_val=schema_name,
                                                      find_in_struct=self.schemas,
-                                                     error_message="Error: Schema not exists"
+                                                     exception=MissingSchemaException
                                                      )
         return schema_instance
 
@@ -242,8 +243,8 @@ class Database(Base):
         schema_instance = self.get_schema_by_name_or_error(schema_name)
 
         table_instance = self.get_instance_or_error(find_attr_val=table_name,
-                                                    find_in_struct=schema_instance,
-                                                    error_message="Error: Table not exists"
+                                                    find_in_struct=schema_instance.tables,
+                                                    exception=MissingTableException
                                                     )
         return table_instance
 
@@ -263,7 +264,7 @@ class Database(Base):
 
         schema_instance = self.get_instance_or_error(find_attr_val=schema_name,
                                                      find_in_struct=self.schemas,
-                                                     error_message="Error: Schema not exists"
+                                                     exception=MissingSchemaException
                                                      )
 
         table_instance = self.get_instance_or_none(find_attr_val=table_name,

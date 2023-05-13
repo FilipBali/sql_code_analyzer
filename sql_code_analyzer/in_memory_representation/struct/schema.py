@@ -16,8 +16,6 @@ from sql_code_analyzer.in_memory_representation.struct.base import Base
 
 from typing import TYPE_CHECKING
 
-from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
-
 if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.database import Database
 
@@ -79,7 +77,7 @@ class Schema(Base):
         """
 
         if self.database.check_if_schema_exists_bool(self.name):
-            ProgramReporter.show_warning_message(
+            self.RuleReporter.add_memory_representation_report(
                 message=f"Schema {self.name} already exists."
             )
             return

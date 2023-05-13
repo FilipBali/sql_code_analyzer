@@ -12,7 +12,7 @@ from typing import Generator
 import sqlglot
 from sqlglot import Tokenizer
 from sql_code_analyzer.output.reporter.rule_reporter import RuleReporter
-from sql_code_analyzer.tools.path import get_program_root_path, get_absolute_path
+from sql_code_analyzer.tools.path import get_program_root_path  
 from sqlglot import expressions as exp
 
 ###############################################
@@ -212,7 +212,10 @@ class Linter:
         :return: None
         """
 
-        self.rules_visitor: RulesVisitor = RulesVisitor(rules_args_data=self.rules_args_data)
+        self.rules_visitor: RulesVisitor = RulesVisitor(rules_args_data=self.rules_args_data,
+                                                        mem_rep=self.mem_rep)
+
+        self.rules_visitor.lint_event(event_type="start_lint")
 
         # iterate over SQL statements
         for self.statement, position in self.args_data.statements:
@@ -228,7 +231,7 @@ class Linter:
                         text, index = line.split("--")
                         result.append((text, int(index)))
 
-                # TOTO if verbose
+                # TODO if verbose
                 # ProgramReporter.show_warning_message(
                 #     message=f"An error occurred while processing an SQL statement that starts at line {result[0][1]}.\n"
                 #             "This statement will be skipped.\n"
@@ -251,12 +254,13 @@ class Linter:
             self._include_code_locations(position_const=position - library_initial_count_number)
 
             # TODO DELETE
-            # ast_ast = self.ast.walk(bfs=False)
-            #
+            ast_ast = self.ast.walk(bfs=False)
+
             # for nodes in ast_ast:
             #     if nodes is not None:
             #         node = nodes[0]
-            #         if node.code_location is None:
+            #         # if node.code_location is None:
+            #         if not hasattr(node, "code_location"):
             #             print(node)
             #         else:
             #             print(str(node) + " " + str(node.code_location))
@@ -270,6 +274,8 @@ class Linter:
             # provide changes based on SQL statement to memory representation
             if self._check_if_modifying_statement():
                 self._modify_representation()
+
+        self.rules_visitor.lint_event(event_type="end_lint")
 
     def _include_code_locations(self, position_const: int) -> None:
         """
@@ -306,17 +312,17 @@ class Linter:
         #         nodes[0].code_location = None
 
         # Transform to dict structure
-        for nodes in ast_gen:
-            if nodes is not None:
-                if nodes[0].code_location is not None:
-                    tlist = []
-                    for token in nodes[0].code_location:
-                        tlist.append({"line": token.line + position_const,
-                                      "col": token.col,
-                                      "text": token.text})
-                    nodes[0].code_location = tlist
+        # for nodes in ast_gen:
+        #     if nodes is not None:
+        #         if nodes[0].code_location is not None:
+        #             tlist = []
+        #             for token in nodes[0].code_location:
+        #                 tlist.append({"line": token.line + position_const,
+        #                               "col": token.col,
+        #                               "text": token.text})
+        #             nodes[0].code_location = tlist
 
-        ast_gen = self.ast.walk(bfs=False)
+        ast_gen = list(self.ast.walk(bfs=False))
 
         seen_tokens = []
         for nodes in ast_gen:
@@ -328,14 +334,23 @@ class Linter:
                 to_del = []
 
                 found = False
-                for token in self.tokens:
+                for token_idx, token in enumerate(self.tokens):
                     if token.text.lower() == node_name.lower() or \
                             token.text.lower() == node_key.lower():
 
-                        if node.code_location is None or len(node.code_location) < 2:
-                            node.code_location = [{"line": token.line + position_const,
-                                                  "col": token.col,
-                                                  "text": token.text}]
+                        location_text = token.text
+
+                        if hasattr(node, "args") and "kind" in node.args and isinstance(node.args["kind"], str):
+                            if len(self.tokens)-1 > token_idx:
+                                next_token = self.tokens[token_idx+1]
+                                if node.args["kind"].lower() == next_token.text.lower():
+                                    location_text = f"{location_text} {next_token.text}"
+
+
+                        # if node.code_location is None or len(node.code_location) < 2:
+                        node.code_location = [{"line": token.line + position_const,
+                                              "col": token.col,
+                                              "text": location_text}]
                         found = True
                         break
                     elif node_key.lower() == "datatype":
@@ -397,6 +412,8 @@ class Linter:
 
         self.rules_visitor.expect_set = self._create_restriction_set_from_statement()
 
+        self.rules_visitor.lint_event(event_type="start_command_lint")
+
         stop_parse = False
         while 1 and stop_parse is not True:
 
@@ -404,14 +421,16 @@ class Linter:
             node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
                                                     ast_generator=ast_generator)
 
-            if node is None:
-                self.rules_visitor.traversing_ast_done()
-            else:
+            if node is not None:
                 node.accept(self.rules_visitor)
+
+        self.rules_visitor.traversing_ast_done()
+        self.rules_visitor.lint_event(event_type="end_command_lint")
 
         self.rule_reporter.add_reports(
             reports=self.rules_visitor.reports
         )
+
         self.rules_visitor.clear_lint_variables()
 
     def _create_restriction_set_from_statement(self) -> set:
@@ -471,6 +490,7 @@ class Linter:
         Reorder SELECT's abstract syntax tree to correct (database) order
         :return: Abstract syntax tree generator
         """
+        return self.ast.walk(bfs=False)
 
         if not isinstance(self.ast, exp.Select):
             return self.ast.walk(bfs=False)

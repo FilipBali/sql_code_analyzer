@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from sql_code_analyzer.in_memory_representation.exceptions import MissingSchemaException
 from sql_code_analyzer.in_memory_representation.struct.column import Column, column_constrains_list
 from sql_code_analyzer.in_memory_representation.struct.constrain import CheckExpression, \
     PreventNotNull, UniqueValue, DefaultValue, ForeignKey, PrimaryKey
@@ -137,8 +138,13 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
             # Getting table node
             # Here, we expect schema and table name arguments
 
-            # get schema by schema name
-            schema: Schema = mem_rep.get_schema_by_name_or_error(node.db)
+            try:
+                # get schema by schema name
+                schema: Schema = mem_rep.get_schema_by_name_or_error(node.db)
+            except MissingSchemaException:
+                # TODO missing schema
+                ...
+
             # get table by database, schema, table name
             table: Table = mem_rep.get_or_create_table(database=mem_rep,
                                                        schema_name=schema.name,

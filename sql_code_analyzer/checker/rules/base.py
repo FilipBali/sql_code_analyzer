@@ -1,15 +1,29 @@
+import ast
+import inspect
+
 from sql_code_analyzer.adapter.base_class import BaseClass
 from sql_code_analyzer.adapter.freature_class.base_cast import BaseCast
+from sql_code_analyzer.in_memory_representation.struct.database import Database
 from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 from sql_code_analyzer.output.reporter.rule_reporter import RuleReport
+from sql_code_analyzer.tools.path import get_path_object
 
+
+def calls_create_report(func):
+    source = inspect.getsource(func).lstrip()
+    tree = ast.parse(source)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'create_report':
+            if isinstance(node.func.value, ast.Name) and node.func.value.id == 'self':
+                return True
+    return False
 
 class BaseRuleMetaclass(type):
     def __new__(cls, name, bases, dct):
         for item in dct:
             if item.endswith("_visit") or item.endswith("_leave"):
                 func = dct[item]
-                if callable(func):
+                if callable(func) and calls_create_report(func=func):
                     if not (getattr(func, 'include_reports_applied', False) or getattr(func, 'include_class_reports', False)):
                         ProgramReporter.show_error_message(
                             message=f"Rule function {item} does not use any decorator! \n"
@@ -26,6 +40,7 @@ class BaseRule(metaclass=BaseRuleMetaclass):
 
     def __init__(self):
         self.node = None
+        self.mem_rep: Database | None = None
         self.raw_reports = []
         self.reports = []
 
@@ -36,6 +51,14 @@ class BaseRule(metaclass=BaseRuleMetaclass):
     @node.setter
     def node(self, value):
         self._node = value
+
+    @property
+    def mem_rep(self):
+        return self._mem_rep
+
+    @mem_rep.setter
+    def mem_rep(self, value):
+        self._mem_rep = value
 
     @property
     def messages(self):
@@ -63,18 +86,41 @@ class BaseRule(metaclass=BaseRuleMetaclass):
 
     def get_reports(self):
         self.raw_reports.clear()
-        return [self.reports.pop() for _ in self.reports]
+        treports = []
+        for report in self.reports:
+            treports.append(report)
 
-    def create_report(self, report: str, node: BaseClass):
-        self.raw_reports.append(
-           (report, node)
-        )
+        self.reports.clear()
+
+        return treports
+
+    def create_report(self, report: str, node=None, **kwargs):
+
+        if hasattr(self, "no_code_preview"):
+            if node is not None:
+                self.raw_reports.append(
+                   (report, node, self.no_code_preview, kwargs)
+                )
+            else:
+                self.raw_reports.append(
+                   (report, self.node, self.no_code_preview, kwargs)
+                )
+        else:
+
+            if node is not None:
+                self.raw_reports.append(
+                   (report, node, True, kwargs)
+                )
+
+            else:
+                self.raw_reports.append(
+                   (report, self.node, True, kwargs)
+                )
 
     def _create_reporter_reports(self):
         for raw_report in self.raw_reports:
             self._validate_raw_report_data(raw_report)
             self._create_rule_report(raw_report)
-
 
     @staticmethod
     def _validate_raw_report_data(raw_report):
@@ -94,9 +140,11 @@ class BaseRule(metaclass=BaseRuleMetaclass):
     def _create_rule_report(self, raw_report):
         message_name = raw_report[0]
         node = raw_report[1]
+        code_preview = raw_report[2]
 
         try:
             report_data_dict = self.messages[message_name]
+            ...
 
         except (Exception,):
             ProgramReporter.show_missing_property_warning_message(
@@ -110,10 +158,17 @@ class BaseRule(metaclass=BaseRuleMetaclass):
                                                messages_data_dict=report_data_dict):
             return
 
+        message = report_data_dict["message"]
+        for key, value in raw_report[3].items():
+            message = report_data_dict["message"].replace("{"+key+"}", value)
+
         rule_report = RuleReport(
             rule_name=message_name,
-            message=report_data_dict["message"],
-            node=node
+            message=message,
+            node=node,
+            code_preview=code_preview,
+            rule_class_name=self.__class__.__name__,
+            rule_class_filename=get_path_object(self.__class__.__module__).name,
         )
 
         if rule_report.validate():

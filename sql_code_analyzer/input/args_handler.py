@@ -254,8 +254,7 @@ class CArgs:
             "SERVICE =  target_service  # enter the database service name\n"
         )
         f.close()
-
-        # TODO print successful green
+        
         print("The configuration template has been successfully created.\n"
               f"Path: {root_path}\n"
               f"File: db_connection.cfg")
@@ -280,43 +279,12 @@ def parse_raw_sql_to_statement(args_data) -> None:
     # Delete everything between -- and newline but keeps newline
     raw = re.sub(r'--.*?\n', '\n', raw)
 
-    # long_string = raw
-    # # long_string = "This is a string -- with a substring\n that needs to be removed. -- Another substring\n to remove."
-    # removed_substr_start = "--"
-    # removed_substr_end = "\n"
-    # while long_string.find(removed_substr_start) != -1:
-    #     lindex = long_string.find(removed_substr_start)
-    #     rindex = long_string.find(removed_substr_end, lindex)
-    #     long_string = long_string[0:lindex] + long_string[rindex:]
-    # # print(long_string)
-
-    # lines = long_string.split("\n")
     lines = raw.split("\n")
     result = ""
     for i, line in enumerate(lines):
         result += line + " -- " + str(i + 1) + "\n"
 
-    # print(result)
-
-    # long_string = result
-    #
-    # lines = long_string.split("\n")
-    # result = ""
-    # for line in lines:
-    #     if line.find("--") > 0:
-    #         result += line + "\n"
-    # print(result)
-
-    # long_string = result
-    # lines = long_string.split("\n")
-    # result = ""
-    # for line in lines:
-    #     if line.find(" --") > 0:
-    #         result += line + "\n"
-    # print(result)
-
-    long_string = result
-    lines = long_string.split("\n")
+    lines = result.split("\n")
     result = []
     temp = ""
     for line in lines:
@@ -326,24 +294,9 @@ def parse_raw_sql_to_statement(args_data) -> None:
             temp = ""
         else:
             temp += line + "\n"
-    # if temp != "":
-    #     result.append(temp)
-    # print(result)
-
-    # The last entry never contains anything important
-    # only comments or lines after the last SQL statement
-    # result.pop()
-
-    # lines = result
-    # result = []
-    # for line in lines:
-    #     index = int(line.split("--")[1].split("\n")[0])
-    #     result.append((line, index))
-    # print(result)
 
     for index, statement in enumerate(result):
-        long_string = statement
-        lines = long_string.split("\n")
+        lines = statement.split("\n")
         tmp = ""
         for line in lines:
             if line.lstrip().find("--") > 0:
@@ -357,90 +310,6 @@ def parse_raw_sql_to_statement(args_data) -> None:
         result.append((line, index))
 
     args_data.statements += result
-
-    # # match two or more lines
-    # regex = r"(?:\r?\n){2,}"
-    # statements = re.split(regex, raw.strip())
-    # # call lstrip method on every single statement
-    # statements = list(map(methodcaller("lstrip"), statements))
-    #
-    # def delete_comment_blocks():
-    #     regex = r"(?:\r?\n){1,}"
-    #     to_remove = []
-    #
-    #     #####################################################################
-    #     # Find and delete all comment blocks
-    #     # Reason: SQLGLot ends up with an error when it only parses comments
-    #     #####################################################################
-    #     for statement in statements:
-    #         stmt_split_by_line = re.split(regex, statement.strip())
-    #         stmt_split_by_line = list(map(methodcaller("lstrip"), stmt_split_by_line))
-    #
-    #         remove_statement = True
-    #         for statement_part in stmt_split_by_line:
-    #             # statement_part
-    #             if not (remove_statement and statement_part.startswith("--")):
-    #                 remove_statement = False
-    #                 break
-    #
-    #         if remove_statement:
-    #             to_remove.append(statement)
-    #
-    #     for comment_block in to_remove:
-    #         statements.remove(comment_block)
-    #
-    # # Delete comments block
-    # delete_comment_blocks()
-    #
-    # # Split statements
-    # statement_delimiter = ";"
-    #
-    # t_statements = []
-    # append_to_new_line = False
-    # for statement in statements:
-    #     if len(t_statements) == 0:
-    #         t_statements.append(statement)
-    #         continue
-    #
-    #     if append_to_new_line:
-    #         t_statements.append(statement)
-    #         append_to_new_line = False
-    #         continue
-    #
-    #     t_statements[-1] += statement
-    #
-    #     if statement_delimiter in statement:
-    #         append_to_new_line = True
-    #
-    # statements = t_statements
-    #
-    # # statements = ' '.join(statements).split(statement_delimiter)
-    # t_statements = []
-    # for statement in statements:
-    #     t_statements += statement.split(statement_delimiter)
-    #
-    # statements = t_statements
-    # statements = [statement + statement_delimiter for statement in statements if statement != ""]
-    #
-    # # Delete comments block again
-    # # There can be again because of a statement split by delimiter ;
-    # delete_comment_blocks()
-    #
-    # keep_statements = []
-    # for statement in statements:
-    #     statement_list = statement.splitlines()
-    #     statement_list_tmp = list(map(methodcaller("lstrip"), statement_list))
-    #     for index, line in enumerate(statement_list_tmp):
-    #         if len(line) == 1:
-    #             keep_statements.append(statement_list)
-    #             break
-    #         if len(line) > 1:
-    #             if line[0:2] != "--":
-    #                 statement_with_code = statement_list[index:]
-    #                 keep_statements.append('\n'.join(statement_with_code))
-    #                 break
-    #
-    # args_data.statements += keep_statements
 
 
 def parse_args() -> argparse:

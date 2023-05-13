@@ -6,6 +6,7 @@ from queue import LifoQueue
 
 
 from sql_code_analyzer.checker.rules.base import BaseRule
+from sql_code_analyzer.in_memory_representation.struct.database import Database
 from sql_code_analyzer.output.enums import ExitWith
 from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 from sql_code_analyzer.tools.path import get_path_object
@@ -47,7 +48,7 @@ class RuleType(enum.Enum):
 class RulesVisitor(Visitor):
     """
     Provides functionality/logic of RulesVisitor visitor.
-    It is specialised to call the rules for visited node.
+    It is specialized to call the rules for visited node.
     It is supporting restrict and permanent features.
 
     Restrict feature can be used when we want to restrict
@@ -64,7 +65,7 @@ class RulesVisitor(Visitor):
 
     """
     # def __init__(self, rules_args_data, expect_set):
-    def __init__(self, rules_args_data):
+    def __init__(self, rules_args_data, mem_rep):
         """
         Initial method for RulesVisitor instance
 
@@ -76,6 +77,9 @@ class RulesVisitor(Visitor):
 
         # Parameters
         self.rules_args_data = rules_args_data
+
+        # Memory representation
+        self.mem_rep = mem_rep
 
         # Lint variables
         self._expect_set = set()
@@ -234,6 +238,54 @@ class RulesVisitor(Visitor):
         while not self.visit_leave_queue.empty():
             self.node_to_lint = self.visit_leave_queue.get()
             self.lint_node(RuleType.Leave)
+
+    def lint_event(self, event_type: str) -> None:
+
+        if event_type == "start_lint" or event_type == "end_lint":
+            method_name = event_type
+
+            for rule in self.persistent_rules:
+                if hasattr(rule, method_name) and \
+                        callable(getattr(rule, method_name)):
+                    # Get the method
+                    rule_method = getattr(rule, method_name)
+
+                    # Call/Apply rule
+                    self.call_rule(rule_method=rule_method)
+
+        elif event_type == "start_command_lint" or event_type == "end_command_lint":
+
+            method_name = event_type
+
+            rules_result = [obj for obj, restrictions in self.restrict_rules.items()
+                            if not restrictions or restrictions.intersection(self.expect_set)]
+
+            for rule in rules_result:
+                # Search for persistent rule if persistent
+
+                rule_instance = None
+                if hasattr(rule, "persistent") and rule.persistent is True:
+                    for item in self.persistent_rules:
+                        if type(item) is rule:
+                            rule_instance = item
+                            break
+
+                else:
+                    for item in self.normal_rules:
+                        if type(item) is rule:
+                            rule_instance = item
+                            break
+
+                if rule_instance is None:
+                    continue
+
+                if hasattr(rule_instance, method_name) and \
+                   callable(getattr(rule_instance, method_name)):
+                    # Get the method
+                    rule_method = getattr(rule_instance, method_name)
+
+                    # Call/Apply rule
+                    self.call_rule(rule_method=rule_method)
 
     def visit(self, node) -> None:
         """
@@ -410,11 +462,12 @@ class RulesVisitor(Visitor):
                 )
                 continue
 
-            # Check if the rule class has _visit method for this node
+            # Check if the rule class has _visit or _leave method for this node
             if hasattr(rule_instance, self._get_node_type(node=self.node_to_lint) + visit_or_leave.value) and \
                callable(getattr(rule_instance, self._get_node_type(node=self.node_to_lint) + visit_or_leave.value)):
 
                 rule_instance.node = self.node_to_lint
+                rule_instance.mem_rep = self.mem_rep
 
                 # Get the method
                 rule_method = getattr(rule_instance, self._get_node_type(node=self.node_to_lint) + visit_or_leave.value)
@@ -522,6 +575,9 @@ class RulesVisitor(Visitor):
         :param reports: BaseRule object
         :return: None
         """
+
+        if reports is None:
+            return
 
         reports = reports.get_reports()
         for report in reports:

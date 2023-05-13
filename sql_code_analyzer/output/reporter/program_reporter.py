@@ -157,6 +157,22 @@ class ProgramReporter(Reporter):
                                         message_text=f"Warning: \n{message}").print()
 
     ##################################
+    # MEMORY REPRESENTATION MESSAGES
+    ##################################
+    @staticmethod
+    def show_memory_representation_message(message: str) -> None:
+        """
+        Implementation of a program warning message.
+        The message is immediately displayed to the user.
+
+        :param message: Text message
+        :return: None
+        """
+
+        ProgramReporter._create_message(message_type=MessageType.Error,
+                                        message_text=f"{message}").print()
+
+    ##################################
     #         VERBOSE MESSAGES
     ##################################
     @staticmethod
@@ -172,7 +188,7 @@ class ProgramReporter(Reporter):
         :return: None
         """
 
-        if ProgramReporter.verbose < 2:
+        if ProgramReporter.verbose >= 3:
             return
 
         if message is None:

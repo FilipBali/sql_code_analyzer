@@ -3,7 +3,6 @@ import textwrap
 
 from sql_code_analyzer.adapter.freature_class.base_cast import BaseCast
 from sql_code_analyzer.in_memory_representation.struct.base import Base
-from sql_code_analyzer.output.enums import OutputType
 from sql_code_analyzer.output.reporter.base import Reporter, _Message
 from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 
@@ -16,17 +15,32 @@ class RuleReport(_Message):
     def __init__(self,
                  rule_name,
                  message,
-                 node):
+                 node,
+                 rule_class_name,
+                 rule_class_filename,
+                 code_preview: bool,
+                 statement = None):
         """
         Generate rule report object
         :param rule_name: Rule name defined by rule.
         :param message: Rule message defined by rule.
         :param node: The specific node where the message is created.
+        :param rule_class_name: TODO
+        :param rule_class_filename: TODO
+        :param code_preview: If the code has to be displayed.
+        :param statement: TODO.
         """
 
         self.rule_name = rule_name
         self.message = message
         self.node = node
+        self.rule_class_name = rule_class_name
+        self.rule_class_filename = rule_class_filename
+        self.code_preview = code_preview
+        self.statement = None
+
+    def set_statement(self, statement):
+        self.statement = statement
 
     def _create_message(self, message: str, color: str = "\033[0m"):
         return color + message + self._color["reset"] + " "
@@ -34,8 +48,8 @@ class RuleReport(_Message):
     def _wrap_message(self, message: str, subsequent_indent: int):
         return '\n'.join(textwrap.wrap(message, self._wrap_length, subsequent_indent=' ' * subsequent_indent))
 
-    def print(self, statement):
-
+    def print(self):
+        statement = self.statement[0]
         # statement = statement.split("\n")
 
         lines = statement.split("\n")
@@ -86,14 +100,32 @@ class RuleReport(_Message):
         spaces = "Report: "
         message = self._create_message(message=self.message)
 
-        if self.node.code_location is not None:
+        rule_details = f"Rule class: {self.rule_class_name}\nRule file: {self.rule_class_filename}\n"
+
+        if not self.code_preview:
+            if ProgramReporter.verbose < 2:
+                rule_details = ""
+
             this_report = location + arrow + rule_name + nl + \
+                rule_details + \
+                spaces + message + nl
+
+        elif self.node.code_location is not None:
+            if ProgramReporter.verbose < 2:
+                rule_details = ""
+
+            this_report = location + arrow + rule_name + nl + \
+                rule_details + \
                 spaces + message + 2 * nl + \
                 code_preview + nl + \
                 code_arrow + nl
 
         else:
+            if ProgramReporter.verbose < 2:
+                rule_details = ""
+
             this_report = location + arrow + rule_name + nl + \
+                rule_details + \
                 spaces + message + 2 * nl
 
         self.text = this_report
@@ -155,6 +187,7 @@ class RuleReporter(Reporter):
 
         for report in reports:
             report: RuleReport
+            report.set_statement(statement=self.statement)
             self.reports.append((self.statement, report))
 
     def print_reports(self):
@@ -170,10 +203,8 @@ class RuleReporter(Reporter):
             # Delete empty lines from statement string
             # For a more compact visualization of the output,
             # it is better to delete the line that does not contain the code
-            long_string = statement
-            lines = long_string.split("\n")
             result = ""
-            for line in lines:
+            for line in statement.split("\n"):
                 if line.lstrip().find("--") > 0:
                     result += line + "\n"
             statement = result
@@ -197,11 +228,16 @@ class RuleReporter(Reporter):
             with_loc: List = []
             without_loc: List = []
             mem_rep: List = []
+            no_code_preview: List = []
 
             # Divide messages into those with and without location
             for statement_report in statement_reports:
                 if isinstance(statement_report, str):
                     mem_rep.append(statement_report)
+                    continue
+
+                if not statement_report.code_preview:
+                    no_code_preview.append(statement_report)
                     continue
 
                 if statement_report.node.code_location is not None:
@@ -215,16 +251,28 @@ class RuleReporter(Reporter):
             # Print reports with location
             for statement_report in with_loc:
                 statement_report: RuleReport
-                statement_report.print(statement=statement)
+                statement_report.print()
 
-            # Print reports with no location
-            for statement_report in without_loc:
-                statement_report: RuleReport
-                statement_report.print(statement=statement)
+            if len(without_loc):
+                print("Messages that could not be linked to the code")
 
-            for statement_report in mem_rep:
-                statement_report: str
-                ProgramReporter.show_warning_message(message=statement_report)
+                # Print reports with no location
+                for statement_report in without_loc:
+                    statement_report: RuleReport
+                    statement_report.print()
+
+            if len(no_code_preview):
+                print("Messages for which no code preview is required:")
+
+                for statement_report in no_code_preview:
+                    statement_report: RuleReport
+                    statement_report.print()
+
+            if len(mem_rep):
+                print("Additional context analysis:")
+
+                for context_report in mem_rep:
+                    ProgramReporter.show_memory_representation_message(message=context_report)
 
     def _print_statement_output_header(self, statement):
         header = "" + \

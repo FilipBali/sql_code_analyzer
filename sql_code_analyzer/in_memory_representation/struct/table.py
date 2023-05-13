@@ -22,8 +22,6 @@ from sql_code_analyzer.in_memory_representation.struct.base import Base
 from typing import TYPE_CHECKING, Dict
 
 from sql_code_analyzer.in_memory_representation.struct.column import Column
-from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
-from sql_code_analyzer.output.reporter.rule_reporter import RuleReporter
 
 if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.constrain import PrimaryKey, ForeignKey, Index
@@ -138,7 +136,6 @@ class Table(Base):
         """
 
         if self.schema.check_if_table_exists(table=self):
-            # ProgramReporter.show_warning_message(
             self.RuleReporter.add_memory_representation_report(
                 message=f"Table {self.name} already exists."
             )
@@ -177,7 +174,7 @@ class Table(Base):
         """
 
         if self.primary_key is not None:
-            ProgramReporter.show_warning_message(
+            self.RuleReporter.add_memory_representation_report(
                 message=f"Primary key in table {self.name} already exists."
             )
             return
@@ -193,7 +190,7 @@ class Table(Base):
 
     def add_index(self, index: Index) -> None:
         if index.name in self.indexes:
-            ProgramReporter.show_warning_message(
+            self.RuleReporter.add_memory_representation_report(
                 message=f"An error occurred when trying to add a new index to the table {self.name} \n"
                         f"The index with name {index.name} already exists in this table."
             )
@@ -203,7 +200,7 @@ class Table(Base):
 
     def delete_index(self, index_name) -> None:
         if index_name not in self.indexes:
-            ProgramReporter.show_warning_message(
+            self.RuleReporter.add_memory_representation_report(
                 message=f"An error occurred when trying to delete the index from the table {self.name} \n"
                         f"The index with name {index_name} does not exists in this table."
             )
@@ -230,7 +227,7 @@ class Table(Base):
         """
 
         if not self.verify_can_be_deleted:
-            ProgramReporter.show_warning_message(
+            self.RuleReporter.add_memory_representation_report(
                 message=f"Table {self.name} can NOT be deleted because of relations with another tables."
             )
             return

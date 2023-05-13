@@ -1,7 +1,7 @@
 from __future__ import annotations
 from sql_code_analyzer.in_memory_representation.struct.base import Base
 
-from typing import TYPE_CHECKING, List, Dict
+from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from sql_code_analyzer.in_memory_representation.struct.column import Column

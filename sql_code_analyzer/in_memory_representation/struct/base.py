@@ -5,7 +5,6 @@
 #######################################
 from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 
-
 class Base:
     """
     Base class contains common functionality for every class which represent some database object
@@ -40,7 +39,7 @@ class Base:
             return False
 
     @staticmethod
-    def get_instance_or_error(find_attr_val, find_in_struct, error_message: str, search_by_attr: str = None):
+    def get_instance_or_error(find_attr_val, find_in_struct, error_message: str = None, exception = None, search_by_attr: str = None):
         """
         Return instance of an object if exists or raise error
         :param find_attr_val: Value that will be searched for
@@ -58,6 +57,8 @@ class Base:
             if find_attr_val in find_in_struct:
                 return find_in_struct[find_attr_val]
 
+        if exception:
+            raise exception
         ProgramReporter.show_error_message(error_message)
 
     @staticmethod
