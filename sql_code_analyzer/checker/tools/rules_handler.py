@@ -36,7 +36,7 @@ class CRules:
             )
 
         # get all paths
-        t_paths = list(glob.glob(self.path_to_rules_folder + "\\**\\*.py", recursive=True))
+        t_paths = list(glob.glob(self.path_to_rules_folder + os.sep*2 + "**" + os.sep*2 + "*.py", recursive=True))
 
         # TODO \\ for Windows-based system, todo for Linux-based systems, solved but TEST IT!
         if len(self.exclude_folders) > 0:
