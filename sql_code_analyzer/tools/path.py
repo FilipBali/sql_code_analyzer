@@ -50,7 +50,7 @@ def create_path_if_not_exists(path: Path) -> Path:
     return path
 
 
-def get_absolute_path(path: str) -> Path:
+def get_absolute_path(path: str | Path) -> Path:
     """
     Determines if the path is already absolute
     If yes, then it returns
@@ -59,7 +59,7 @@ def get_absolute_path(path: str) -> Path:
     :return: Absolute path
     """
 
-    if not isinstance(path, str):
+    if not (isinstance(path, str) or isinstance(path, Path)):
         ProgramReporter.show_error_message("In \"get_absolute_path\" the path parameter must be string!")
 
     path = Path(path)
@@ -86,9 +86,9 @@ def verify_path_access(path: Path):
         )
 
 
-def get_path_object(path: str):
+def get_path_object(path: str | Path):
 
-    if not isinstance(path, str):
+    if not (isinstance(path, str) or isinstance(path, Path)):
         ProgramReporter.show_error_message("In \"get_path_object\" the path parameter must be string!")
 
     return Path(path)

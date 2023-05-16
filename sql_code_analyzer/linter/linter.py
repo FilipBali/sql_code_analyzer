@@ -58,8 +58,6 @@ class Linter:
 
     def __init__(self):
 
-        # TODO Prepisat v praci: connection_file_option -> connection_file_section
-
         self._modify_representation_functions = {}
         self._parse_error_occurred = False
         self.rule_reporter = RuleReporter()

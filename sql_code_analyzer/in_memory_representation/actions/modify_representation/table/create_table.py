@@ -142,7 +142,9 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
                 # get schema by schema name
                 schema: Schema = mem_rep.get_schema_by_name_or_error(node.db)
             except MissingSchemaException:
-                # TODO missing schema
+                ProgramReporter.show_warning_message(
+                    "While parsing CREATE TABLE statement, schema is missing."
+                )
                 ...
 
             # get table by database, schema, table name

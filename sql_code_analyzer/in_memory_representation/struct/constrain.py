@@ -66,10 +66,6 @@ class PrimaryKey(Constrain):
         if len(columns) > 1:
             self.composite = True
 
-            # TODO set COLUMN UNIQUE if not already
-            # TODO set COLUMN NOT NULL if not already
-            # TODO pri vymazavani not null alebo unique pozri ci neni samostatny primary key !!
-
         self.columns = columns
 
 

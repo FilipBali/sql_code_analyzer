@@ -48,7 +48,6 @@ def drop_table(ast: Expression, mem_rep: Database) -> None:
         if isinstance(node, exp.Table):
             # Target table
 
-            # TODO ostrit ak nema atribut.. pridat aj do inych parsovani
             # Trying to get scheme name
             if hasattr(node, "db"):
                 schema_name = node.db
@@ -79,8 +78,6 @@ def drop_table(ast: Expression, mem_rep: Database) -> None:
     # chooses an operation
     if cascade:
         # Delete table cascade
-        # TODO ALTER TABLE table1 DROP CONSTRAINT fk_table1_table2;
-        # TODO test
         table.delete_cascade().delete_table()
 
     elif materialized:

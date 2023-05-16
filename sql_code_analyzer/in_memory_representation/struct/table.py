@@ -11,7 +11,6 @@
 #                connection to the schema that belongs to
 #                connection to the database that belongs to
 #
-#        TODO: add constraint, delete constraint
 #
 #######################################
 

@@ -31,7 +31,7 @@ def database_connection_handler(args: CArgs) -> None:
     :return: None
     """
 
-    match args.connection_file_section.lower():
+    match args.connection_file_option.lower():
         case "oracle":
             ddl = oracle_handler(args.db_config)
             parse_dll_to_statements(args, ddl)
@@ -39,28 +39,28 @@ def database_connection_handler(args: CArgs) -> None:
         case "postgresql":
             # import psycopg2
             ProgramReporter.show_warning_message(
-                message=f"Connection to the {args.connection_file_section.lower()} database is not implemented"
+                message=f"Connection to the {args.connection_file_option.lower()} database is not implemented"
             )
             return
 
         case "mysql":
             # import pymysql
             ProgramReporter.show_warning_message(
-                message=f"Connection to the {args.connection_file_section.lower()} database is not implemented"
+                message=f"Connection to the {args.connection_file_option.lower()} database is not implemented"
             )
             return
 
         case "mssql":
             # import pyodbc
             ProgramReporter.show_warning_message(
-                message=f"Connection to the {args.connection_file_section.lower()} database is not implemented"
+                message=f"Connection to the {args.connection_file_option.lower()} database is not implemented"
             )
             return
 
         case _:
             ProgramReporter.show_warning_message(
                 message=f"When connecting to a database, the database named "
-                        f"{args.connection_file_section.lower()} is not recognized"
+                        f"{args.connection_file_option.lower()} is not recognized"
             )
             return
 
@@ -69,7 +69,7 @@ def database_connection_handler(args: CArgs) -> None:
 
 def dll_report(args: CArgs):
     ProgramReporter.show_verbose_messages(message="====== Preview of DDL ======"
-                                                  f"{args.connection_file_section.upper()} database connector:",
+                                                  f"{args.connection_file_option.upper()} database connector:",
                                           origin=None)
 
     for s in args.database_statements:

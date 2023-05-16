@@ -47,7 +47,7 @@ class CArgs:
         self.deserialization_path: str | None = None
 
         self.connection_file_create: bool = False
-        self.connection_file_section: str | None = None
+        self.connection_file_option: str | None = None
         self.connection_file: str | None = None
         self.connection_file_path: str | None = None
 
@@ -120,7 +120,7 @@ class CArgs:
             )
 
         # If is section set, then its activates a database connection feature
-        if self.connection_file_section is not None:
+        if self.connection_file_option is not None:
 
             # If a connection file path is None, then use the default one
             # This also creates necessary folders!
@@ -130,7 +130,7 @@ class CArgs:
             # load from an existing database
             self.db_config = DBConfig(path=get_absolute_path(path=self.connection_file_path),
                                       file=self.connection_file,
-                                      option=self.connection_file_section)
+                                      option=self.connection_file_option)
 
             database_connection_handler(args=self)
 
@@ -324,7 +324,6 @@ def parse_args() -> argparse:
                         help="Run tests.",
                         default=None)
 
-    # TODO Implemetovať dialekt Oracle/MSSQL
     parser.add_argument("-d", "--dialect",
                         metavar="",
                         required=False,
@@ -350,7 +349,7 @@ def parse_args() -> argparse:
                         default=None)
 
     # Activates database-connection feature
-    parser.add_argument("-cfo", "--connection-file-section",
+    parser.add_argument("-cfo", "--connection-file-option",
                         required=False,
                         type=str,
                         help="Specify section in config file. Config file may contain several configurations "

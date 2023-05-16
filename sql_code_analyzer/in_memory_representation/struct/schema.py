@@ -114,7 +114,6 @@ class Schema(Base):
         :return: None
         """
 
-        # TODO error ak je tabulka?
         del self.database.schemas[self.name]
         self.database.index_cancel_registration(key=self.name)
 

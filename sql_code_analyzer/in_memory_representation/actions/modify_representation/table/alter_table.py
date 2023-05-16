@@ -10,12 +10,6 @@ from sqlglot import expressions as exp
 
 def alter_table(ast: Expression, mem_rep: Database):
 
-    # TODO problem, alter nemaju dorobeny v poriadku
-    #
-    # Vyhodnoti alter table spravne, ale column odignoruje a ide len do drop
-    # ALTER TABLE table_name1
-    # DROP COLUMN  index_name;
-
     ast_generator = ast.walk(bfs=False)
     visited_nodes = Queue()
 
