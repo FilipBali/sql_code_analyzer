@@ -1,5 +1,13 @@
+Mako==1.2.4
+Markdown==3.4.3
+MarkupSafe==2.1.2
+SQLAlchemy==2.0.8
+coverage==7.1.0
+cx-Oracle==8.3.0
+pdoc3==0.10.0
 pip==23.0.1
 setuptools==67.6.1
+six==1.16.0
+sqlglot==11.4.5
+typing-extensions==4.5.0
 wheel==0.40.0
-SQLAlchemy==2.0.8
-Cython==0.29.34
