@@ -38,13 +38,31 @@ def database_connection_handler(args: CArgs) -> None:
 
         case "postgresql":
             # import psycopg2
-            ...
+            ProgramReporter.show_warning_message(
+                message=f"Connection to the {args.connection_file_section.lower()} database is not implemented"
+            )
+            return
+
         case "mysql":
             # import pymysql
-            ...
+            ProgramReporter.show_warning_message(
+                message=f"Connection to the {args.connection_file_section.lower()} database is not implemented"
+            )
+            return
+
         case "mssql":
-            # pip install pyodbc
-            ...
+            # import pyodbc
+            ProgramReporter.show_warning_message(
+                message=f"Connection to the {args.connection_file_section.lower()} database is not implemented"
+            )
+            return
+
+        case _:
+            ProgramReporter.show_warning_message(
+                message=f"When connecting to a database, the database named "
+                        f"{args.connection_file_section.lower()} is not recognized"
+            )
+            return
 
     dll_report(args=args)
 

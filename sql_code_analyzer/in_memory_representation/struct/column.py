@@ -190,7 +190,7 @@ class Column(Base):
             )
             return
 
-        self.get_constrain(constrain_type=constrain.__class__)
+        self.constrains.remove(constrain)
 
     #########################
     #        DATATYPE

@@ -59,6 +59,9 @@ def get_absolute_path(path: str) -> Path:
     :return: Absolute path
     """
 
+    if not isinstance(path, str):
+        ProgramReporter.show_error_message("In \"get_absolute_path\" the path parameter must be string!")
+
     path = Path(path)
     if not path.is_absolute():
         root_path = get_program_root_path()
@@ -84,4 +87,8 @@ def verify_path_access(path: Path):
 
 
 def get_path_object(path: str):
+
+    if not isinstance(path, str):
+        ProgramReporter.show_error_message("In \"get_path_object\" the path parameter must be string!")
+
     return Path(path)

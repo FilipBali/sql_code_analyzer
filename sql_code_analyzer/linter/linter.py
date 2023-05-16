@@ -132,7 +132,7 @@ class Linter:
                 )
 
         else:
-            # initialise in memory representation
+            # initialize in memory representation
             self.mem_rep: Database = Database("MemoryDB").set_default_scheme()
 
     def _check_if_modifying_statement(self) -> bool:
@@ -159,7 +159,7 @@ class Linter:
     def _parse_statement(self) -> bool:
         try:
             self.tokens = Tokenizer().tokenize(self.statement)
-            self.ast = sqlglot.parse_one(self.statement)
+            self.ast = sqlglot.parse_one(self.statement, read="oracle")
             return True
 
         except (Exception,) as e:
@@ -231,13 +231,6 @@ class Linter:
                         text, index = line.split("--")
                         result.append((text, int(index)))
 
-                # TODO if verbose
-                # ProgramReporter.show_warning_message(
-                #     message=f"An error occurred while processing an SQL statement that starts at line {result[0][1]}.\n"
-                #             "This statement will be skipped.\n"
-                #             f"Statement: \n{self.statement}"
-                # )
-
                 ProgramReporter.show_warning_message(
                     message=f"An error occurred while processing an SQL statement that starts at line {result[0][1]}. \n"
                             "This statement will be skipped.\n"
@@ -252,18 +245,6 @@ class Linter:
             # Therefore we have to subtract the value from which we count
             library_initial_count_number = 1
             self._include_code_locations(position_const=position - library_initial_count_number)
-
-            # TODO DELETE
-            ast_ast = self.ast.walk(bfs=False)
-
-            # for nodes in ast_ast:
-            #     if nodes is not None:
-            #         node = nodes[0]
-            #         # if node.code_location is None:
-            #         if not hasattr(node, "code_location"):
-            #             print(node)
-            #         else:
-            #             print(str(node) + " " + str(node.code_location))
 
             self.ast = adapt_ast(self.ast)
 
@@ -304,23 +285,6 @@ class Linter:
 
         :return: None
         """
-
-        ast_gen = self.ast.walk(bfs=False)
-
-        # for nodes in ast_gen:
-        #     if nodes is not None:
-        #         nodes[0].code_location = None
-
-        # Transform to dict structure
-        # for nodes in ast_gen:
-        #     if nodes is not None:
-        #         if nodes[0].code_location is not None:
-        #             tlist = []
-        #             for token in nodes[0].code_location:
-        #                 tlist.append({"line": token.line + position_const,
-        #                               "col": token.col,
-        #                               "text": token.text})
-        #             nodes[0].code_location = tlist
 
         ast_gen = list(self.ast.walk(bfs=False))
 
@@ -407,7 +371,7 @@ class Linter:
         :return: None
         """
 
-        ast_generator: Generator = self._get_generator_based_on_statement()
+        ast_generator: Generator = self._get_statement_generator()
         visited_nodes = Queue()
 
         self.rules_visitor.expect_set = self._create_restriction_set_from_statement()
@@ -485,77 +449,12 @@ class Linter:
                 message="Unknown command."
             )
 
-    def _get_generator_based_on_statement(self) -> Generator:
+    def _get_statement_generator(self) -> Generator:
         """
         Reorder SELECT's abstract syntax tree to correct (database) order
         :return: Abstract syntax tree generator
         """
         return self.ast.walk(bfs=False)
-
-        if not isinstance(self.ast, exp.Select):
-            return self.ast.walk(bfs=False)
-
-        clause = {
-            "SELECT": [],
-            "FROM": [],
-            "WHERE": [],
-            "GROUP_BY": [],
-            "HAVING": [],
-            "ORDER_BY": []
-        }
-
-        visited_nodes = Queue()
-        ast_generator = self.ast.walk(bfs=False)
-
-        branch = None
-        known_branch = [exp.Select,
-                        exp.From,
-                        exp.Where,
-                        exp.Group,
-                        exp.Having,
-                        exp.Order]
-
-        stop_parse = False
-        while 1 and stop_parse is not True:
-            # get node
-            node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
-                                                    ast_generator=ast_generator)
-
-            if node is None:
-                break
-
-            if any([isinstance(node, item) for item in known_branch]):
-                branch = node
-
-            if isinstance(branch, exp.Select):
-                clause["SELECT"].append(nodes)
-
-            elif isinstance(branch, exp.From):
-                clause["FROM"].append(nodes)
-
-            elif isinstance(branch, exp.Where):
-                clause["WHERE"].append(nodes)
-
-            elif isinstance(branch, exp.Group):
-                clause["GROUP_BY"].append(nodes)
-
-            elif isinstance(branch, exp.Having):
-                clause["HAVING"].append(nodes)
-
-            elif isinstance(branch, exp.Order):
-                clause["ORDER_BY"].append(nodes)
-
-            else:
-                print(node.key)
-
-        database_evaluate_order = clause["FROM"] + \
-            clause["WHERE"] + \
-            clause["GROUP_BY"] + \
-            clause["HAVING"] + \
-            clause["SELECT"] + \
-            clause["ORDER_BY"]
-
-        return self._create_generator_from_list(database_evaluate_order)
 
     @staticmethod
     def _create_generator_from_list(list_instance: list) -> Generator:
@@ -704,4 +603,4 @@ class Linter:
             )
 
     def _show_reports(self):
-        self.rule_reporter.print_reports()
+        self.rule_reporter.print()

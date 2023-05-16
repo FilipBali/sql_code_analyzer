@@ -16,13 +16,13 @@ from __future__ import annotations
 from sql_code_analyzer.in_memory_representation.exceptions import MissingTableException, MissingSchemaException
 from sql_code_analyzer.in_memory_representation.struct.base import Base
 from sql_code_analyzer.in_memory_representation.struct.table import Table
-
+from sql_code_analyzer.in_memory_representation.struct.schema import Schema
 from typing import TYPE_CHECKING
 
 from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 
 if TYPE_CHECKING:
-    from sql_code_analyzer.in_memory_representation.struct.schema import Schema
+    ...
 
 
 class Database(Base):
@@ -227,7 +227,8 @@ class Database(Base):
                                              )
         if instance is not None:
             return instance
-        return Schema(database, schema_name)
+
+        return Schema(database=database, schema_name=schema_name)
 
     ###########################
     #    TABLE MANIPULATION
@@ -268,7 +269,7 @@ class Database(Base):
                                                      )
 
         table_instance = self.get_instance_or_none(find_attr_val=table_name,
-                                                   find_in_struct=schema_instance
+                                                   find_in_struct=schema_instance.tables
                                                    )
         if table_instance is not None:
             return table_instance

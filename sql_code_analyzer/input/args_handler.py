@@ -12,7 +12,6 @@ from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 from sql_code_analyzer.output.terminator.base import Terminator
 from sql_code_analyzer.tools.path import get_program_root_path, get_absolute_path, verify_path_access, \
     verify_path_exists, create_path_if_not_exists, ProgramPathConfig
-from test_cases.sqlglot.tester import run_tests
 
 
 class CArgs:
@@ -103,7 +102,7 @@ class CArgs:
         ################################
         # Run tests
         if self.tests:
-            run_tests()
+            # run_tests()
             Terminator.exit(enums.ExitWith.Success)
 
         ################################

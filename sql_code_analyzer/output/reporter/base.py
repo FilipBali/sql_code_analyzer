@@ -1,4 +1,4 @@
-from sql_code_analyzer.output.enums import OutputType
+from sql_code_analyzer.output.enums import OutputType, MessageType
 
 
 class Reporter:
@@ -13,7 +13,7 @@ class Reporter:
 
     report_output = OutputType.Stdout
     report_output_file = None
-    verbose = False
+    verbose: int
     text = None
 
     def print(self) -> None:
@@ -60,8 +60,7 @@ class _Message(Reporter):
     Base class providing interface for creating messages.
     """
 
-    _reset = "\033[0m"
-    _wrap_length = 80
+    _reset = MessageType.Reset.value
     text = None
 
     def print(self) -> None:

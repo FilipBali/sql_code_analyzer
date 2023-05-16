@@ -20,6 +20,7 @@ class MessageType(enum.Enum):
     Info = "\033[0m"
     Warning = '\033[1;33;48m'
     Error = "\033[31m"
+    Reset = "\033[0m"
 
 
 class ExitWith(enum.Enum):

@@ -45,9 +45,6 @@ class RuleReport(_Message):
     def _create_message(self, message: str, color: str = "\033[0m"):
         return color + message + self._color["reset"] + " "
 
-    def _wrap_message(self, message: str, subsequent_indent: int):
-        return '\n'.join(textwrap.wrap(message, self._wrap_length, subsequent_indent=' ' * subsequent_indent))
-
     def print(self):
         statement = self.statement[0]
         # statement = statement.split("\n")
@@ -190,7 +187,7 @@ class RuleReporter(Reporter):
             report.set_statement(statement=self.statement)
             self.reports.append((self.statement, report))
 
-    def print_reports(self):
+    def print(self):
         statement_change = ""
         group_by_statements: List = []
 
