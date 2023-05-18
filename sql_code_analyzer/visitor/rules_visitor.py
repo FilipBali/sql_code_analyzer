@@ -253,7 +253,7 @@ class RulesVisitor(Visitor):
                     # Call/Apply rule
                     self.call_rule(rule_method=rule_method)
 
-        elif event_type == "start_command_lint" or event_type == "end_command_lint":
+        elif event_type == "start_statement_lint" or event_type == "end_statement_lint":
 
             method_name = event_type
 
