@@ -142,8 +142,6 @@ class Linter:
         # Before doing that, it must be done a problem with alter statements
         # Because they have inconsistent naming.. key=AlterTable not key=Alter, kind=Table
         if hasattr(self.ast, "key"):
-            # if self.ast.key.lower() in ["create_", "alter_", "altertable_", "drop_", "insert_", "update_", "delete_"]:
-            # if self.ast.key.lower() in ["create", "alter", "altertable", "drop", "insert", "update", "delete"]:
 
             modifying_classes = (exp.Create, exp.Drop,
                                  exp.AlterTable, exp.AlterColumn,
@@ -157,7 +155,12 @@ class Linter:
     def _parse_statement(self) -> bool:
         try:
             self.tokens = Tokenizer().tokenize(self.statement)
-            self.ast = sqlglot.parse_one(self.statement, read="oracle")
+
+            if self.args_data.dialect is None:
+                self.ast = sqlglot.parse_one(self.statement)
+            else:
+                self.ast = sqlglot.parse_one(self.statement, read=self.args_data.dialect.lower())
+
             return True
 
         except (Exception,) as e:
@@ -374,7 +377,7 @@ class Linter:
 
         self.rules_visitor.expect_set = self._create_restriction_set_from_statement()
 
-        self.rules_visitor.lint_event(event_type="start_command_lint")
+        self.rules_visitor.lint_event(event_type="start_statement_lint")
 
         stop_parse = False
         while 1 and stop_parse is not True:
@@ -387,7 +390,7 @@ class Linter:
                 node.accept(self.rules_visitor)
 
         self.rules_visitor.traversing_ast_done()
-        self.rules_visitor.lint_event(event_type="end_command_lint")
+        self.rules_visitor.lint_event(event_type="end_statement_lint")
 
         self.rule_reporter.add_reports(
             reports=self.rules_visitor.reports
@@ -484,7 +487,7 @@ class Linter:
         """
 
         statements_code_root_path = self._modify_representation_statements_path()
-        statements_paths = list(glob.glob(statements_code_root_path + "\\**\\*.py", recursive=True))
+        statements_paths = list(glob.glob(statements_code_root_path + os.sep*2 + "**"+os.sep*2+"*.py", recursive=True))
 
         for path in statements_paths:
             # Load file as module
