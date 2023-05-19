@@ -1,0 +1,1521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>sql_code_analyzer.linter.linter API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>sql_code_analyzer.linter.linter</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import glob
+import importlib.util
+import inspect
+import os
+import pickle
+from queue import Queue
+from typing import Generator
+
+###############################################
+#              SQLGlot IMPORT
+###############################################
+import sqlglot
+from sqlglot import Tokenizer
+from sql_code_analyzer.output.reporter.rule_reporter import RuleReporter
+from sql_code_analyzer.tools.path import get_program_root_path  
+from sqlglot import expressions as exp
+
+###############################################
+#          sql_code_analyzer IMPORT
+###############################################
+
+from sql_code_analyzer.adapter.adapt_ast import adapt_ast
+from sql_code_analyzer.checker.tools.rules_handler import CRules
+from sql_code_analyzer.in_memory_representation.struct.database import Database
+from sql_code_analyzer.in_memory_representation.tools.ast_manipulation import get_next_node
+from sql_code_analyzer.input.args_handler import CArgs
+from sql_code_analyzer.output import enums
+from sql_code_analyzer.output.terminator.base import Terminator
+
+################################
+#           OUTPUT
+################################
+from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
+from sql_code_analyzer.visitor.rules_visitor import RulesVisitor
+
+
+class Linter:
+    &#34;&#34;&#34;
+    Encapsulates program logic.
+    Contains data about:
+        Program arguments parsed to a program arguments object.
+        Parsed rules data represents location where are expected to find rules, which rules are allowed to use or
+        are need to exclude/skipped.
+        List of functions which can be used to parse and modify memory representation.
+        Reference to tokens of a statement.
+        Reference to abstract syntax tree of a statement.
+        Reference to memory representation.
+
+    Features:
+        Initialise memory database (or memory representation) which is used to simulate database schema objects.
+        Create a copy of real database schema if user provides connection credentials.
+        Load previous used and serialized memory representation.
+        Call SQLGlot library to parse statements to abstract syntax tree
+        Provide linting of abstract syntax tree
+        Makes a modification of memory representation based on statement
+        Serialization and deserialization of memory representation for future use
+    &#34;&#34;&#34;
+
+    def __init__(self):
+
+        # TODO Prepisat v praci: connection_file_option -&gt; connection_file_section
+
+        self._modify_representation_functions = {}
+        self._parse_error_occurred = False
+        self.rule_reporter = RuleReporter()
+        self.statement = None
+
+        self._init_program_argument_class()
+        self._init_rules_class()
+        self._init_memory_database_representation()
+        self._get_modify_representation_statements()
+        self._apply_statements_from_database_server()
+        self._sql_statements_processing()
+
+        # If serialization path is None
+        # Program assume that serialization is not wanted.
+        if self.args_data.serialization_file is not None:
+            self._make_serialization()
+
+        self._show_reports()
+
+    def _init_program_argument_class(self) -&gt; None:
+        &#34;&#34;&#34;
+        Creates an object from CArgs class which encapsulate parsed program arguments data and save it to linter object
+        :return: None
+        &#34;&#34;&#34;
+
+        # get data from program input and init class for arguments
+        self.args_data = CArgs()
+
+    def _init_rules_class(self) -&gt; None:
+        &#34;&#34;&#34;
+        Creates an object from CRules class which encapsulate parsed rule data and save it to linter object
+        :return: None
+        &#34;&#34;&#34;
+
+        # init rules class
+        self.rules_args_data = CRules(path_to_rules_folder=self.args_data.rules_path,
+                                      include_folders=self.args_data.include_folders,
+                                      exclude_folders=self.args_data.exclude_folders)
+
+    def _init_memory_database_representation(self) -&gt; None:
+        &#34;&#34;&#34;
+        Creates an object from Database class which providing simulation of database representation which is created
+        by SQL statements.
+
+        Default database name is called MemoryDB
+        Default schema in every database instance is called dbo
+        :return:
+        &#34;&#34;&#34;
+
+        if self.args_data.deserialization_file is not None:
+            # Provide deserialization memory representation from file and initialise database structure
+            path = self.args_data.deserialization_path / self.args_data.deserialization_file
+
+            try:
+                with open(path, &#39;rb&#39;) as f:
+                    self.mem_rep = pickle.load(f)
+
+            except FileNotFoundError:
+                ProgramReporter.show_error_message(
+                    message=f&#34;Deserialization failed, file not found!\nPath: {path}&#34;
+                )
+            except pickle.UnpicklingError:
+                ProgramReporter.show_error_message(
+                    message=f&#34;Deserialization failed, can not unpickle file!\nPath: {path}&#34;
+                )
+
+            except (Exception,):
+                ProgramReporter.show_error_message(
+                    message=f&#34;Deserialization failed!\nPath: {path}&#34;
+                )
+
+        else:
+            # initialise in memory representation
+            self.mem_rep: Database = Database(&#34;MemoryDB&#34;).set_default_scheme()
+
+    def _check_if_modifying_statement(self) -&gt; bool:
+        &#34;&#34;&#34;
+        Determines whether the command now being processed is suitable for changing the memory representation.
+        :return: True/False
+        &#34;&#34;&#34;
+
+        # Before doing that, it must be done a problem with alter statements
+        # Because they have inconsistent naming.. key=AlterTable not key=Alter, kind=Table
+        if hasattr(self.ast, &#34;key&#34;):
+            # if self.ast.key.lower() in [&#34;create_&#34;, &#34;alter_&#34;, &#34;altertable_&#34;, &#34;drop_&#34;, &#34;insert_&#34;, &#34;update_&#34;, &#34;delete_&#34;]:
+            # if self.ast.key.lower() in [&#34;create&#34;, &#34;alter&#34;, &#34;altertable&#34;, &#34;drop&#34;, &#34;insert&#34;, &#34;update&#34;, &#34;delete&#34;]:
+
+            modifying_classes = (exp.Create, exp.Drop,
+                                 exp.AlterTable, exp.AlterColumn,
+                                 exp.Insert, exp.Update, exp.Delete)
+
+            if isinstance(self.ast, modifying_classes):
+                return True
+
+        return False
+
+    def _parse_statement(self) -&gt; bool:
+        try:
+            self.tokens = Tokenizer().tokenize(self.statement)
+            self.ast = sqlglot.parse_one(self.statement)
+            return True
+
+        except (Exception,) as e:
+            ProgramReporter.show_warning_message(
+                message=&#34;An error occurred during SQL statement processing by the SQLGlot library.&#34;
+                        f&#34;SQLGlot library report: {e}&#34;
+            )
+
+            self._parse_error_occurred = True
+            return False
+
+    def _apply_statements_from_database_server(self) -&gt; None:
+        &#34;&#34;&#34;
+
+        :return: None
+        &#34;&#34;&#34;
+        # iterate over database SQL statements
+        for self.statement in self.args_data.database_statements:
+
+            success = self._parse_statement()
+
+            if not success:
+                # Next statement
+                ProgramReporter.show_warning_message(
+                    message=f&#34;An error occurred while processing an SQL statement from database.\n&#34;
+                            &#34;This statement will be skipped.\n&#34;
+                            f&#34;Statement: \n{self.statement}&#34;
+                )
+                continue
+
+            self.ast = adapt_ast(self.ast)
+
+            # provide changes based on SQL statement to memory representation
+            if self._check_if_modifying_statement():
+                self._modify_representation()
+
+    def _sql_statements_processing(self) -&gt; None:
+        &#34;&#34;&#34;
+        Iterates over SQL statements from input
+        Process each SQL statements
+        Processing have multiple stages:
+            1) Parse statements and get tokens and abstract syntax tree
+            2) If possible, include to each node in abstract syntax tree the corresponding location from the code
+            3) If necessary, reorder the nodes of abstract syntax tree into appropriate order according to real
+               database statement execution
+            4) Lint statement, apply rules to statement, get linting reports
+            5) Determines whether the command now being processed is suitable for changing the memory representation.
+            6) If yes, apply memory representation changes if any
+
+        :return: None
+        &#34;&#34;&#34;
+
+        self.rules_visitor: RulesVisitor = RulesVisitor(rules_args_data=self.rules_args_data,
+                                                        mem_rep=self.mem_rep)
+
+        # iterate over SQL statements
+        for self.statement, position in self.args_data.statements:
+
+            success = self._parse_statement()
+
+            if not success:
+                # Next statement
+                lines = self.statement.split(&#34;\n&#34;)
+                result = []
+                for line in lines:
+                    if &#34;--&#34; in line:
+                        text, index = line.split(&#34;--&#34;)
+                        result.append((text, int(index)))
+
+                # TOTO if verbose
+                # ProgramReporter.show_warning_message(
+                #     message=f&#34;An error occurred while processing an SQL statement that starts at line {result[0][1]}.\n&#34;
+                #             &#34;This statement will be skipped.\n&#34;
+                #             f&#34;Statement: \n{self.statement}&#34;
+                # )
+
+                ProgramReporter.show_warning_message(
+                    message=f&#34;An error occurred while processing an SQL statement that starts at line {result[0][1]}. \n&#34;
+                            &#34;This statement will be skipped.\n&#34;
+                )
+                continue
+
+            # Library counts the rows from one
+            # It is necessary to calculate the rows to match the input file
+            # The approach is to find out the position of the start of the statement
+            # and add it as a constant to location (line value)
+            # Since we are adding the number of rows to the location, so we have to count from zero
+            # Therefore we have to subtract the value from which we count
+            library_initial_count_number = 1
+            self._include_code_locations(position_const=position - library_initial_count_number)
+
+            # TODO DELETE
+            ast_ast = self.ast.walk(bfs=False)
+
+            # for nodes in ast_ast:
+            #     if nodes is not None:
+            #         node = nodes[0]
+            #         # if node.code_location is None:
+            #         if not hasattr(node, &#34;code_location&#34;):
+            #             print(node)
+            #         else:
+            #             print(str(node) + &#34; &#34; + str(node.code_location))
+
+            self.ast = adapt_ast(self.ast)
+
+            self.rule_reporter.statement = (self.statement, position)
+
+            self._lint_statement()
+
+            # provide changes based on SQL statement to memory representation
+            if self._check_if_modifying_statement():
+                self._modify_representation()
+
+    def _include_code_locations(self, position_const: int) -&gt; None:
+        &#34;&#34;&#34;
+        Try to include code locations to abstract syntax tree nodes
+
+        There are two possible approaches to how to get this work.
+        1) Rewrite some part of SQLGlot library
+           This means some incompatibility with source repository of SQLGlot
+           It is a reliable solution, but it needs to maintain changes and update process if thera are incoming
+           changes from source repository
+
+        2) Try to associate node with token
+           Tokens from SQLGlot library already have code location inside
+           The problem is that SQLGlot library does not include this information also to abstract syntax tree
+           By text or TokenType in token there is a high possibility that find out match with node
+           abstract syntax tree, if they are used in node.
+
+        This function combines these two approaches. Some changes have been made to SQLGlot library, this function
+        detects if code location is already set.
+        During testing, it appears that 2) approach can cover most cases, and the only problem is nodes that are created
+        from two or more tokens like CREATE TABLE, NOT NULL, PRIMARY KEY where every word is representing a single
+        token.
+
+        This means the program can use a change-free library of SQLGlot, but code location data will be missing
+        in nodes where are used more than one token during node creation.
+
+        :return: None
+        &#34;&#34;&#34;
+
+        ast_gen = self.ast.walk(bfs=False)
+
+        # for nodes in ast_gen:
+        #     if nodes is not None:
+        #         nodes[0].code_location = None
+
+        # Transform to dict structure
+        # for nodes in ast_gen:
+        #     if nodes is not None:
+        #         if nodes[0].code_location is not None:
+        #             tlist = []
+        #             for token in nodes[0].code_location:
+        #                 tlist.append({&#34;line&#34;: token.line + position_const,
+        #                               &#34;col&#34;: token.col,
+        #                               &#34;text&#34;: token.text})
+        #             nodes[0].code_location = tlist
+
+        ast_gen = list(self.ast.walk(bfs=False))
+
+        seen_tokens = []
+        for nodes in ast_gen:
+            if nodes is not None:
+                node = nodes[0]
+                node_name = node.name
+                node_key = node.key
+
+                to_del = []
+
+                found = False
+                for token_idx, token in enumerate(self.tokens):
+                    if token.text.lower() == node_name.lower() or \
+                            token.text.lower() == node_key.lower():
+
+                        location_text = token.text
+
+                        if hasattr(node, &#34;args&#34;) and &#34;kind&#34; in node.args and isinstance(node.args[&#34;kind&#34;], str):
+                            if len(self.tokens)-1 &gt; token_idx:
+                                next_token = self.tokens[token_idx+1]
+                                if node.args[&#34;kind&#34;].lower() == next_token.text.lower():
+                                    location_text = f&#34;{location_text} {next_token.text}&#34;
+
+
+                        # if node.code_location is None or len(node.code_location) &lt; 2:
+                        node.code_location = [{&#34;line&#34;: token.line + position_const,
+                                              &#34;col&#34;: token.col,
+                                              &#34;text&#34;: location_text}]
+                        found = True
+                        break
+                    elif node_key.lower() == &#34;datatype&#34;:
+
+                        try:
+                            t = token.token_type.value.upper()
+                            ttype = exp.DataType.Type[t]
+                            if node.this == ttype:
+                                node.code_location = [{&#34;line&#34;: token.line + position_const,
+                                                      &#34;col&#34;: token.col,
+                                                      &#34;text&#34;: token.text}]
+
+                            found = True
+                            break
+
+                        except (Exception,):
+                            pass
+
+                    to_del.append(token)
+
+                if found:
+                    seen_tokens = to_del + seen_tokens
+                    for token_to_del in to_del:
+                        self.tokens.remove(token_to_del)
+
+                else:
+                    for stoken in seen_tokens:
+                        if stoken.text.lower() == node_name.lower() or \
+                                stoken.text.lower() == node_key.lower():
+                            node.code_location = [{&#34;line&#34;: stoken.line + position_const,
+                                                  &#34;col&#34;: stoken.col,
+                                                  &#34;text&#34;: stoken.text}]
+                            break
+
+                        elif node_key.lower() == &#34;datatype&#34;:
+                            try:
+                                t = stoken.token_type.value.upper()
+                                ttype = exp.DataType.Type[t]
+                                if node.this == ttype:
+                                    node.code_location = [{&#34;line&#34;: stoken.line + position_const,
+                                                           &#34;col&#34;: stoken.col,
+                                                           &#34;text&#34;: stoken.text}]
+                                break
+
+                            except (Exception,):
+                                pass
+
+    def _lint_statement(self) -&gt; None:
+        &#34;&#34;&#34;
+        Encapsulate logic of linting process
+        Creates the generator from abstract syntax tree
+        Creates the queue where node is saved if it is belonged to another context part
+
+        :return: None
+        &#34;&#34;&#34;
+
+        ast_generator: Generator = self._get_generator_based_on_statement()
+        visited_nodes = Queue()
+
+        self.rules_visitor.expect_set = self._create_restriction_set_from_statement()
+
+        stop_parse = False
+        while 1 and stop_parse is not True:
+
+            # get node
+            node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
+                                                    ast_generator=ast_generator)
+
+            if node is None:
+                self.rules_visitor.traversing_ast_done()
+            else:
+                node.accept(self.rules_visitor)
+
+        self.rule_reporter.add_reports(
+            reports=self.rules_visitor.reports
+        )
+        self.rules_visitor.clear_lint_variables()
+
+    def _create_restriction_set_from_statement(self) -&gt; set:
+        &#34;&#34;&#34;
+        Creates restriction set from statement data.
+        Restriction set is then used to select only the appropriate rules.
+
+        :return: Restriction set for an actual statement
+        &#34;&#34;&#34;
+
+        expect_set = set()
+        if hasattr(self.ast, &#34;key&#34;) and \
+                &#34;kind&#34; in self.ast.args and \
+                self.ast.args[&#34;kind&#34;] is not None:
+
+            statement: str = self.ast.key.lower() + &#34;_&#34; + self.ast.args[&#34;kind&#34;].lower()
+            expect_set.add(statement)
+            expect_set.add(self.ast.key.lower())
+            expect_set.add(self.ast.args[&#34;kind&#34;].lower())
+
+        elif hasattr(self.ast, &#34;key&#34;):
+            statement: str = self.ast.key.lower()
+            expect_set.add(statement)
+
+        return expect_set
+
+    def _modify_representation(self) -&gt; None:
+        &#34;&#34;&#34;
+        Call functions that are responsible for modifying the memory representation.
+        The function is determined by the current node.
+
+        :return: None
+        &#34;&#34;&#34;
+
+        if hasattr(self.ast, &#34;key&#34;) and &#34;kind&#34; in self.ast.args and self.ast.args[&#34;kind&#34;] is not None:
+
+            statement: str = self.ast.key.lower() + &#34;_&#34; + self.ast.args[&#34;kind&#34;].lower()
+
+            if statement in self._modify_representation_functions:
+                function = self._modify_representation_functions[statement]
+                function(ast=self.ast, mem_rep=self.mem_rep)
+
+            else:
+                print(self.ast.key.upper() + &#34; &#34; + self.ast.args[&#34;kind&#34;].upper() + &#34; is not supported&#34;)
+
+        elif hasattr(self.ast, &#34;key&#34;) and self.ast.key == &#34;altertable&#34;:
+            function = self._modify_representation_functions[&#34;alter_table&#34;]
+            function(self.ast, self.mem_rep)
+
+        else:
+            ProgramReporter.show_warning_message(
+                message=&#34;Unknown command.&#34;
+            )
+
+    def _get_generator_based_on_statement(self) -&gt; Generator:
+        &#34;&#34;&#34;
+        Reorder SELECT&#39;s abstract syntax tree to correct (database) order
+        :return: Abstract syntax tree generator
+        &#34;&#34;&#34;
+        return self.ast.walk(bfs=False)
+
+        if not isinstance(self.ast, exp.Select):
+            return self.ast.walk(bfs=False)
+
+        clause = {
+            &#34;SELECT&#34;: [],
+            &#34;FROM&#34;: [],
+            &#34;WHERE&#34;: [],
+            &#34;GROUP_BY&#34;: [],
+            &#34;HAVING&#34;: [],
+            &#34;ORDER_BY&#34;: []
+        }
+
+        visited_nodes = Queue()
+        ast_generator = self.ast.walk(bfs=False)
+
+        branch = None
+        known_branch = [exp.Select,
+                        exp.From,
+                        exp.Where,
+                        exp.Group,
+                        exp.Having,
+                        exp.Order]
+
+        stop_parse = False
+        while 1 and stop_parse is not True:
+            # get node
+            node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
+                                                    ast_generator=ast_generator)
+
+            if node is None:
+                break
+
+            if any([isinstance(node, item) for item in known_branch]):
+                branch = node
+
+            if isinstance(branch, exp.Select):
+                clause[&#34;SELECT&#34;].append(nodes)
+
+            elif isinstance(branch, exp.From):
+                clause[&#34;FROM&#34;].append(nodes)
+
+            elif isinstance(branch, exp.Where):
+                clause[&#34;WHERE&#34;].append(nodes)
+
+            elif isinstance(branch, exp.Group):
+                clause[&#34;GROUP_BY&#34;].append(nodes)
+
+            elif isinstance(branch, exp.Having):
+                clause[&#34;HAVING&#34;].append(nodes)
+
+            elif isinstance(branch, exp.Order):
+                clause[&#34;ORDER_BY&#34;].append(nodes)
+
+            else:
+                print(node.key)
+
+        database_evaluate_order = clause[&#34;FROM&#34;] + \
+            clause[&#34;WHERE&#34;] + \
+            clause[&#34;GROUP_BY&#34;] + \
+            clause[&#34;HAVING&#34;] + \
+            clause[&#34;SELECT&#34;] + \
+            clause[&#34;ORDER_BY&#34;]
+
+        return self._create_generator_from_list(database_evaluate_order)
+
+    @staticmethod
+    def _create_generator_from_list(list_instance: list) -&gt; Generator:
+        &#34;&#34;&#34;
+        Create generator from list items
+        :param list_instance: List of items
+        :return: Generator
+        &#34;&#34;&#34;
+
+        for item in list_instance:
+            yield item
+
+    @staticmethod
+    def _modify_representation_statements_path() -&gt; str:
+        &#34;&#34;&#34;
+        Create a path where memory representation change functions are located by default
+        :return: Path
+        &#34;&#34;&#34;
+
+        return os.path.join(get_program_root_path(),
+                            &#34;in_memory_representation&#34;,
+                            &#34;actions&#34;,
+                            &#34;modify_representation&#34;)
+
+    def _get_modify_representation_statements(self) -&gt; None:
+        &#34;&#34;&#34;
+        Iterate over memory representation change functions and register it to the program.
+        :return: None
+        &#34;&#34;&#34;
+
+        statements_code_root_path = self._modify_representation_statements_path()
+        statements_paths = list(glob.glob(statements_code_root_path + &#34;\\**\\*.py&#34;, recursive=True))
+
+        for path in statements_paths:
+            # Load file as module
+            # Necessary to access the content
+            spec = importlib.util.spec_from_file_location(path, path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            # Check if the file has register method
+            if &#34;register&#34; in dir(module):
+                # Get method
+                register_method = getattr(module, &#34;register&#34;)
+
+                # Apply registration to this visitor
+                register_method(self)
+
+    def register_modify_representation_statement(self, modify_representation_function) -&gt; None:
+        &#34;&#34;&#34;
+        Encapsulates the registration of each memory representation change function.
+        If successful, then function is registered for future use
+        :param modify_representation_function: Memory representation change function
+        :return: None
+        &#34;&#34;&#34;
+
+        if modify_representation_function.__name__ in self._modify_representation_functions:
+            new_func_name = modify_representation_function.__name__
+            new_file_name = os.path.basename(inspect.getfile(modify_representation_function))
+
+            existing_func = self._modify_representation_functions[new_func_name]
+            existing_func_file_name = os.path.basename(inspect.getfile(existing_func))
+            ProgramReporter.show_warning_message(
+                message=&#34;Conflict detected during registering functions for representation modifying, &#34;
+                        &#34;registration failed. \n&#34; +
+                        f&#34;Function {new_func_name} which is stored in file {new_file_name} \n&#34;
+                        f&#34; has same the name as already registered function in file {existing_func_file_name} \n&#34; +
+                        &#34;This is not allowed, function names must be unique, please change the name one of them. &#34;
+            )
+            return
+
+        function_args_info = inspect.getfullargspec(modify_representation_function)
+
+        if &#34;ast&#34; not in function_args_info.annotations or \
+                &#34;mem_rep&#34; not in function_args_info.annotations:
+
+            new_func_name = modify_representation_function.__name__
+
+            ProgramReporter.show_warning_message(
+                message=&#34;During registration of function for representation modifying was found that\n&#34;
+                        f&#34;the function {new_func_name} has incorrect (inconsistent with the rest of program)\n&#34;
+                        &#34;function arguments. This leads to unsuccessfully registration of this function.\n&#34;
+                        &#34;The function needs to have arguments \&#34;ast\&#34; and \&#34;mem_rep\&#34;.\n&#34;
+                        f&#34;Please change function declaration to {new_func_name}(ast, mem_rep)\n&#34;
+                        f&#34;or more specifically {new_func_name}(ast: Expression, mem_rep: Database)\n&#34;
+                        &#34;where:\n&#34;
+                        &#34;\t\&#34;ast\&#34; stands for abstract syntax tree of statement\n&#34;
+                        &#34;\t\&#34;mem_rep\&#34; stands for reference to the in memory database representation&#34;
+            )
+            return
+
+        self._modify_representation_functions[modify_representation_function.__name__] = modify_representation_function
+
+    def _make_serialization(self) -&gt; None:
+        &#34;&#34;&#34;
+        Makes serialization of state of memory representation and create persistent save to the disk
+        :return: None
+        &#34;&#34;&#34;
+
+        if self._parse_error_occurred:
+
+            err_user_answer = False
+            while 1:
+
+                if err_user_answer:
+                    user_answer = input(&#34;\nPlease answer only [yes/no] or in short way [y/n]\n&#34;)
+                else:
+                    ProgramReporter.show_warning_message(
+                        message=&#34;An error occurred while parsing SQL statements.\n&#34;
+                                &#34;One or more statements failed to parse. \n&#34;
+                                &#34;Thus, these statements were not part of the linting \n&#34;
+                                &#34;or memory representation changes, and the resulting \n&#34;
+                                &#34;memory representation may be in an unexpected state. \n&#34;
+                                &#34;Do you still want to continue saving the memory representation?&#34;
+                    )
+                    user_answer = input()
+
+                if user_answer.lower() == &#34;n&#34; or user_answer.lower() == &#34;no&#34;:
+                    Terminator.exit(enums.ExitWith.Success)
+
+                elif user_answer.lower() == &#34;y&#34; or user_answer.lower() == &#34;yes&#34;:
+                    break
+
+                else:
+                    err_user_answer = True
+
+        # Provide serialization memory representation and store to a serialization path
+        path = self.args_data.serialization_path / self.args_data.serialization_file
+
+        try:
+            with open(path, &#39;wb&#39;) as f:
+                pickle.dump(self.mem_rep, f)
+
+        except FileNotFoundError:
+            ProgramReporter.show_warning_message(
+                message=f&#34;Serialization failed, file not found!\nPath: {path}&#34;
+            )
+        except pickle.PicklingError:
+            ProgramReporter.show_warning_message(
+                message=f&#34;Serialization failed, can not unpickle file!\nPath: {path}&#34;
+            )
+
+        except (Exception,):
+            ProgramReporter.show_warning_message(
+                message=f&#34;Serialization failed!\nPath: {path}&#34;
+            )
+
+    def _show_reports(self):
+        self.rule_reporter.print_reports()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="sql_code_analyzer.linter.linter.Linter"><code class="flex name class">
+<span>class <span class="ident">Linter</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Encapsulates program logic.
+Contains data about:
+Program arguments parsed to a program arguments object.
+Parsed rules data represents location where are expected to find rules, which rules are allowed to use or
+are need to exclude/skipped.
+List of functions which can be used to parse and modify memory representation.
+Reference to tokens of a statement.
+Reference to abstract syntax tree of a statement.
+Reference to memory representation.</p>
+<h2 id="features">Features</h2>
+<p>Initialise memory database (or memory representation) which is used to simulate database schema objects.
+Create a copy of real database schema if user provides connection credentials.
+Load previous used and serialized memory representation.
+Call SQLGlot library to parse statements to abstract syntax tree
+Provide linting of abstract syntax tree
+Makes a modification of memory representation based on statement
+Serialization and deserialization of memory representation for future use</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Linter:
+    &#34;&#34;&#34;
+    Encapsulates program logic.
+    Contains data about:
+        Program arguments parsed to a program arguments object.
+        Parsed rules data represents location where are expected to find rules, which rules are allowed to use or
+        are need to exclude/skipped.
+        List of functions which can be used to parse and modify memory representation.
+        Reference to tokens of a statement.
+        Reference to abstract syntax tree of a statement.
+        Reference to memory representation.
+
+    Features:
+        Initialise memory database (or memory representation) which is used to simulate database schema objects.
+        Create a copy of real database schema if user provides connection credentials.
+        Load previous used and serialized memory representation.
+        Call SQLGlot library to parse statements to abstract syntax tree
+        Provide linting of abstract syntax tree
+        Makes a modification of memory representation based on statement
+        Serialization and deserialization of memory representation for future use
+    &#34;&#34;&#34;
+
+    def __init__(self):
+
+        # TODO Prepisat v praci: connection_file_option -&gt; connection_file_section
+
+        self._modify_representation_functions = {}
+        self._parse_error_occurred = False
+        self.rule_reporter = RuleReporter()
+        self.statement = None
+
+        self._init_program_argument_class()
+        self._init_rules_class()
+        self._init_memory_database_representation()
+        self._get_modify_representation_statements()
+        self._apply_statements_from_database_server()
+        self._sql_statements_processing()
+
+        # If serialization path is None
+        # Program assume that serialization is not wanted.
+        if self.args_data.serialization_file is not None:
+            self._make_serialization()
+
+        self._show_reports()
+
+    def _init_program_argument_class(self) -&gt; None:
+        &#34;&#34;&#34;
+        Creates an object from CArgs class which encapsulate parsed program arguments data and save it to linter object
+        :return: None
+        &#34;&#34;&#34;
+
+        # get data from program input and init class for arguments
+        self.args_data = CArgs()
+
+    def _init_rules_class(self) -&gt; None:
+        &#34;&#34;&#34;
+        Creates an object from CRules class which encapsulate parsed rule data and save it to linter object
+        :return: None
+        &#34;&#34;&#34;
+
+        # init rules class
+        self.rules_args_data = CRules(path_to_rules_folder=self.args_data.rules_path,
+                                      include_folders=self.args_data.include_folders,
+                                      exclude_folders=self.args_data.exclude_folders)
+
+    def _init_memory_database_representation(self) -&gt; None:
+        &#34;&#34;&#34;
+        Creates an object from Database class which providing simulation of database representation which is created
+        by SQL statements.
+
+        Default database name is called MemoryDB
+        Default schema in every database instance is called dbo
+        :return:
+        &#34;&#34;&#34;
+
+        if self.args_data.deserialization_file is not None:
+            # Provide deserialization memory representation from file and initialise database structure
+            path = self.args_data.deserialization_path / self.args_data.deserialization_file
+
+            try:
+                with open(path, &#39;rb&#39;) as f:
+                    self.mem_rep = pickle.load(f)
+
+            except FileNotFoundError:
+                ProgramReporter.show_error_message(
+                    message=f&#34;Deserialization failed, file not found!\nPath: {path}&#34;
+                )
+            except pickle.UnpicklingError:
+                ProgramReporter.show_error_message(
+                    message=f&#34;Deserialization failed, can not unpickle file!\nPath: {path}&#34;
+                )
+
+            except (Exception,):
+                ProgramReporter.show_error_message(
+                    message=f&#34;Deserialization failed!\nPath: {path}&#34;
+                )
+
+        else:
+            # initialise in memory representation
+            self.mem_rep: Database = Database(&#34;MemoryDB&#34;).set_default_scheme()
+
+    def _check_if_modifying_statement(self) -&gt; bool:
+        &#34;&#34;&#34;
+        Determines whether the command now being processed is suitable for changing the memory representation.
+        :return: True/False
+        &#34;&#34;&#34;
+
+        # Before doing that, it must be done a problem with alter statements
+        # Because they have inconsistent naming.. key=AlterTable not key=Alter, kind=Table
+        if hasattr(self.ast, &#34;key&#34;):
+            # if self.ast.key.lower() in [&#34;create_&#34;, &#34;alter_&#34;, &#34;altertable_&#34;, &#34;drop_&#34;, &#34;insert_&#34;, &#34;update_&#34;, &#34;delete_&#34;]:
+            # if self.ast.key.lower() in [&#34;create&#34;, &#34;alter&#34;, &#34;altertable&#34;, &#34;drop&#34;, &#34;insert&#34;, &#34;update&#34;, &#34;delete&#34;]:
+
+            modifying_classes = (exp.Create, exp.Drop,
+                                 exp.AlterTable, exp.AlterColumn,
+                                 exp.Insert, exp.Update, exp.Delete)
+
+            if isinstance(self.ast, modifying_classes):
+                return True
+
+        return False
+
+    def _parse_statement(self) -&gt; bool:
+        try:
+            self.tokens = Tokenizer().tokenize(self.statement)
+            self.ast = sqlglot.parse_one(self.statement)
+            return True
+
+        except (Exception,) as e:
+            ProgramReporter.show_warning_message(
+                message=&#34;An error occurred during SQL statement processing by the SQLGlot library.&#34;
+                        f&#34;SQLGlot library report: {e}&#34;
+            )
+
+            self._parse_error_occurred = True
+            return False
+
+    def _apply_statements_from_database_server(self) -&gt; None:
+        &#34;&#34;&#34;
+
+        :return: None
+        &#34;&#34;&#34;
+        # iterate over database SQL statements
+        for self.statement in self.args_data.database_statements:
+
+            success = self._parse_statement()
+
+            if not success:
+                # Next statement
+                ProgramReporter.show_warning_message(
+                    message=f&#34;An error occurred while processing an SQL statement from database.\n&#34;
+                            &#34;This statement will be skipped.\n&#34;
+                            f&#34;Statement: \n{self.statement}&#34;
+                )
+                continue
+
+            self.ast = adapt_ast(self.ast)
+
+            # provide changes based on SQL statement to memory representation
+            if self._check_if_modifying_statement():
+                self._modify_representation()
+
+    def _sql_statements_processing(self) -&gt; None:
+        &#34;&#34;&#34;
+        Iterates over SQL statements from input
+        Process each SQL statements
+        Processing have multiple stages:
+            1) Parse statements and get tokens and abstract syntax tree
+            2) If possible, include to each node in abstract syntax tree the corresponding location from the code
+            3) If necessary, reorder the nodes of abstract syntax tree into appropriate order according to real
+               database statement execution
+            4) Lint statement, apply rules to statement, get linting reports
+            5) Determines whether the command now being processed is suitable for changing the memory representation.
+            6) If yes, apply memory representation changes if any
+
+        :return: None
+        &#34;&#34;&#34;
+
+        self.rules_visitor: RulesVisitor = RulesVisitor(rules_args_data=self.rules_args_data,
+                                                        mem_rep=self.mem_rep)
+
+        # iterate over SQL statements
+        for self.statement, position in self.args_data.statements:
+
+            success = self._parse_statement()
+
+            if not success:
+                # Next statement
+                lines = self.statement.split(&#34;\n&#34;)
+                result = []
+                for line in lines:
+                    if &#34;--&#34; in line:
+                        text, index = line.split(&#34;--&#34;)
+                        result.append((text, int(index)))
+
+                # TOTO if verbose
+                # ProgramReporter.show_warning_message(
+                #     message=f&#34;An error occurred while processing an SQL statement that starts at line {result[0][1]}.\n&#34;
+                #             &#34;This statement will be skipped.\n&#34;
+                #             f&#34;Statement: \n{self.statement}&#34;
+                # )
+
+                ProgramReporter.show_warning_message(
+                    message=f&#34;An error occurred while processing an SQL statement that starts at line {result[0][1]}. \n&#34;
+                            &#34;This statement will be skipped.\n&#34;
+                )
+                continue
+
+            # Library counts the rows from one
+            # It is necessary to calculate the rows to match the input file
+            # The approach is to find out the position of the start of the statement
+            # and add it as a constant to location (line value)
+            # Since we are adding the number of rows to the location, so we have to count from zero
+            # Therefore we have to subtract the value from which we count
+            library_initial_count_number = 1
+            self._include_code_locations(position_const=position - library_initial_count_number)
+
+            # TODO DELETE
+            ast_ast = self.ast.walk(bfs=False)
+
+            # for nodes in ast_ast:
+            #     if nodes is not None:
+            #         node = nodes[0]
+            #         # if node.code_location is None:
+            #         if not hasattr(node, &#34;code_location&#34;):
+            #             print(node)
+            #         else:
+            #             print(str(node) + &#34; &#34; + str(node.code_location))
+
+            self.ast = adapt_ast(self.ast)
+
+            self.rule_reporter.statement = (self.statement, position)
+
+            self._lint_statement()
+
+            # provide changes based on SQL statement to memory representation
+            if self._check_if_modifying_statement():
+                self._modify_representation()
+
+    def _include_code_locations(self, position_const: int) -&gt; None:
+        &#34;&#34;&#34;
+        Try to include code locations to abstract syntax tree nodes
+
+        There are two possible approaches to how to get this work.
+        1) Rewrite some part of SQLGlot library
+           This means some incompatibility with source repository of SQLGlot
+           It is a reliable solution, but it needs to maintain changes and update process if thera are incoming
+           changes from source repository
+
+        2) Try to associate node with token
+           Tokens from SQLGlot library already have code location inside
+           The problem is that SQLGlot library does not include this information also to abstract syntax tree
+           By text or TokenType in token there is a high possibility that find out match with node
+           abstract syntax tree, if they are used in node.
+
+        This function combines these two approaches. Some changes have been made to SQLGlot library, this function
+        detects if code location is already set.
+        During testing, it appears that 2) approach can cover most cases, and the only problem is nodes that are created
+        from two or more tokens like CREATE TABLE, NOT NULL, PRIMARY KEY where every word is representing a single
+        token.
+
+        This means the program can use a change-free library of SQLGlot, but code location data will be missing
+        in nodes where are used more than one token during node creation.
+
+        :return: None
+        &#34;&#34;&#34;
+
+        ast_gen = self.ast.walk(bfs=False)
+
+        # for nodes in ast_gen:
+        #     if nodes is not None:
+        #         nodes[0].code_location = None
+
+        # Transform to dict structure
+        # for nodes in ast_gen:
+        #     if nodes is not None:
+        #         if nodes[0].code_location is not None:
+        #             tlist = []
+        #             for token in nodes[0].code_location:
+        #                 tlist.append({&#34;line&#34;: token.line + position_const,
+        #                               &#34;col&#34;: token.col,
+        #                               &#34;text&#34;: token.text})
+        #             nodes[0].code_location = tlist
+
+        ast_gen = list(self.ast.walk(bfs=False))
+
+        seen_tokens = []
+        for nodes in ast_gen:
+            if nodes is not None:
+                node = nodes[0]
+                node_name = node.name
+                node_key = node.key
+
+                to_del = []
+
+                found = False
+                for token_idx, token in enumerate(self.tokens):
+                    if token.text.lower() == node_name.lower() or \
+                            token.text.lower() == node_key.lower():
+
+                        location_text = token.text
+
+                        if hasattr(node, &#34;args&#34;) and &#34;kind&#34; in node.args and isinstance(node.args[&#34;kind&#34;], str):
+                            if len(self.tokens)-1 &gt; token_idx:
+                                next_token = self.tokens[token_idx+1]
+                                if node.args[&#34;kind&#34;].lower() == next_token.text.lower():
+                                    location_text = f&#34;{location_text} {next_token.text}&#34;
+
+
+                        # if node.code_location is None or len(node.code_location) &lt; 2:
+                        node.code_location = [{&#34;line&#34;: token.line + position_const,
+                                              &#34;col&#34;: token.col,
+                                              &#34;text&#34;: location_text}]
+                        found = True
+                        break
+                    elif node_key.lower() == &#34;datatype&#34;:
+
+                        try:
+                            t = token.token_type.value.upper()
+                            ttype = exp.DataType.Type[t]
+                            if node.this == ttype:
+                                node.code_location = [{&#34;line&#34;: token.line + position_const,
+                                                      &#34;col&#34;: token.col,
+                                                      &#34;text&#34;: token.text}]
+
+                            found = True
+                            break
+
+                        except (Exception,):
+                            pass
+
+                    to_del.append(token)
+
+                if found:
+                    seen_tokens = to_del + seen_tokens
+                    for token_to_del in to_del:
+                        self.tokens.remove(token_to_del)
+
+                else:
+                    for stoken in seen_tokens:
+                        if stoken.text.lower() == node_name.lower() or \
+                                stoken.text.lower() == node_key.lower():
+                            node.code_location = [{&#34;line&#34;: stoken.line + position_const,
+                                                  &#34;col&#34;: stoken.col,
+                                                  &#34;text&#34;: stoken.text}]
+                            break
+
+                        elif node_key.lower() == &#34;datatype&#34;:
+                            try:
+                                t = stoken.token_type.value.upper()
+                                ttype = exp.DataType.Type[t]
+                                if node.this == ttype:
+                                    node.code_location = [{&#34;line&#34;: stoken.line + position_const,
+                                                           &#34;col&#34;: stoken.col,
+                                                           &#34;text&#34;: stoken.text}]
+                                break
+
+                            except (Exception,):
+                                pass
+
+    def _lint_statement(self) -&gt; None:
+        &#34;&#34;&#34;
+        Encapsulate logic of linting process
+        Creates the generator from abstract syntax tree
+        Creates the queue where node is saved if it is belonged to another context part
+
+        :return: None
+        &#34;&#34;&#34;
+
+        ast_generator: Generator = self._get_generator_based_on_statement()
+        visited_nodes = Queue()
+
+        self.rules_visitor.expect_set = self._create_restriction_set_from_statement()
+
+        stop_parse = False
+        while 1 and stop_parse is not True:
+
+            # get node
+            node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
+                                                    ast_generator=ast_generator)
+
+            if node is None:
+                self.rules_visitor.traversing_ast_done()
+            else:
+                node.accept(self.rules_visitor)
+
+        self.rule_reporter.add_reports(
+            reports=self.rules_visitor.reports
+        )
+        self.rules_visitor.clear_lint_variables()
+
+    def _create_restriction_set_from_statement(self) -&gt; set:
+        &#34;&#34;&#34;
+        Creates restriction set from statement data.
+        Restriction set is then used to select only the appropriate rules.
+
+        :return: Restriction set for an actual statement
+        &#34;&#34;&#34;
+
+        expect_set = set()
+        if hasattr(self.ast, &#34;key&#34;) and \
+                &#34;kind&#34; in self.ast.args and \
+                self.ast.args[&#34;kind&#34;] is not None:
+
+            statement: str = self.ast.key.lower() + &#34;_&#34; + self.ast.args[&#34;kind&#34;].lower()
+            expect_set.add(statement)
+            expect_set.add(self.ast.key.lower())
+            expect_set.add(self.ast.args[&#34;kind&#34;].lower())
+
+        elif hasattr(self.ast, &#34;key&#34;):
+            statement: str = self.ast.key.lower()
+            expect_set.add(statement)
+
+        return expect_set
+
+    def _modify_representation(self) -&gt; None:
+        &#34;&#34;&#34;
+        Call functions that are responsible for modifying the memory representation.
+        The function is determined by the current node.
+
+        :return: None
+        &#34;&#34;&#34;
+
+        if hasattr(self.ast, &#34;key&#34;) and &#34;kind&#34; in self.ast.args and self.ast.args[&#34;kind&#34;] is not None:
+
+            statement: str = self.ast.key.lower() + &#34;_&#34; + self.ast.args[&#34;kind&#34;].lower()
+
+            if statement in self._modify_representation_functions:
+                function = self._modify_representation_functions[statement]
+                function(ast=self.ast, mem_rep=self.mem_rep)
+
+            else:
+                print(self.ast.key.upper() + &#34; &#34; + self.ast.args[&#34;kind&#34;].upper() + &#34; is not supported&#34;)
+
+        elif hasattr(self.ast, &#34;key&#34;) and self.ast.key == &#34;altertable&#34;:
+            function = self._modify_representation_functions[&#34;alter_table&#34;]
+            function(self.ast, self.mem_rep)
+
+        else:
+            ProgramReporter.show_warning_message(
+                message=&#34;Unknown command.&#34;
+            )
+
+    def _get_generator_based_on_statement(self) -&gt; Generator:
+        &#34;&#34;&#34;
+        Reorder SELECT&#39;s abstract syntax tree to correct (database) order
+        :return: Abstract syntax tree generator
+        &#34;&#34;&#34;
+        return self.ast.walk(bfs=False)
+
+        if not isinstance(self.ast, exp.Select):
+            return self.ast.walk(bfs=False)
+
+        clause = {
+            &#34;SELECT&#34;: [],
+            &#34;FROM&#34;: [],
+            &#34;WHERE&#34;: [],
+            &#34;GROUP_BY&#34;: [],
+            &#34;HAVING&#34;: [],
+            &#34;ORDER_BY&#34;: []
+        }
+
+        visited_nodes = Queue()
+        ast_generator = self.ast.walk(bfs=False)
+
+        branch = None
+        known_branch = [exp.Select,
+                        exp.From,
+                        exp.Where,
+                        exp.Group,
+                        exp.Having,
+                        exp.Order]
+
+        stop_parse = False
+        while 1 and stop_parse is not True:
+            # get node
+            node, nodes, stop_parse = get_next_node(visited_nodes=visited_nodes,
+                                                    ast_generator=ast_generator)
+
+            if node is None:
+                break
+
+            if any([isinstance(node, item) for item in known_branch]):
+                branch = node
+
+            if isinstance(branch, exp.Select):
+                clause[&#34;SELECT&#34;].append(nodes)
+
+            elif isinstance(branch, exp.From):
+                clause[&#34;FROM&#34;].append(nodes)
+
+            elif isinstance(branch, exp.Where):
+                clause[&#34;WHERE&#34;].append(nodes)
+
+            elif isinstance(branch, exp.Group):
+                clause[&#34;GROUP_BY&#34;].append(nodes)
+
+            elif isinstance(branch, exp.Having):
+                clause[&#34;HAVING&#34;].append(nodes)
+
+            elif isinstance(branch, exp.Order):
+                clause[&#34;ORDER_BY&#34;].append(nodes)
+
+            else:
+                print(node.key)
+
+        database_evaluate_order = clause[&#34;FROM&#34;] + \
+            clause[&#34;WHERE&#34;] + \
+            clause[&#34;GROUP_BY&#34;] + \
+            clause[&#34;HAVING&#34;] + \
+            clause[&#34;SELECT&#34;] + \
+            clause[&#34;ORDER_BY&#34;]
+
+        return self._create_generator_from_list(database_evaluate_order)
+
+    @staticmethod
+    def _create_generator_from_list(list_instance: list) -&gt; Generator:
+        &#34;&#34;&#34;
+        Create generator from list items
+        :param list_instance: List of items
+        :return: Generator
+        &#34;&#34;&#34;
+
+        for item in list_instance:
+            yield item
+
+    @staticmethod
+    def _modify_representation_statements_path() -&gt; str:
+        &#34;&#34;&#34;
+        Create a path where memory representation change functions are located by default
+        :return: Path
+        &#34;&#34;&#34;
+
+        return os.path.join(get_program_root_path(),
+                            &#34;in_memory_representation&#34;,
+                            &#34;actions&#34;,
+                            &#34;modify_representation&#34;)
+
+    def _get_modify_representation_statements(self) -&gt; None:
+        &#34;&#34;&#34;
+        Iterate over memory representation change functions and register it to the program.
+        :return: None
+        &#34;&#34;&#34;
+
+        statements_code_root_path = self._modify_representation_statements_path()
+        statements_paths = list(glob.glob(statements_code_root_path + &#34;\\**\\*.py&#34;, recursive=True))
+
+        for path in statements_paths:
+            # Load file as module
+            # Necessary to access the content
+            spec = importlib.util.spec_from_file_location(path, path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            # Check if the file has register method
+            if &#34;register&#34; in dir(module):
+                # Get method
+                register_method = getattr(module, &#34;register&#34;)
+
+                # Apply registration to this visitor
+                register_method(self)
+
+    def register_modify_representation_statement(self, modify_representation_function) -&gt; None:
+        &#34;&#34;&#34;
+        Encapsulates the registration of each memory representation change function.
+        If successful, then function is registered for future use
+        :param modify_representation_function: Memory representation change function
+        :return: None
+        &#34;&#34;&#34;
+
+        if modify_representation_function.__name__ in self._modify_representation_functions:
+            new_func_name = modify_representation_function.__name__
+            new_file_name = os.path.basename(inspect.getfile(modify_representation_function))
+
+            existing_func = self._modify_representation_functions[new_func_name]
+            existing_func_file_name = os.path.basename(inspect.getfile(existing_func))
+            ProgramReporter.show_warning_message(
+                message=&#34;Conflict detected during registering functions for representation modifying, &#34;
+                        &#34;registration failed. \n&#34; +
+                        f&#34;Function {new_func_name} which is stored in file {new_file_name} \n&#34;
+                        f&#34; has same the name as already registered function in file {existing_func_file_name} \n&#34; +
+                        &#34;This is not allowed, function names must be unique, please change the name one of them. &#34;
+            )
+            return
+
+        function_args_info = inspect.getfullargspec(modify_representation_function)
+
+        if &#34;ast&#34; not in function_args_info.annotations or \
+                &#34;mem_rep&#34; not in function_args_info.annotations:
+
+            new_func_name = modify_representation_function.__name__
+
+            ProgramReporter.show_warning_message(
+                message=&#34;During registration of function for representation modifying was found that\n&#34;
+                        f&#34;the function {new_func_name} has incorrect (inconsistent with the rest of program)\n&#34;
+                        &#34;function arguments. This leads to unsuccessfully registration of this function.\n&#34;
+                        &#34;The function needs to have arguments \&#34;ast\&#34; and \&#34;mem_rep\&#34;.\n&#34;
+                        f&#34;Please change function declaration to {new_func_name}(ast, mem_rep)\n&#34;
+                        f&#34;or more specifically {new_func_name}(ast: Expression, mem_rep: Database)\n&#34;
+                        &#34;where:\n&#34;
+                        &#34;\t\&#34;ast\&#34; stands for abstract syntax tree of statement\n&#34;
+                        &#34;\t\&#34;mem_rep\&#34; stands for reference to the in memory database representation&#34;
+            )
+            return
+
+        self._modify_representation_functions[modify_representation_function.__name__] = modify_representation_function
+
+    def _make_serialization(self) -&gt; None:
+        &#34;&#34;&#34;
+        Makes serialization of state of memory representation and create persistent save to the disk
+        :return: None
+        &#34;&#34;&#34;
+
+        if self._parse_error_occurred:
+
+            err_user_answer = False
+            while 1:
+
+                if err_user_answer:
+                    user_answer = input(&#34;\nPlease answer only [yes/no] or in short way [y/n]\n&#34;)
+                else:
+                    ProgramReporter.show_warning_message(
+                        message=&#34;An error occurred while parsing SQL statements.\n&#34;
+                                &#34;One or more statements failed to parse. \n&#34;
+                                &#34;Thus, these statements were not part of the linting \n&#34;
+                                &#34;or memory representation changes, and the resulting \n&#34;
+                                &#34;memory representation may be in an unexpected state. \n&#34;
+                                &#34;Do you still want to continue saving the memory representation?&#34;
+                    )
+                    user_answer = input()
+
+                if user_answer.lower() == &#34;n&#34; or user_answer.lower() == &#34;no&#34;:
+                    Terminator.exit(enums.ExitWith.Success)
+
+                elif user_answer.lower() == &#34;y&#34; or user_answer.lower() == &#34;yes&#34;:
+                    break
+
+                else:
+                    err_user_answer = True
+
+        # Provide serialization memory representation and store to a serialization path
+        path = self.args_data.serialization_path / self.args_data.serialization_file
+
+        try:
+            with open(path, &#39;wb&#39;) as f:
+                pickle.dump(self.mem_rep, f)
+
+        except FileNotFoundError:
+            ProgramReporter.show_warning_message(
+                message=f&#34;Serialization failed, file not found!\nPath: {path}&#34;
+            )
+        except pickle.PicklingError:
+            ProgramReporter.show_warning_message(
+                message=f&#34;Serialization failed, can not unpickle file!\nPath: {path}&#34;
+            )
+
+        except (Exception,):
+            ProgramReporter.show_warning_message(
+                message=f&#34;Serialization failed!\nPath: {path}&#34;
+            )
+
+    def _show_reports(self):
+        self.rule_reporter.print_reports()</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="sql_code_analyzer.linter.linter.Linter.register_modify_representation_statement"><code class="name flex">
+<span>def <span class="ident">register_modify_representation_statement</span></span>(<span>self, modify_representation_function) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Encapsulates the registration of each memory representation change function.
+If successful, then function is registered for future use
+:param modify_representation_function: Memory representation change function
+:return: None</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def register_modify_representation_statement(self, modify_representation_function) -&gt; None:
+    &#34;&#34;&#34;
+    Encapsulates the registration of each memory representation change function.
+    If successful, then function is registered for future use
+    :param modify_representation_function: Memory representation change function
+    :return: None
+    &#34;&#34;&#34;
+
+    if modify_representation_function.__name__ in self._modify_representation_functions:
+        new_func_name = modify_representation_function.__name__
+        new_file_name = os.path.basename(inspect.getfile(modify_representation_function))
+
+        existing_func = self._modify_representation_functions[new_func_name]
+        existing_func_file_name = os.path.basename(inspect.getfile(existing_func))
+        ProgramReporter.show_warning_message(
+            message=&#34;Conflict detected during registering functions for representation modifying, &#34;
+                    &#34;registration failed. \n&#34; +
+                    f&#34;Function {new_func_name} which is stored in file {new_file_name} \n&#34;
+                    f&#34; has same the name as already registered function in file {existing_func_file_name} \n&#34; +
+                    &#34;This is not allowed, function names must be unique, please change the name one of them. &#34;
+        )
+        return
+
+    function_args_info = inspect.getfullargspec(modify_representation_function)
+
+    if &#34;ast&#34; not in function_args_info.annotations or \
+            &#34;mem_rep&#34; not in function_args_info.annotations:
+
+        new_func_name = modify_representation_function.__name__
+
+        ProgramReporter.show_warning_message(
+            message=&#34;During registration of function for representation modifying was found that\n&#34;
+                    f&#34;the function {new_func_name} has incorrect (inconsistent with the rest of program)\n&#34;
+                    &#34;function arguments. This leads to unsuccessfully registration of this function.\n&#34;
+                    &#34;The function needs to have arguments \&#34;ast\&#34; and \&#34;mem_rep\&#34;.\n&#34;
+                    f&#34;Please change function declaration to {new_func_name}(ast, mem_rep)\n&#34;
+                    f&#34;or more specifically {new_func_name}(ast: Expression, mem_rep: Database)\n&#34;
+                    &#34;where:\n&#34;
+                    &#34;\t\&#34;ast\&#34; stands for abstract syntax tree of statement\n&#34;
+                    &#34;\t\&#34;mem_rep\&#34; stands for reference to the in memory database representation&#34;
+        )
+        return
+
+    self._modify_representation_functions[modify_representation_function.__name__] = modify_representation_function</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="sql_code_analyzer.linter" href="index.html">sql_code_analyzer.linter</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="sql_code_analyzer.linter.linter.Linter" href="#sql_code_analyzer.linter.linter.Linter">Linter</a></code></h4>
+<ul class="">
+<li><code><a title="sql_code_analyzer.linter.linter.Linter.register_modify_representation_statement" href="#sql_code_analyzer.linter.linter.Linter.register_modify_representation_statement">register_modify_representation_statement</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

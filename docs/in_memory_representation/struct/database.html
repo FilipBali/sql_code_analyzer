@@ -1,0 +1,987 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>sql_code_analyzer.in_memory_representation.struct.database API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>sql_code_analyzer.in_memory_representation.struct.database</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#######################################
+# File name: database.py
+# Purpose: Database class represents instance of database
+#
+# Key features:
+#     Database:
+#        Stores: database name,
+#                database schemas
+#                index with points to every object in a database providing shortcuts
+#
+#######################################
+
+
+from __future__ import annotations
+
+from sql_code_analyzer.in_memory_representation.exceptions import MissingTableException, MissingSchemaException
+from sql_code_analyzer.in_memory_representation.struct.base import Base
+from sql_code_analyzer.in_memory_representation.struct.table import Table
+
+from typing import TYPE_CHECKING
+
+from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
+
+if TYPE_CHECKING:
+    from sql_code_analyzer.in_memory_representation.struct.schema import Schema
+
+
+class Database(Base):
+    &#34;&#34;&#34;
+    Represents a database in memory representation.
+    &#34;&#34;&#34;
+
+    ###################################
+    #              INIT
+    ###################################
+    def __init__(self, db_name: str = &#34;&#34;):
+        &#34;&#34;&#34;
+        :param db_name: Database name
+        &#34;&#34;&#34;
+
+        self.name = db_name
+        self.default_schema = &#34;dbo&#34;
+        self.schemas = {}
+        self.object_index = {}
+
+    @property
+    def name(self) -&gt; str:
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def schemas(self) -&gt; dict:
+        return self._schemas
+
+    @schemas.setter
+    def schemas(self, value):
+        self._schemas = value
+
+    @property
+    def object_index(self) -&gt; dict:
+        return self._object_index
+
+    @object_index.setter
+    def object_index(self, value):
+        self._object_index = value
+
+    @property
+    def default_schema(self):
+        return self._default_schema
+
+    @default_schema.setter
+    def default_schema(self, value):
+        self._default_schema = value
+
+    ##################################################
+    #                  PRIVATE METHODS
+    ##################################################
+
+    ##################################################
+    #                  PUBLIC METHODS
+    ##################################################
+
+    #########################
+    #        INTERNAL
+    #########################
+
+    def set_default_scheme(self) -&gt; Database:
+        &#34;&#34;&#34;
+        Sets a default scheme to database instance
+        In a database system is common to have a database scheme,
+        But the name can be different based on the implementation of database system
+        :return: Database instance
+        &#34;&#34;&#34;
+
+        from sql_code_analyzer.in_memory_representation.struct.schema import Schema
+
+        schema = Schema(self, self.default_schema)
+        self.schemas[self.default_schema] = schema
+        self.index_registration(key=self.default_schema,
+                                reg_object=schema)
+        return self
+
+    ###########################
+    #          INDEX
+    ###########################
+    def index_registration(self, key, reg_object) -&gt; None:
+        &#34;&#34;&#34;
+        Register an object to database index.
+        Database index is focusing on faster access to database objects
+        :param key: The registration key
+        :param reg_object: Reference to the object
+        :return: None
+        &#34;&#34;&#34;
+
+        self.object_index[key] = reg_object
+
+    def index_cancel_registration(self, key) -&gt; None:
+        &#34;&#34;&#34;
+        Delete an object from database index
+        :param key: The key of object in database index
+        :return: None
+        &#34;&#34;&#34;
+
+        # list where are stored items that will be deleted from object_index
+        to_delete = []
+
+        # iterate through all items in object_index
+        for o in self.object_index:
+
+            # because the algorithm works with __len__() then functionality is different
+            # when str, then __len__() counts number of chars
+            # when tuple, then __len() counts number of items in tuple
+
+            # if strings are same
+            if o is str and key is str:
+                if o == key:
+                    to_delete.append(o)
+
+            # not same type, cant be same, continue
+            elif isinstance(o, str) and not isinstance(key, str):
+                continue
+
+            # not same type, cant be same, continue
+            elif not isinstance(o, str) and isinstance(key, str):
+                continue
+
+            # check if tuples have mutual attributes in structure like
+            # we need to delete all references to sublevel parts of deleted item
+            # so all objects that have the same attributes(on the same level) as deleted one,
+            # they need to be deleted as well
+            #
+            #       |level0|  |level1|  |level2| ... |level n||
+            # 1) (  schema1,  table1,    col1   )
+            # 2) (  schema1,  table1,    col2   )
+            # 3) (  schema1,  table2,    col1   )
+            #
+            # 1) and 2) have same schema1, table1 =&gt; same table, different columns (object points to columns)
+            # 1), 2), 3) have same schema, but different table, then they are differs from table level
+            elif o.__len__() &gt;= key.__len__():
+                mutual_parents = True
+                for i in range(0, key.__len__()):
+                    if o[i] != key[i]:
+                        mutual_parents = False
+                        break
+                if mutual_parents:
+                    to_delete.append(o)
+
+        for reg in to_delete:
+            self.object_index.pop(reg)
+
+    def get_indexed_object(self, index_key):
+        &#34;&#34;&#34;
+        Get an object from a database using database index
+        :param index_key: The database index key which refers to the object
+        :return:
+        &#34;&#34;&#34;
+        if index_key in self.object_index:
+            return self.object_index[index_key]
+        else:
+            ProgramReporter.show_missing_property_error_message(
+                message=f&#34;Item {str(index_key)} is not exists in indexed objects.&#34;
+            )
+
+    ###########################
+    #         CHECKS
+    ###########################
+    def check_if_schema_exists_bool(self, target_schema_name) -&gt; bool:
+        &#34;&#34;&#34;
+        Verify if target schema exists in database
+        :param target_schema_name: The schema name
+        :return: True/False
+        &#34;&#34;&#34;
+
+        return self.check_if_exists(target_schema_name, self.schemas)
+
+    ###########################
+    #   SCHEMA MANIPULATION
+    ###########################
+    def get_schema_by_name_or_error(self, schema_name: str) -&gt; Schema:
+        &#34;&#34;&#34;
+        Return schema if exists in a database or raise error
+        :param schema_name: Schema name
+        :return: The instance of schema or raised error
+        &#34;&#34;&#34;
+
+        if schema_name == &#34;&#34;:
+            schema_name = self.default_schema
+
+        schema_instance = self.get_instance_or_error(find_attr_val=schema_name,
+                                                     find_in_struct=self.schemas,
+                                                     exception=MissingSchemaException
+                                                     )
+        return schema_instance
+
+    def get_or_create_schema(self, database, schema_name) -&gt; Schema:
+        &#34;&#34;&#34;
+        Get schema from database if already exists there, or it will be created
+        :param database: TODO neda sa nahradit self?
+        :param schema_name: Schema name
+        :return: Schema object
+        &#34;&#34;&#34;
+        instance = self.get_instance_or_none(find_attr_val=schema_name,
+                                             find_in_struct=self.schemas
+                                             )
+        if instance is not None:
+            return instance
+        return Schema(database, schema_name)
+
+    ###########################
+    #    TABLE MANIPULATION
+    ###########################
+    def get_table_by_name_or_error(self, schema_name, table_name: str) -&gt; Table:
+        &#34;&#34;&#34;
+        Get instance of table or raise error
+        :param schema_name: Schema name
+        :param table_name: Table name
+        :return: Returns table instance if exists otherwise raised error
+        &#34;&#34;&#34;
+
+        schema_instance = self.get_schema_by_name_or_error(schema_name)
+
+        table_instance = self.get_instance_or_error(find_attr_val=table_name,
+                                                    find_in_struct=schema_instance.tables,
+                                                    exception=MissingTableException
+                                                    )
+        return table_instance
+
+    def get_or_create_table(self,
+                            database,
+                            schema_name,
+                            table_name,
+                            create_node=None) -&gt; Table:
+        &#34;&#34;&#34;
+        Get table from a database if already exists there, or it will be created
+        :param database:
+        :param schema_name: Schema name
+        :param table_name: Table name
+        :param create_node: AST node of creation statement
+        :return: Table object
+        &#34;&#34;&#34;
+
+        schema_instance = self.get_instance_or_error(find_attr_val=schema_name,
+                                                     find_in_struct=self.schemas,
+                                                     exception=MissingSchemaException
+                                                     )
+
+        table_instance = self.get_instance_or_none(find_attr_val=table_name,
+                                                   find_in_struct=schema_instance
+                                                   )
+        if table_instance is not None:
+            return table_instance
+        return Table(database=database,
+                     schema=schema_instance,
+                     name=table_name,
+                     node=create_node)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database"><code class="flex name class">
+<span>class <span class="ident">Database</span></span>
+<span>(</span><span>db_name: str = '')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Represents a database in memory representation.</p>
+<p>:param db_name: Database name</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Database(Base):
+    &#34;&#34;&#34;
+    Represents a database in memory representation.
+    &#34;&#34;&#34;
+
+    ###################################
+    #              INIT
+    ###################################
+    def __init__(self, db_name: str = &#34;&#34;):
+        &#34;&#34;&#34;
+        :param db_name: Database name
+        &#34;&#34;&#34;
+
+        self.name = db_name
+        self.default_schema = &#34;dbo&#34;
+        self.schemas = {}
+        self.object_index = {}
+
+    @property
+    def name(self) -&gt; str:
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def schemas(self) -&gt; dict:
+        return self._schemas
+
+    @schemas.setter
+    def schemas(self, value):
+        self._schemas = value
+
+    @property
+    def object_index(self) -&gt; dict:
+        return self._object_index
+
+    @object_index.setter
+    def object_index(self, value):
+        self._object_index = value
+
+    @property
+    def default_schema(self):
+        return self._default_schema
+
+    @default_schema.setter
+    def default_schema(self, value):
+        self._default_schema = value
+
+    ##################################################
+    #                  PRIVATE METHODS
+    ##################################################
+
+    ##################################################
+    #                  PUBLIC METHODS
+    ##################################################
+
+    #########################
+    #        INTERNAL
+    #########################
+
+    def set_default_scheme(self) -&gt; Database:
+        &#34;&#34;&#34;
+        Sets a default scheme to database instance
+        In a database system is common to have a database scheme,
+        But the name can be different based on the implementation of database system
+        :return: Database instance
+        &#34;&#34;&#34;
+
+        from sql_code_analyzer.in_memory_representation.struct.schema import Schema
+
+        schema = Schema(self, self.default_schema)
+        self.schemas[self.default_schema] = schema
+        self.index_registration(key=self.default_schema,
+                                reg_object=schema)
+        return self
+
+    ###########################
+    #          INDEX
+    ###########################
+    def index_registration(self, key, reg_object) -&gt; None:
+        &#34;&#34;&#34;
+        Register an object to database index.
+        Database index is focusing on faster access to database objects
+        :param key: The registration key
+        :param reg_object: Reference to the object
+        :return: None
+        &#34;&#34;&#34;
+
+        self.object_index[key] = reg_object
+
+    def index_cancel_registration(self, key) -&gt; None:
+        &#34;&#34;&#34;
+        Delete an object from database index
+        :param key: The key of object in database index
+        :return: None
+        &#34;&#34;&#34;
+
+        # list where are stored items that will be deleted from object_index
+        to_delete = []
+
+        # iterate through all items in object_index
+        for o in self.object_index:
+
+            # because the algorithm works with __len__() then functionality is different
+            # when str, then __len__() counts number of chars
+            # when tuple, then __len() counts number of items in tuple
+
+            # if strings are same
+            if o is str and key is str:
+                if o == key:
+                    to_delete.append(o)
+
+            # not same type, cant be same, continue
+            elif isinstance(o, str) and not isinstance(key, str):
+                continue
+
+            # not same type, cant be same, continue
+            elif not isinstance(o, str) and isinstance(key, str):
+                continue
+
+            # check if tuples have mutual attributes in structure like
+            # we need to delete all references to sublevel parts of deleted item
+            # so all objects that have the same attributes(on the same level) as deleted one,
+            # they need to be deleted as well
+            #
+            #       |level0|  |level1|  |level2| ... |level n||
+            # 1) (  schema1,  table1,    col1   )
+            # 2) (  schema1,  table1,    col2   )
+            # 3) (  schema1,  table2,    col1   )
+            #
+            # 1) and 2) have same schema1, table1 =&gt; same table, different columns (object points to columns)
+            # 1), 2), 3) have same schema, but different table, then they are differs from table level
+            elif o.__len__() &gt;= key.__len__():
+                mutual_parents = True
+                for i in range(0, key.__len__()):
+                    if o[i] != key[i]:
+                        mutual_parents = False
+                        break
+                if mutual_parents:
+                    to_delete.append(o)
+
+        for reg in to_delete:
+            self.object_index.pop(reg)
+
+    def get_indexed_object(self, index_key):
+        &#34;&#34;&#34;
+        Get an object from a database using database index
+        :param index_key: The database index key which refers to the object
+        :return:
+        &#34;&#34;&#34;
+        if index_key in self.object_index:
+            return self.object_index[index_key]
+        else:
+            ProgramReporter.show_missing_property_error_message(
+                message=f&#34;Item {str(index_key)} is not exists in indexed objects.&#34;
+            )
+
+    ###########################
+    #         CHECKS
+    ###########################
+    def check_if_schema_exists_bool(self, target_schema_name) -&gt; bool:
+        &#34;&#34;&#34;
+        Verify if target schema exists in database
+        :param target_schema_name: The schema name
+        :return: True/False
+        &#34;&#34;&#34;
+
+        return self.check_if_exists(target_schema_name, self.schemas)
+
+    ###########################
+    #   SCHEMA MANIPULATION
+    ###########################
+    def get_schema_by_name_or_error(self, schema_name: str) -&gt; Schema:
+        &#34;&#34;&#34;
+        Return schema if exists in a database or raise error
+        :param schema_name: Schema name
+        :return: The instance of schema or raised error
+        &#34;&#34;&#34;
+
+        if schema_name == &#34;&#34;:
+            schema_name = self.default_schema
+
+        schema_instance = self.get_instance_or_error(find_attr_val=schema_name,
+                                                     find_in_struct=self.schemas,
+                                                     exception=MissingSchemaException
+                                                     )
+        return schema_instance
+
+    def get_or_create_schema(self, database, schema_name) -&gt; Schema:
+        &#34;&#34;&#34;
+        Get schema from database if already exists there, or it will be created
+        :param database: TODO neda sa nahradit self?
+        :param schema_name: Schema name
+        :return: Schema object
+        &#34;&#34;&#34;
+        instance = self.get_instance_or_none(find_attr_val=schema_name,
+                                             find_in_struct=self.schemas
+                                             )
+        if instance is not None:
+            return instance
+        return Schema(database, schema_name)
+
+    ###########################
+    #    TABLE MANIPULATION
+    ###########################
+    def get_table_by_name_or_error(self, schema_name, table_name: str) -&gt; Table:
+        &#34;&#34;&#34;
+        Get instance of table or raise error
+        :param schema_name: Schema name
+        :param table_name: Table name
+        :return: Returns table instance if exists otherwise raised error
+        &#34;&#34;&#34;
+
+        schema_instance = self.get_schema_by_name_or_error(schema_name)
+
+        table_instance = self.get_instance_or_error(find_attr_val=table_name,
+                                                    find_in_struct=schema_instance.tables,
+                                                    exception=MissingTableException
+                                                    )
+        return table_instance
+
+    def get_or_create_table(self,
+                            database,
+                            schema_name,
+                            table_name,
+                            create_node=None) -&gt; Table:
+        &#34;&#34;&#34;
+        Get table from a database if already exists there, or it will be created
+        :param database:
+        :param schema_name: Schema name
+        :param table_name: Table name
+        :param create_node: AST node of creation statement
+        :return: Table object
+        &#34;&#34;&#34;
+
+        schema_instance = self.get_instance_or_error(find_attr_val=schema_name,
+                                                     find_in_struct=self.schemas,
+                                                     exception=MissingSchemaException
+                                                     )
+
+        table_instance = self.get_instance_or_none(find_attr_val=table_name,
+                                                   find_in_struct=schema_instance
+                                                   )
+        if table_instance is not None:
+            return table_instance
+        return Table(database=database,
+                     schema=schema_instance,
+                     name=table_name,
+                     node=create_node)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="sql_code_analyzer.in_memory_representation.struct.base.Base" href="base.html#sql_code_analyzer.in_memory_representation.struct.base.Base">Base</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.default_schema"><code class="name">var <span class="ident">default_schema</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def default_schema(self):
+    return self._default_schema</code></pre>
+</details>
+</dd>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def name(self) -&gt; str:
+    return self._name</code></pre>
+</details>
+</dd>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.object_index"><code class="name">var <span class="ident">object_index</span> : dict</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def object_index(self) -&gt; dict:
+    return self._object_index</code></pre>
+</details>
+</dd>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.schemas"><code class="name">var <span class="ident">schemas</span> : dict</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def schemas(self) -&gt; dict:
+    return self._schemas</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.check_if_schema_exists_bool"><code class="name flex">
+<span>def <span class="ident">check_if_schema_exists_bool</span></span>(<span>self, target_schema_name) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Verify if target schema exists in database
+:param target_schema_name: The schema name
+:return: True/False</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_if_schema_exists_bool(self, target_schema_name) -&gt; bool:
+    &#34;&#34;&#34;
+    Verify if target schema exists in database
+    :param target_schema_name: The schema name
+    :return: True/False
+    &#34;&#34;&#34;
+
+    return self.check_if_exists(target_schema_name, self.schemas)</code></pre>
+</details>
+</dd>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.get_indexed_object"><code class="name flex">
+<span>def <span class="ident">get_indexed_object</span></span>(<span>self, index_key)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get an object from a database using database index
+:param index_key: The database index key which refers to the object
+:return:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_indexed_object(self, index_key):
+    &#34;&#34;&#34;
+    Get an object from a database using database index
+    :param index_key: The database index key which refers to the object
+    :return:
+    &#34;&#34;&#34;
+    if index_key in self.object_index:
+        return self.object_index[index_key]
+    else:
+        ProgramReporter.show_missing_property_error_message(
+            message=f&#34;Item {str(index_key)} is not exists in indexed objects.&#34;
+        )</code></pre>
+</details>
+</dd>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.get_or_create_schema"><code class="name flex">
+<span>def <span class="ident">get_or_create_schema</span></span>(<span>self, database, schema_name) ‑> Schema</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get schema from database if already exists there, or it will be created
+:param database: TODO neda sa nahradit self?
+:param schema_name: Schema name
+:return: Schema object</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_or_create_schema(self, database, schema_name) -&gt; Schema:
+    &#34;&#34;&#34;
+    Get schema from database if already exists there, or it will be created
+    :param database: TODO neda sa nahradit self?
+    :param schema_name: Schema name
+    :return: Schema object
+    &#34;&#34;&#34;
+    instance = self.get_instance_or_none(find_attr_val=schema_name,
+                                         find_in_struct=self.schemas
+                                         )
+    if instance is not None:
+        return instance
+    return Schema(database, schema_name)</code></pre>
+</details>
+</dd>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.get_or_create_table"><code class="name flex">
+<span>def <span class="ident">get_or_create_table</span></span>(<span>self, database, schema_name, table_name, create_node=None) ‑> <a title="sql_code_analyzer.in_memory_representation.struct.table.Table" href="table.html#sql_code_analyzer.in_memory_representation.struct.table.Table">Table</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get table from a database if already exists there, or it will be created
+:param database:
+:param schema_name: Schema name
+:param table_name: Table name
+:param create_node: AST node of creation statement
+:return: Table object</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_or_create_table(self,
+                        database,
+                        schema_name,
+                        table_name,
+                        create_node=None) -&gt; Table:
+    &#34;&#34;&#34;
+    Get table from a database if already exists there, or it will be created
+    :param database:
+    :param schema_name: Schema name
+    :param table_name: Table name
+    :param create_node: AST node of creation statement
+    :return: Table object
+    &#34;&#34;&#34;
+
+    schema_instance = self.get_instance_or_error(find_attr_val=schema_name,
+                                                 find_in_struct=self.schemas,
+                                                 exception=MissingSchemaException
+                                                 )
+
+    table_instance = self.get_instance_or_none(find_attr_val=table_name,
+                                               find_in_struct=schema_instance
+                                               )
+    if table_instance is not None:
+        return table_instance
+    return Table(database=database,
+                 schema=schema_instance,
+                 name=table_name,
+                 node=create_node)</code></pre>
+</details>
+</dd>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.get_schema_by_name_or_error"><code class="name flex">
+<span>def <span class="ident">get_schema_by_name_or_error</span></span>(<span>self, schema_name: str) ‑> Schema</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return schema if exists in a database or raise error
+:param schema_name: Schema name
+:return: The instance of schema or raised error</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_schema_by_name_or_error(self, schema_name: str) -&gt; Schema:
+    &#34;&#34;&#34;
+    Return schema if exists in a database or raise error
+    :param schema_name: Schema name
+    :return: The instance of schema or raised error
+    &#34;&#34;&#34;
+
+    if schema_name == &#34;&#34;:
+        schema_name = self.default_schema
+
+    schema_instance = self.get_instance_or_error(find_attr_val=schema_name,
+                                                 find_in_struct=self.schemas,
+                                                 exception=MissingSchemaException
+                                                 )
+    return schema_instance</code></pre>
+</details>
+</dd>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.get_table_by_name_or_error"><code class="name flex">
+<span>def <span class="ident">get_table_by_name_or_error</span></span>(<span>self, schema_name, table_name: str) ‑> <a title="sql_code_analyzer.in_memory_representation.struct.table.Table" href="table.html#sql_code_analyzer.in_memory_representation.struct.table.Table">Table</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get instance of table or raise error
+:param schema_name: Schema name
+:param table_name: Table name
+:return: Returns table instance if exists otherwise raised error</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_table_by_name_or_error(self, schema_name, table_name: str) -&gt; Table:
+    &#34;&#34;&#34;
+    Get instance of table or raise error
+    :param schema_name: Schema name
+    :param table_name: Table name
+    :return: Returns table instance if exists otherwise raised error
+    &#34;&#34;&#34;
+
+    schema_instance = self.get_schema_by_name_or_error(schema_name)
+
+    table_instance = self.get_instance_or_error(find_attr_val=table_name,
+                                                find_in_struct=schema_instance.tables,
+                                                exception=MissingTableException
+                                                )
+    return table_instance</code></pre>
+</details>
+</dd>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.index_cancel_registration"><code class="name flex">
+<span>def <span class="ident">index_cancel_registration</span></span>(<span>self, key) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Delete an object from database index
+:param key: The key of object in database index
+:return: None</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def index_cancel_registration(self, key) -&gt; None:
+    &#34;&#34;&#34;
+    Delete an object from database index
+    :param key: The key of object in database index
+    :return: None
+    &#34;&#34;&#34;
+
+    # list where are stored items that will be deleted from object_index
+    to_delete = []
+
+    # iterate through all items in object_index
+    for o in self.object_index:
+
+        # because the algorithm works with __len__() then functionality is different
+        # when str, then __len__() counts number of chars
+        # when tuple, then __len() counts number of items in tuple
+
+        # if strings are same
+        if o is str and key is str:
+            if o == key:
+                to_delete.append(o)
+
+        # not same type, cant be same, continue
+        elif isinstance(o, str) and not isinstance(key, str):
+            continue
+
+        # not same type, cant be same, continue
+        elif not isinstance(o, str) and isinstance(key, str):
+            continue
+
+        # check if tuples have mutual attributes in structure like
+        # we need to delete all references to sublevel parts of deleted item
+        # so all objects that have the same attributes(on the same level) as deleted one,
+        # they need to be deleted as well
+        #
+        #       |level0|  |level1|  |level2| ... |level n||
+        # 1) (  schema1,  table1,    col1   )
+        # 2) (  schema1,  table1,    col2   )
+        # 3) (  schema1,  table2,    col1   )
+        #
+        # 1) and 2) have same schema1, table1 =&gt; same table, different columns (object points to columns)
+        # 1), 2), 3) have same schema, but different table, then they are differs from table level
+        elif o.__len__() &gt;= key.__len__():
+            mutual_parents = True
+            for i in range(0, key.__len__()):
+                if o[i] != key[i]:
+                    mutual_parents = False
+                    break
+            if mutual_parents:
+                to_delete.append(o)
+
+    for reg in to_delete:
+        self.object_index.pop(reg)</code></pre>
+</details>
+</dd>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.index_registration"><code class="name flex">
+<span>def <span class="ident">index_registration</span></span>(<span>self, key, reg_object) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Register an object to database index.
+Database index is focusing on faster access to database objects
+:param key: The registration key
+:param reg_object: Reference to the object
+:return: None</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def index_registration(self, key, reg_object) -&gt; None:
+    &#34;&#34;&#34;
+    Register an object to database index.
+    Database index is focusing on faster access to database objects
+    :param key: The registration key
+    :param reg_object: Reference to the object
+    :return: None
+    &#34;&#34;&#34;
+
+    self.object_index[key] = reg_object</code></pre>
+</details>
+</dd>
+<dt id="sql_code_analyzer.in_memory_representation.struct.database.Database.set_default_scheme"><code class="name flex">
+<span>def <span class="ident">set_default_scheme</span></span>(<span>self) ‑> <a title="sql_code_analyzer.in_memory_representation.struct.database.Database" href="#sql_code_analyzer.in_memory_representation.struct.database.Database">Database</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sets a default scheme to database instance
+In a database system is common to have a database scheme,
+But the name can be different based on the implementation of database system
+:return: Database instance</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_default_scheme(self) -&gt; Database:
+    &#34;&#34;&#34;
+    Sets a default scheme to database instance
+    In a database system is common to have a database scheme,
+    But the name can be different based on the implementation of database system
+    :return: Database instance
+    &#34;&#34;&#34;
+
+    from sql_code_analyzer.in_memory_representation.struct.schema import Schema
+
+    schema = Schema(self, self.default_schema)
+    self.schemas[self.default_schema] = schema
+    self.index_registration(key=self.default_schema,
+                            reg_object=schema)
+    return self</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="sql_code_analyzer.in_memory_representation.struct.base.Base" href="base.html#sql_code_analyzer.in_memory_representation.struct.base.Base">Base</a></b></code>:
+<ul class="hlist">
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.base.Base.check_if_exists" href="base.html#sql_code_analyzer.in_memory_representation.struct.base.Base.check_if_exists">check_if_exists</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.base.Base.get_instance_or_error" href="base.html#sql_code_analyzer.in_memory_representation.struct.base.Base.get_instance_or_error">get_instance_or_error</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.base.Base.get_instance_or_none" href="base.html#sql_code_analyzer.in_memory_representation.struct.base.Base.get_instance_or_none">get_instance_or_none</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct" href="index.html">sql_code_analyzer.in_memory_representation.struct</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database" href="#sql_code_analyzer.in_memory_representation.struct.database.Database">Database</a></code></h4>
+<ul class="">
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.check_if_schema_exists_bool" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.check_if_schema_exists_bool">check_if_schema_exists_bool</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.default_schema" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.default_schema">default_schema</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.get_indexed_object" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.get_indexed_object">get_indexed_object</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.get_or_create_schema" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.get_or_create_schema">get_or_create_schema</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.get_or_create_table" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.get_or_create_table">get_or_create_table</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.get_schema_by_name_or_error" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.get_schema_by_name_or_error">get_schema_by_name_or_error</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.get_table_by_name_or_error" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.get_table_by_name_or_error">get_table_by_name_or_error</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.index_cancel_registration" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.index_cancel_registration">index_cancel_registration</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.index_registration" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.index_registration">index_registration</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.name" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.name">name</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.object_index" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.object_index">object_index</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.schemas" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.schemas">schemas</a></code></li>
+<li><code><a title="sql_code_analyzer.in_memory_representation.struct.database.Database.set_default_scheme" href="#sql_code_analyzer.in_memory_representation.struct.database.Database.set_default_scheme">set_default_scheme</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
