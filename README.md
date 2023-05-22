@@ -1,6 +1,6 @@
 ## About
 
-This program provides the ability to analyze SQL code in the context of past statements. It uses the SQLGlot library for parsing. 
+This program provides the ability to analyze SQL code in the context of past statements based on user-defined rules. It uses the SQLGlot library for parsing. 
 
 The context between SQL statements is recorded using a data structure that reflects the database schema. Only important information about changes of the database schema are stored by processing the statements that perform those actions.
 
