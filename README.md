@@ -1,10 +1,10 @@
 ## About
 
-This program provides the ability to analyze SQL code based on the context of past statements. It uses the SQLGlot library for parsing.
+This program provides the ability to analyze SQL code in the context of past statements. It uses the SQLGlot library for parsing. 
 
-The context between SQL statements is recorded using a data structure that reflects the database schema. Only important information about changes to the database schema are stored by processing the statements that perform those actions.  Currently, only basic SQL statements are supported.
+The context between SQL statements is recorded using a data structure that reflects the database schema. Only important information about changes of the database schema are stored by processing the statements that perform those actions. Currently, only basic SQL statements are supported.
 
-The parsed SQL code is processed into an abstract syntax tree. The resulting tree from the SQLGlot library, in its basic form, does not contain a code position in each node of the tree. Therefore, these positions must be added to the tree by this program. This tree is then traversed using the DFS algorithm. During the traversal, checking rules are applied. The program supports the addition of new rules. The output of the program is a list of reports that have been created based on these rules.
+The parsed SQL code is processed into an abstract syntax tree using the SQLGlot library. This tree is then traversed using the DFS algorithm. During the traversal, checking rules are applied. Rules checking the SQL statement have access to the context-checking API as well as to a structure that contains data about an already created database structure. The program supports the addition of new rules. The output of the program is a list of reports that have been created based on these rules.
 
 The state of the data structure that represents the database schema can be saved or restored. The program also supports connection to a running database system from which it obtains the DDL and initializes its own data structure state.
 
