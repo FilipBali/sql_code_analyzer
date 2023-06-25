@@ -216,7 +216,7 @@ class Linter:
         self.rules_visitor: RulesVisitor = RulesVisitor(rules_args_data=self.rules_args_data,
                                                         mem_rep=self.mem_rep)
 
-        self.rules_visitor.lint_event(event_type="start_lint")
+        self._lint_event(event_type="start_lint")
 
         # iterate over SQL statements
         for self.statement, position in self.args_data.statements:
@@ -238,6 +238,13 @@ class Linter:
                 )
                 continue
 
+            ProgramReporter.show_verbose_messages(message=self.statement,
+                                                  origin="===========================================================\n"
+                                                         "Statement")
+
+            ProgramReporter.show_verbose_messages(message=repr(self.ast),
+                                                  origin="Abstract syntax tree")
+
             # Library counts the rows from one
             # It is necessary to calculate the rows to match the input file
             # The approach is to find out the position of the start of the statement
@@ -250,6 +257,7 @@ class Linter:
             self.ast = adapt_ast(self.ast)
 
             self.rule_reporter.statement = (self.statement, position)
+            self.rules_visitor.statement = (self.statement, position)
 
             self._lint_statement()
 
@@ -257,7 +265,7 @@ class Linter:
             if self._check_if_modifying_statement():
                 self._modify_representation()
 
-        self.rules_visitor.lint_event(event_type="end_lint")
+        self._lint_event(event_type="end_lint")
 
     def _include_code_locations(self, position_const: int) -> None:
         """
@@ -274,15 +282,15 @@ class Linter:
            The problem is that SQLGlot library does not include this information also to abstract syntax tree
            By text or TokenType in token there is a high possibility that find out match with node
            abstract syntax tree, if they are used in node.
+.
+        During testing, it appears that 2) approach can cover most cases.
+        The only problem is nodes that are created using multiple tokens, such as CREATE TABLE, NOT NULL, PRIMARY KEY,
+        where each word represents one token.
+        Here you need to determine if the node needs more than one token.
+        However, there are not many of these nodes, and they can be covered manually.
 
-        This function combines these two approaches. Some changes have been made to SQLGlot library, this function
-        detects if code location is already set.
-        During testing, it appears that 2) approach can cover most cases, and the only problem is nodes that are created
-        from two or more tokens like CREATE TABLE, NOT NULL, PRIMARY KEY where every word is representing a single
-        token.
-
-        This means the program can use a change-free library of SQLGlot, but code location data will be missing
-        in nodes where are used more than one token during node creation.
+        This means that the program can use the SQLGlot library without changes,
+        but the code location data may be incomplete in nodes where multiple tokens are used to create the node.
 
         :return: None
         """
@@ -299,6 +307,8 @@ class Linter:
                 to_del = []
 
                 found = False
+                skip = False
+
                 for token_idx, token in enumerate(self.tokens):
                     if token.text.lower() == node_name.lower() or \
                             token.text.lower() == node_key.lower():
@@ -311,10 +321,8 @@ class Linter:
                                 if node.args["kind"].lower() == next_token.text.lower():
                                     location_text = f"{location_text} {next_token.text}"
 
-
-                        # if node.code_location is None or len(node.code_location) < 2:
                         node.code_location = [{"line": token.line + position_const,
-                                              "col": token.col,
+                                              "col": token.col - len(token.text) + 1,
                                               "text": location_text}]
                         found = True
                         break
@@ -325,7 +333,7 @@ class Linter:
                             ttype = exp.DataType.Type[t]
                             if node.this == ttype:
                                 node.code_location = [{"line": token.line + position_const,
-                                                      "col": token.col,
+                                                      "col": token.col - len(token.text) + 1,
                                                       "text": token.text}]
 
                             found = True
@@ -336,17 +344,46 @@ class Linter:
 
                     to_del.append(token)
 
+                    if len(seen_tokens) > token_idx:
+                        tmp = seen_tokens[token_idx]
+                        if tmp.text.lower() == node_name.lower() or \
+                                tmp.text.lower() == node_key.lower():
+
+                            node.code_location = [{"line": tmp.line + position_const,
+                                                   "col": tmp.col - len(tmp.text) + 1,
+                                                   "text": tmp.text}]
+                            skip = True
+                            break
+                        elif node_key.lower() == "datatype":
+
+                            try:
+                                t = tmp.token_type.value.upper()
+                                ttype = exp.DataType.Type[t]
+                                if node.this == ttype:
+                                    node.code_location = [{"line": tmp.line + position_const,
+                                                           "col": tmp.col - len(tmp.text) + 1,
+                                                           "text": tmp.text}]
+
+                                skip = True
+                                break
+
+                            except (Exception,):
+                                pass
+
                 if found:
                     seen_tokens = to_del + seen_tokens
                     for token_to_del in to_del:
                         self.tokens.remove(token_to_del)
+
+                elif skip:
+                    pass
 
                 else:
                     for stoken in seen_tokens:
                         if stoken.text.lower() == node_name.lower() or \
                                 stoken.text.lower() == node_key.lower():
                             node.code_location = [{"line": stoken.line + position_const,
-                                                  "col": stoken.col,
+                                                  "col": stoken.col - len(stoken.text) + 1,
                                                   "text": stoken.text}]
                             break
 
@@ -356,7 +393,7 @@ class Linter:
                                 ttype = exp.DataType.Type[t]
                                 if node.this == ttype:
                                     node.code_location = [{"line": stoken.line + position_const,
-                                                           "col": stoken.col,
+                                                           "col": stoken.col - len(stoken.text) + 1,
                                                            "text": stoken.text}]
                                 break
 
@@ -397,6 +434,58 @@ class Linter:
         )
 
         self.rules_visitor.clear_lint_variables()
+
+    def _lint_event(self, event_type: str) -> None:
+
+        if event_type == "start_lint" or event_type == "end_lint":
+            method_name = event_type
+
+            for rule in self.rules_visitor.persistent_rules:
+                if hasattr(rule, method_name) and \
+                        callable(getattr(rule, method_name)):
+                    # Get the method
+                    rule_method = getattr(rule, method_name)
+
+                    # Call/Apply rule
+                    self.rules_visitor.call_rule(rule_method=rule_method)
+
+        elif event_type == "start_statement_lint" or event_type == "end_statement_lint":
+
+            method_name = event_type
+
+            rules_result = [obj for obj, restrictions in self.rules_visitor.restrict_rules.items()
+                            if not restrictions or restrictions.intersection(self.rules_visitor.expect_set)]
+
+            for rule in rules_result:
+                # Search for persistent rule if persistent
+
+                rule_instance = None
+                if hasattr(rule, "persistent") and rule.persistent is True:
+                    for item in self.rules_visitor.persistent_rules:
+                        if type(item) is rule:
+                            rule_instance = item
+                            break
+
+                else:
+                    for item in self.rules_visitor.normal_rules:
+                        if type(item) is rule:
+                            rule_instance = item
+                            break
+
+                if rule_instance is None:
+                    continue
+
+                if hasattr(rule_instance, method_name) and \
+                        callable(getattr(rule_instance, method_name)):
+                    # Get the method
+                    rule_method = getattr(rule_instance, method_name)
+
+                    # Call/Apply rule
+                    self.rules_visitor.call_rule(rule_method=rule_method)
+
+        self.rule_reporter.add_reports(
+            reports=self.rules_visitor.reports
+        )
 
     def _create_restriction_set_from_statement(self) -> set:
         """
