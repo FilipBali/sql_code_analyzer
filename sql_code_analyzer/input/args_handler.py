@@ -1,5 +1,6 @@
 import argparse
 import os
+import unittest
 from pathlib import Path
 from sys import stdin
 import re
@@ -102,7 +103,10 @@ class CArgs:
         ################################
         # Run tests
         if self.tests:
-            # run_tests()
+            import tests.tester
+            test_suite = unittest.TestLoader().loadTestsFromModule(tests.tester)
+            # buffer=True => Suppress program error messages
+            unittest.TextTestRunner(buffer=True).run(test_suite)
             Terminator.exit(enums.ExitWith.Success)
 
         ################################
