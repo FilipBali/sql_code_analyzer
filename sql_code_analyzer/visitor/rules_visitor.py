@@ -87,6 +87,7 @@ class RulesVisitor(Visitor):
         self.node_to_lint = None
         self.visit_leave_queue = LifoQueue()
         self.reports = []
+        self.statement = ""
 
         # Rules
         self.rules = []
@@ -203,6 +204,14 @@ class RulesVisitor(Visitor):
     def reports(self, value):
         self._reports = value
 
+    @property
+    def statement(self) -> List:
+        return self._statement
+
+    @statement.setter
+    def statement(self, value):
+        self._statement = value
+
     @staticmethod
     def _get_node_type(node) -> str:
         """
@@ -286,6 +295,11 @@ class RulesVisitor(Visitor):
 
                     # Call/Apply rule
                     self.call_rule(rule_method=rule_method)
+
+        # self.rule_reporter.add_reports(
+        #     reports=self.rules_visitor.reports
+        # )
+
 
     def visit(self, node) -> None:
         """
@@ -468,6 +482,7 @@ class RulesVisitor(Visitor):
 
                 rule_instance.node = self.node_to_lint
                 rule_instance.mem_rep = self.mem_rep
+                rule_instance.statement = self.statement
 
                 # Get the method
                 rule_method = getattr(rule_instance, self._get_node_type(node=self.node_to_lint) + visit_or_leave.value)
