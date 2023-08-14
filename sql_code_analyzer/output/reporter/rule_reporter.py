@@ -19,16 +19,17 @@ class RuleReport(_Message):
                  rule_class_name,
                  rule_class_filename,
                  code_preview: bool,
-                 statement = None):
+                 underline_entire_line,
+                 statement=None):
         """
         Generate rule report object
         :param rule_name: Rule name defined by rule.
         :param message: Rule message defined by rule.
         :param node: The specific node where the message is created.
-        :param rule_class_name: TODO
-        :param rule_class_filename: TODO
+        :param rule_class_name: Name of class of rule
+        :param rule_class_filename: Name of file where is rule stored
         :param code_preview: If the code has to be displayed.
-        :param statement: TODO.
+        :param statement: SQL statement
         """
 
         self.rule_name = rule_name
@@ -37,7 +38,8 @@ class RuleReport(_Message):
         self.rule_class_name = rule_class_name
         self.rule_class_filename = rule_class_filename
         self.code_preview = code_preview
-        self.statement = None
+        self.statement = statement
+        self.underline_entire_line = underline_entire_line
 
     def set_statement(self, statement):
         self.statement = statement
@@ -47,7 +49,6 @@ class RuleReport(_Message):
 
     def print(self):
         statement = self.statement[0]
-        # statement = statement.split("\n")
 
         lines = statement.split("\n")
         result = []
@@ -83,7 +84,10 @@ class RuleReport(_Message):
             leading_spaces = len(value) - len(value.lstrip())
             code_preview = line.rjust(4, " ") + " | " + (value.lstrip())
 
-            arrow = (" " * (int(col)-1-leading_spaces) + "^" + "~" * length)
+            if self.underline_entire_line:
+                arrow = ("^" + "~" * (len(value.lstrip())-2))
+            else:
+                arrow = (" " * (int(col)-1-leading_spaces) + "^" + "~" * length)
 
             code_arrow = self._create_message(
                 message=" " * len(line.rjust(4, " ") + " | ") + arrow,
@@ -178,14 +182,20 @@ class RuleReporter(Reporter):
         self.reports = []
         self.mem_rep_reports = []
         self.statement: str = ""
-        Base.RuleReporter = self
+        Base._rule_reporter = self
 
     def add_reports(self, reports: List[RuleReport]):
 
         for report in reports:
             report: RuleReport
-            report.set_statement(statement=self.statement)
-            self.reports.append((self.statement, report))
+
+            if report.statement is None:
+                report.set_statement(statement=self.statement)
+
+            # In tuple:
+            # First parameter stores data about statement to which report belongs to
+            # Second parameter stores report data
+            self.reports.append((report.statement, report))
 
     def print(self):
         statement_change = ""
