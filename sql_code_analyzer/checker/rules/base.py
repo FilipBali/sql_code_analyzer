@@ -1,7 +1,6 @@
 import ast
 import inspect
 
-from sql_code_analyzer.adapter.base_class import BaseClass
 from sql_code_analyzer.adapter.freature_class.base_cast import BaseCast
 from sql_code_analyzer.in_memory_representation.struct.database import Database
 from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
@@ -21,7 +20,12 @@ def calls_create_report(func):
 class BaseRuleMetaclass(type):
     def __new__(cls, name, bases, dct):
         for item in dct:
-            if item.endswith("_visit") or item.endswith("_leave"):
+            if item.endswith("_visit") or \
+                    item.endswith("_leave") or \
+                    item == "start_lint" or \
+                    item == "end_lint" or \
+                    item == "start_statement_lint" or \
+                    item == "end_statement_lint":
                 func = dct[item]
                 if callable(func) and calls_create_report(func=func):
                     if not (getattr(func, 'include_reports_applied', False) or getattr(func, 'include_class_reports', False)):
@@ -41,6 +45,7 @@ class BaseRule(metaclass=BaseRuleMetaclass):
     def __init__(self):
         self.node = None
         self.mem_rep: Database | None = None
+        self.statement: list | None = None
         self.raw_reports = []
         self.reports = []
 
@@ -59,6 +64,14 @@ class BaseRule(metaclass=BaseRuleMetaclass):
     @mem_rep.setter
     def mem_rep(self, value):
         self._mem_rep = value
+
+    @property
+    def statement(self):
+        return self._statement
+
+    @statement.setter
+    def statement(self, value):
+        self._statement = value
 
     @property
     def messages(self):
@@ -94,27 +107,27 @@ class BaseRule(metaclass=BaseRuleMetaclass):
 
         return treports
 
-    def create_report(self, report: str, node=None, **kwargs):
+    def create_report(self, report: str, node=None, statement=None, underline_entire_line=False, **kwargs):
 
         if hasattr(self, "no_code_preview"):
             if node is not None:
                 self.raw_reports.append(
-                   (report, node, self.no_code_preview, kwargs)
+                   (report, node, not self.no_code_preview, statement, underline_entire_line, kwargs)
                 )
             else:
                 self.raw_reports.append(
-                   (report, self.node, self.no_code_preview, kwargs)
+                   (report, self.node, not self.no_code_preview, statement, underline_entire_line, kwargs)
                 )
         else:
 
             if node is not None:
                 self.raw_reports.append(
-                   (report, node, True, kwargs)
+                   (report, node, True, statement, underline_entire_line, kwargs)
                 )
 
             else:
                 self.raw_reports.append(
-                   (report, self.node, True, kwargs)
+                   (report, self.node, True, statement, underline_entire_line, kwargs)
                 )
 
     def _create_reporter_reports(self):
@@ -141,10 +154,11 @@ class BaseRule(metaclass=BaseRuleMetaclass):
         message_name = raw_report[0]
         node = raw_report[1]
         code_preview = raw_report[2]
+        statement = raw_report[3]
+        underline_entire_line = raw_report[4]
 
         try:
             report_data_dict = self.messages[message_name]
-            ...
 
         except (Exception,):
             ProgramReporter.show_missing_property_warning_message(
@@ -159,7 +173,7 @@ class BaseRule(metaclass=BaseRuleMetaclass):
             return
 
         message = report_data_dict["message"]
-        for key, value in raw_report[3].items():
+        for key, value in raw_report[5].items():
             message = report_data_dict["message"].replace("{"+key+"}", value)
 
         rule_report = RuleReport(
@@ -167,6 +181,8 @@ class BaseRule(metaclass=BaseRuleMetaclass):
             message=message,
             node=node,
             code_preview=code_preview,
+            statement=statement,
+            underline_entire_line=underline_entire_line,
             rule_class_name=self.__class__.__name__,
             rule_class_filename=get_path_object(self.__class__.__module__).name,
         )
