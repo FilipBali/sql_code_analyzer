@@ -188,7 +188,7 @@ class ProgramReporter(Reporter):
         :return: None
         """
 
-        if ProgramReporter.verbose >= 3:
+        if ProgramReporter.verbose < 3:
             return
 
         if message is None:
