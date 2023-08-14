@@ -13,7 +13,8 @@
 
 from __future__ import annotations
 
-from sql_code_analyzer.in_memory_representation.exceptions import MissingTableException, MissingSchemaException
+from sql_code_analyzer.in_memory_representation.exceptions import MissingTableException, MissingSchemaException, \
+    TableAlreadyExists
 from sql_code_analyzer.in_memory_representation.struct.base import Base
 from sql_code_analyzer.in_memory_representation.struct.table import Table
 from sql_code_analyzer.in_memory_representation.struct.schema import Schema
@@ -180,8 +181,22 @@ class Database(Base):
         if index_key in self.object_index:
             return self.object_index[index_key]
         else:
+            parsed_index_str = ""
+            index_key_len = len(index_key)
+
+            if index_key_len >= 1:
+                parsed_index_str = parsed_index_str + f"schema {index_key[0]}"
+            if index_key_len >= 2:
+                parsed_index_str = parsed_index_str + f", table {index_key[1]}"
+            if index_key_len >= 3:
+                parsed_index_str = parsed_index_str + f", column {index_key[2]}"
+
             ProgramReporter.show_missing_property_error_message(
-                message=f"Item {str(index_key)} is not exists in indexed objects."
+                message=f"The {parsed_index_str} is not exists.\n"
+                        f"You see this error because program tried to access property that does not exists.\n"
+                        f"This can happen if SQL is in wrong order. Please check why this property not exists.\n"
+                        f"An error occurred in this SQL statement:\n\n" +
+                        self._rule_reporter.statement[0]
             )
 
     ###########################
@@ -249,13 +264,13 @@ class Database(Base):
                                                     )
         return table_instance
 
-    def get_or_create_table(self,
+    def get_table(self,
                             database,
                             schema_name,
                             table_name,
                             create_node=None) -> Table:
         """
-        Get table from a database if already exists there, or it will be created
+        Get table from a database if already exists there, or exception MissingTableException
         :param database:
         :param schema_name: Schema name
         :param table_name: Table name
@@ -273,6 +288,36 @@ class Database(Base):
                                                    )
         if table_instance is not None:
             return table_instance
+
+        raise MissingTableException
+
+
+    def create_table(self,
+                     database,
+                     schema_name,
+                     table_name,
+                     create_node=None) -> Table:
+        """
+        Create table
+        If already exists then exception TableAlreadyExists
+        :param database:
+        :param schema_name: Schema name
+        :param table_name: Table name
+        :param create_node: AST node of creation statement
+        :return: Table object
+        """
+
+        schema_instance = self.get_instance_or_error(find_attr_val=schema_name,
+                                                     find_in_struct=self.schemas,
+                                                     exception=MissingSchemaException
+                                                     )
+
+        table_instance = self.get_instance_or_none(find_attr_val=table_name,
+                                                   find_in_struct=schema_instance.tables
+                                                   )
+        if table_instance is not None:
+            raise TableAlreadyExists
+
         return Table(database=database,
                      schema=schema_instance,
                      name=table_name,
