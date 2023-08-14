@@ -8,6 +8,9 @@ def include_reports(reports: dict):
     def decorator(function):
         def function_caller(self, *args):
             function(self, *args)
+            self.messages = reports
+            self._verify_presence_report_attr()
+            self._create_reporter_reports()
             return self
         function_caller.include_reports_applied = True
         return function_caller
