@@ -5,12 +5,21 @@
 #######################################
 from sql_code_analyzer.output.reporter.program_reporter import ProgramReporter
 
+
 class Base:
     """
     Base class contains common functionality for every class which represent some database object
     """
 
-    RuleReporter = None
+    _rule_reporter = None
+
+    # @property
+    # def rule_reporter(self):
+    #     return self.rule_reporter
+    #
+    # @rule_reporter.setter
+    # def rule_reporter(self, value):
+    #     self.rule_reporter = value
 
     @staticmethod
     def check_if_exists(find_attr_val, struct, search_by_attr: str = None) -> bool:

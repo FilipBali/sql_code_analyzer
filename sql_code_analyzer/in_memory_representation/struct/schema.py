@@ -77,7 +77,7 @@ class Schema(Base):
         """
 
         if self.database.check_if_schema_exists_bool(self.name):
-            self.RuleReporter.add_memory_representation_report(
+            self._rule_reporter.add_memory_representation_report(
                 message=f"Schema {self.name} already exists."
             )
             return

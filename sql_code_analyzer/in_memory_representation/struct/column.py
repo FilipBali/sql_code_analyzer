@@ -140,7 +140,7 @@ class Column(Base):
 
         # Check if not already exists
         if self.table.check_if_column_exists(self.name):
-            self.RuleReporter.add_memory_representation_report(
+            self._rule_reporter.add_memory_representation_report(
                 message=f"Column {self.name} already exists."
             )
             return
@@ -165,7 +165,7 @@ class Column(Base):
         """
 
         if self.verify_constrain(constrain_type=constrain.__class__):
-            self.RuleReporter.add_memory_representation_report(
+            self._rule_reporter.add_memory_representation_report(
                 message=f"Column: {self.name} \n"
                         f"Constraint {constrain.__class__.__name__} already exists!\n"
                         "This kind modification to memory representation is not allowed."
@@ -182,7 +182,7 @@ class Column(Base):
         """
 
         if not self.verify_constrain(constrain_type=constrain.__class__):
-            self.RuleReporter.add_memory_representation_report(
+            self._rule_reporter.add_memory_representation_report(
                 message=f"Column: {self.name} \n"
                         f"Constrain {constrain.__class__.__name__} in not exists!\n"
                         "Your code try to delete a constraint that is not exists.\n"
@@ -218,7 +218,7 @@ class Column(Base):
         # Check if column is not part of a composite primary key
         if self.table.primary_key.composite:
             if self in self.table.primary_key.columns:
-                self.RuleReporter.add_memory_representation_report(
+                self._rule_reporter.add_memory_representation_report(
                     message=f"Column {self.name} is part of primary key and can not be deleted!"
                 )
                 return
