@@ -8,3 +8,7 @@ class MissingTableException(Exception):
 
 class MissingColumnException(Exception):
     pass
+
+
+class TableAlreadyExists(Exception):
+    pass
