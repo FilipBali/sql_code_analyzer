@@ -67,7 +67,7 @@ class DatabaseObject(unittest.TestCase):
         self.assertEqual(len(schema.tables), 0)
 
         # Create Table1
-        result.get_or_create_table(database=result,
+        result.create_table(database=result,
                                    schema_name="dbo",
                                    table_name="Table1")
 
@@ -75,7 +75,7 @@ class DatabaseObject(unittest.TestCase):
         self.assertEqual("Table1" in schema.tables, True)
 
         # Create Table2
-        result.get_or_create_table(database=result,
+        result.create_table(database=result,
                                    schema_name="dbo",
                                    table_name="Table2")
 
@@ -100,7 +100,7 @@ class DatabaseObject(unittest.TestCase):
         self.assertEqual("Table2" in schema_new.tables, False)
 
         # Check if table is not overwritten by get or create table function
-        table1_obj = result.get_or_create_table(database=result,
+        table1_obj = result.get_table(database=result,
                                                 schema_name="dbo",
                                                 table_name="Table1")
 
@@ -115,7 +115,7 @@ class DatabaseObject(unittest.TestCase):
         self.assertEqual("Table1" in schema.tables, False)
         self.assertEqual("Table2" in schema.tables, True)
 
-        result.get_or_create_table(database=result,
+        result.create_table(database=result,
                                    schema_name="dbo",
                                    table_name="Table1")
 
@@ -126,7 +126,7 @@ class DatabaseObject(unittest.TestCase):
         self.assertNotEqual(table1_obj, schema.tables["Table1"])
 
 
-        result.get_or_create_table(database=result,
+        result.create_table(database=result,
                                    schema_name="NewSchema",
                                    table_name="Table1")
 
@@ -143,12 +143,12 @@ class DatabaseObject(unittest.TestCase):
         schema: Schema = result.get_schema_by_name_or_error("")
 
         # Create Table1
-        table1 = result.get_or_create_table(database=result,
+        table1 = result.create_table(database=result,
                                            schema_name=schema.name,
                                            table_name="Table1")
 
         # Create Table2
-        table2 = result.get_or_create_table(database=result,
+        table2 = result.create_table(database=result,
                                            schema_name=schema.name,
                                            table_name="Table2")
 
