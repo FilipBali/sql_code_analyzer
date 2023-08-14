@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sql_code_analyzer.in_memory_representation.exceptions import MissingSchemaException
+from sql_code_analyzer.in_memory_representation.exceptions import MissingSchemaException, TableAlreadyExists
 from sql_code_analyzer.in_memory_representation.struct.column import Column, column_constrains_list
 from sql_code_analyzer.in_memory_representation.struct.constrain import CheckExpression, \
     PreventNotNull, UniqueValue, DefaultValue, ForeignKey, PrimaryKey
@@ -141,17 +141,30 @@ def create_table(ast: Expression, mem_rep: Database) -> None:
             try:
                 # get schema by schema name
                 schema: Schema = mem_rep.get_schema_by_name_or_error(node.db)
+
+                # get table by database, schema, table name
+                table: Table = mem_rep.create_table(database=mem_rep,
+                                                    schema_name=schema.name,
+                                                    table_name=node.name,
+                                                    create_node=create_node)
+
             except MissingSchemaException:
                 ProgramReporter.show_warning_message(
                     "While parsing CREATE TABLE statement, schema is missing."
                 )
-                ...
+                return
 
-            # get table by database, schema, table name
-            table: Table = mem_rep.get_or_create_table(database=mem_rep,
-                                                       schema_name=schema.name,
-                                                       table_name=node.name,
-                                                       create_node=create_node)
+            except TableAlreadyExists:
+                ProgramReporter.show_warning_message(
+                    f"While parsing CREATE TABLE statement, table {node.name} already exists."
+                )
+                return
+
+            # # get table by database, schema, table name
+            # table: Table = mem_rep.create_table(database=mem_rep,
+            #                                     schema_name=schema.name,
+            #                                     table_name=node.name,
+            #                                     create_node=create_node)
 
             skip_lower_nodes(visited_nodes,
                              ast_generator,
